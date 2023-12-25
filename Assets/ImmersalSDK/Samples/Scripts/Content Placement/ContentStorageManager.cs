@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
+using TMPro;
 
 namespace Immersal.Samples.ContentPlacement
 {
@@ -31,11 +32,12 @@ namespace Immersal.Samples.ContentPlacement
         private string m_Filename = "content.json";
         private Savefile m_Savefile;
         private List<Vector3> m_Positions = new List<Vector3>();
-
+        private List<string> m_Texts = new List<string>(); // Create list for text
         [System.Serializable]
         public struct Savefile
         {
             public List<Vector3> positions;
+            public List<string> texts;
         }
 
         public static ContentStorageManager Instance
@@ -94,6 +96,11 @@ namespace Immersal.Samples.ContentPlacement
                 Quaternion.identity,
                 m_ARSpace.transform
             );
+            // go.AddComponent<TextMeshPro>();
+            go.GetComponent<TextMeshPro>().text = m_ContentPrefab.GetComponent<TextMeshPro>().text;
+            //get the text and save it in a new variable
+            //  go.GetComponent<TextMeshPro>().text;
+
         }
 
         public void DeleteAllContent()
@@ -114,14 +121,26 @@ namespace Immersal.Samples.ContentPlacement
         public void SaveContents()
         {
             m_Positions.Clear();
+            m_Texts.Clear(); // Clear text list
+            // List<string> texts = new List<string>(); // Create list for text
+
             foreach (MovableContent content in contentList)
             {
                 m_Positions.Add(content.transform.localPosition);
+
+                //convert prefab to text mesh pro and save text
+                // Debug.Log("content.text: " + content);
+                m_Texts.Add(content.GetComponent<TextMeshPro>().text); // Access text from MovableContent (adjust based on your implementation)
             }
+
             m_Savefile.positions = m_Positions;
+            m_Savefile.texts = m_Texts; // Assign text to struct
 
             string jsonstring = JsonUtility.ToJson(m_Savefile, true);
             string dataPath = Path.Combine(Application.persistentDataPath, m_Filename);
+
+            // Debug.LogFormat("Trying to save file: {0}", dataPath);
+            Debug.LogFormat("Saving contents: {0}", jsonstring);
             File.WriteAllText(dataPath, jsonstring);
         }
 
@@ -133,11 +152,15 @@ namespace Immersal.Samples.ContentPlacement
             try
             {
                 Savefile loadFile = JsonUtility.FromJson<Savefile>(File.ReadAllText(dataPath));
-
+                int index = 0;
                 foreach (Vector3 pos in loadFile.positions)
                 {
                     GameObject go = Instantiate(m_ContentPrefab, m_ARSpace.transform);
                     go.transform.localPosition = pos;
+
+                    go.GetComponent<TextMeshPro>().text = loadFile.texts[index];
+
+                    index++;
                 }
 
                 Debug.Log("Successfully loaded file!");

@@ -23,6 +23,7 @@ namespace Immersal.Samples.ContentPlacement
 
         private Transform m_CameraTransform;
         private float m_MovePlaneDistance;
+        public string text;
 
         private void Start()
         {
