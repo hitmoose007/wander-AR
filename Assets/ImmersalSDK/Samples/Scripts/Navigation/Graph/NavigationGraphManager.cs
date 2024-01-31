@@ -26,10 +26,7 @@ namespace Immersal.Samples.Navigation
             this.position = position;
         }
 
-        public Node()
-        {
-
-        }
+        public Node() { }
 
         public Node(Vector3 position, List<Node> neighbours)
         {
@@ -37,19 +34,46 @@ namespace Immersal.Samples.Navigation
             this.neighbours = neighbours;
         }
 
-        public float Cost
-        {
-            get; set;
-        }
+        public float Cost { get; set; }
 
-        public Node Parent
+        public Node Parent { get; set; }
+    }
+
+    [System.Serializable]
+    public class WaypointData
+    {
+        public string uniqueId;
+        public Vector3 position;
+
+        // public List<string> neighbourIds;
+
+        public WaypointData(Waypoint waypoint)
         {
-            get; set;
+            uniqueId = waypoint.UniqueID;
+            position = waypoint.transform.position;
+            // neighbourIds = new List<string>();
+            // foreach (Waypoint neighbour in waypoint.neighbours)
+            // {
+            //     neighbourIds.Add(neighbour.UniqueID);
+            // }
+        }
+    }
+
+    [System.Serializable]
+    public class WaypointDataList
+    {
+        public List<WaypointData> waypoints;
+
+        public WaypointDataList(List<WaypointData> waypoints)
+        {
+            this.waypoints = waypoints;
         }
     }
 
     public class NavigationGraphManager : MonoBehaviour
     {
+        private Immersal.AR.ARSpace m_ARSpace;
+
         public class LineSegment
         {
             public Vector3 startPosition;
@@ -77,6 +101,8 @@ namespace Immersal.Samples.Navigation
         [SerializeField]
         private float startYOffset = -0.25f;
 
+        [SerializeField]
+        GameObject waypointPrefab;
         private List<Waypoint> m_Waypoints = new List<Waypoint>();
         private List<IsNavigationTarget> m_NavigationTargets = new List<IsNavigationTarget>();
 
@@ -100,11 +126,14 @@ namespace Immersal.Samples.Navigation
 #endif
                 if (instance == null)
                 {
-                    Debug.LogError("No NavigationGraphManager instance found. Ensure one exists in the scene.");
+                    Debug.LogError(
+                        "No NavigationGraphManager instance found. Ensure one exists in the scene."
+                    );
                 }
                 return instance;
             }
         }
+
         void Awake()
         {
             if (instance == null)
@@ -117,6 +146,10 @@ namespace Immersal.Samples.Navigation
                 UnityEngine.Object.DestroyImmediate(this);
                 return;
             }
+            if (m_ARSpace == null)
+            {
+                m_ARSpace = GameObject.FindObjectOfType<Immersal.AR.ARSpace>();
+            }
         }
         #endregion
 
@@ -125,6 +158,7 @@ namespace Immersal.Samples.Navigation
             InitializeMeshRenderer();
 
             m_ArSpace = FindObjectOfType<Immersal.AR.ARSpace>();
+            LoadWaypoints();
         }
 
         void Update()
@@ -189,28 +223,54 @@ namespace Immersal.Samples.Navigation
             foreach (LineSegment ls in lineSegments)
             {
                 {
-                    Vector3 startPosition = transform.worldToLocalMatrix.MultiplyPoint(ls.startPosition);
-                    Vector3 endPosition = transform.worldToLocalMatrix.MultiplyPoint(ls.endPosition);
+                    Vector3 startPosition = transform.worldToLocalMatrix.MultiplyPoint(
+                        ls.startPosition
+                    );
+                    Vector3 endPosition = transform.worldToLocalMatrix.MultiplyPoint(
+                        ls.endPosition
+                    );
 
                     Vector3 billboardUp = Camera.main.transform.forward;
                     //billboardUp = new Vector3(billboardUp.x, 0f, billboardUp.z);
 
-                    Quaternion edgeOrientation = Quaternion.LookRotation(endPosition - startPosition, billboardUp);
+                    Quaternion edgeOrientation = Quaternion.LookRotation(
+                        endPosition - startPosition,
+                        billboardUp
+                    );
 
-                    Matrix4x4 startTransform = Matrix4x4.TRS(startPosition, edgeOrientation, Vector3.one);
-                    Matrix4x4 endTransform = Matrix4x4.TRS(endPosition, edgeOrientation, Vector3.one);
+                    Matrix4x4 startTransform = Matrix4x4.TRS(
+                        startPosition,
+                        edgeOrientation,
+                        Vector3.one
+                    );
+                    Matrix4x4 endTransform = Matrix4x4.TRS(
+                        endPosition,
+                        edgeOrientation,
+                        Vector3.one
+                    );
 
-
-                    Vector3[] shape = new Vector3[] { new Vector3(-0.5f, 0f, 0f), new Vector3(0.5f, 0f, 0f) };
+                    Vector3[] shape = new Vector3[]
+                    {
+                        new Vector3(-0.5f, 0f, 0f),
+                        new Vector3(0.5f, 0f, 0f)
+                    };
                     float[] shapeU = new float[] { 0f, 1f };
 
                     int verticesOffset = offset * 4;
                     int triangleIndicesOffset = offset * 6;
 
-                    vertices[verticesOffset + 0] = startTransform.MultiplyPoint(shape[0] * LineSegmentWidth);
-                    vertices[verticesOffset + 1] = startTransform.MultiplyPoint(shape[1] * LineSegmentWidth);
-                    vertices[verticesOffset + 2] = endTransform.MultiplyPoint(shape[1] * LineSegmentWidth);
-                    vertices[verticesOffset + 3] = endTransform.MultiplyPoint(shape[0] * LineSegmentWidth);
+                    vertices[verticesOffset + 0] = startTransform.MultiplyPoint(
+                        shape[0] * LineSegmentWidth
+                    );
+                    vertices[verticesOffset + 1] = startTransform.MultiplyPoint(
+                        shape[1] * LineSegmentWidth
+                    );
+                    vertices[verticesOffset + 2] = endTransform.MultiplyPoint(
+                        shape[1] * LineSegmentWidth
+                    );
+                    vertices[verticesOffset + 3] = endTransform.MultiplyPoint(
+                        shape[0] * LineSegmentWidth
+                    );
 
                     uvs[verticesOffset + 0] = new Vector2(0f, 1f);
                     uvs[verticesOffset + 1] = new Vector2(0f, 0f);
@@ -236,28 +296,41 @@ namespace Immersal.Samples.Navigation
 
         public void AddWaypoint(Waypoint wp)
         {
-            if (!m_Waypoints.Contains(wp))
+            // Check if the waypoint is not null and not already in the list
+            if (wp != null && !m_Waypoints.Contains(wp))
             {
                 m_Waypoints.Add(wp);
+                SaveWaypoints(); // Save waypoints after adding
             }
+            Debug.Log("AddWaypoint: " + (wp != null ? wp.name : "null"));
         }
 
         public void RemoveWaypoint(Waypoint wp)
         {
-            if (m_Waypoints.Contains(wp))
+            // Check if the waypoint is in the list and not null
+            if (wp != null && m_Waypoints.Contains(wp))
             {
                 m_Waypoints.Remove(wp);
+                SaveWaypoints(); // Save waypoints after removing
             }
         }
 
         public void DeleteAllWaypoints()
         {
-            foreach (Waypoint wp in m_Waypoints)
+            // Create a temporary list to avoid modifying the list while iterating
+            List<Waypoint> waypointsToRemove = new List<Waypoint>(m_Waypoints);
+
+            foreach (Waypoint wp in waypointsToRemove)
             {
-                Destroy(wp.gameObject);
+                if (wp != null)
+                {
+                    Destroy(wp.gameObject); // Destroy the waypoint GameObject
+                    // Note: RemoveWaypoint(wp) call is not needed here as m_Waypoints is cleared at the end
+                }
             }
 
-            m_Waypoints.Clear();
+            m_Waypoints.Clear(); // Clear the list after all waypoints are destroyed
+            SaveWaypoints(); // Save waypoints after clearing the list
         }
 
         public void AddTarget(IsNavigationTarget target)
@@ -286,11 +359,59 @@ namespace Immersal.Samples.Navigation
             m_NavigationTargets.Clear();
         }
 
+        public void SaveWaypoints()
+        {
+            List<WaypointData> waypointDataList = new List<WaypointData>();
+            foreach (Waypoint wp in m_Waypoints)
+            {
+                waypointDataList.Add(new WaypointData(wp));
+            }
+
+            // if (waypointDataList.Count < 1)
+            // {
+            //     Debug.LogWarning("NAVIGATION GRAPH MANAGER: No waypoints to save");
+            //     return;
+            // }
+            WaypointDataList container = new WaypointDataList(waypointDataList);
+            string json = JsonUtility.ToJson(container);
+
+            Debug.Log("Serialized waypoints JSON: " + json);
+            System.IO.File.WriteAllText(Application.persistentDataPath + "/waypoints.json", json);
+        }
+
+        public void LoadWaypoints()
+        {
+            string path = Application.persistentDataPath + "/waypoints.json";
+            if (System.IO.File.Exists(path))
+            {
+                string json = System.IO.File.ReadAllText(path);
+                WaypointDataList container = JsonUtility.FromJson<WaypointDataList>(json);
+                Debug.Log("container" + container);
+                foreach (WaypointData waypointData in container.waypoints)
+                {
+                    Debug.Log("more inside");
+                    GameObject wpObject = Instantiate(
+                        waypointPrefab,
+                        waypointData.position,
+                        Quaternion.identity,
+                        m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
+                    );
+
+                    Waypoint wp = wpObject.GetComponent<Waypoint>();
+                    wp.UniqueID = waypointData.uniqueId;
+                    m_Waypoints.Add(wp);
+                    // Add wp to m_Waypoints list and reconstruct neighbours...
+                }
+
+                // Reconstruct the neighbors for each waypoint...
+            }
+        }
+
         public List<Vector3> FindPath(Vector3 startPosition, Vector3 endPosition)
         {
             List<Vector3> pathPositions = new List<Vector3>();
 
-            if(m_Waypoints.Count < 1)
+            if (m_Waypoints.Count < 1)
             {
                 return pathPositions;
             }
@@ -333,11 +454,34 @@ namespace Immersal.Samples.Navigation
 
             Node endNode = new Node(endPosition);
             endNode.nodeName = "GRAPH - END NODE";
+
+            // GetClosestNode(ref startNode, ref graph);
+
+            // GetClosestNode(ref endNode, ref graph);
             Node outNode = new Node();
             outNode.nodeName = "GRAPH - OUT NODE";
             EdgeToNearestPointInGraph(ref endNode, ref outNode, ref graph);
 
+            // string json = JsonUtility.ToJson(graph);
+            // Debug.Log("Graph JSON: " + json);
+            // Debug.Log("helloooo");
+            // Debug.Log("Graph Contents:");
+            // string graphLog = "Graph Contents:\n";
+            // foreach (KeyValuePair<Node, List<Node>> pair in graph)
+            // {
+            //     graphLog += $"Key: {pair.Key.nodeName}\nNeighbors: ";
+            //     foreach (Node neighbor in pair.Value)
+            //     {
+            //         graphLog += $"{neighbor.nodeName}, ";
+            //     }
+            //     graphLog = graphLog.TrimEnd(',', ' '); // Remove trailing comma and space
+            //     graphLog += "\n";
+            // }
+            // Debug.Log(graphLog);
+
             pathPositions = GetPathPositions(startNode, endNode, graph);
+
+            //log pathpositions
 
             if (pathPositions.Count < 2)
             {
@@ -368,7 +512,11 @@ namespace Immersal.Samples.Navigation
             graph[nearestNode].Add(searchNode);
         }
 
-        private void EdgeToNearestPointInGraph(ref Node searchNode, ref Node insertNode, ref Dictionary<Node, List<Node>> graph)
+        private void EdgeToNearestPointInGraph(
+            ref Node searchNode,
+            ref Node insertNode,
+            ref Dictionary<Node, List<Node>> graph
+        )
         {
             Vector3 nodePos = Vector3.zero;
             float min = Mathf.Infinity;
@@ -395,7 +543,12 @@ namespace Immersal.Samples.Navigation
                 Vector3 ab = new Vector3(b.x - a.x, b.y - a.y, b.z - a.z);
 
                 float d2 = Vector3.SqrMagnitude(ab);
-                float t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y) + (p.z - a.z) * (b.z - a.z)) / d2;
+                float t =
+                    (
+                        (p.x - a.x) * (b.x - a.x)
+                        + (p.y - a.y) * (b.y - a.y)
+                        + (p.z - a.z) * (b.z - a.z)
+                    ) / d2;
 
                 if (t < 0f || t > 1f)
                 {
@@ -440,12 +593,16 @@ namespace Immersal.Samples.Navigation
             graph[searchNode] = searchNode.neighbours;
         }
 
-        public List<Vector3> GetPathPositions(Node startNode, Node endNode, Dictionary<Node, List<Node>> graph)
+        public List<Vector3> GetPathPositions(
+            Node startNode,
+            Node endNode,
+            Dictionary<Node, List<Node>> graph
+        )
         {
             List<Vector3> pathPositions = new List<Vector3>();
             List<Node> openList = new List<Node>();
             List<Node> closedList = new List<Node>();
-            
+
             openList.Add(startNode);
 
             while (openList.Count > 0)
@@ -500,7 +657,7 @@ namespace Immersal.Samples.Navigation
                 pathPositions.Add(currNode.position);
                 currNode = currNode.Parent;
             }
-            
+
             pathPositions.Add(startNode.position);
             pathPositions.Reverse();
 

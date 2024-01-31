@@ -23,16 +23,11 @@ namespace Immersal.Samples.Navigation
 
         public Vector3 position
         {
-            get
-            {
-                return m_collider.bounds.center;
-            }
-
-            set
-            {
-
-            }
+            get { return m_collider.bounds.center; }
+            set { }
         }
+        public string UniqueID;
+        
 
         [SerializeField]
         private float m_ClickHoldTime = 1f;
@@ -49,8 +44,15 @@ namespace Immersal.Samples.Navigation
         private MeshRenderer m_MeshRenderer = null;
         private Mesh m_Mesh = null;
 
+        void Awake()
+        {
+            // Generate a UUID
+            UniqueID = System.Guid.NewGuid().ToString();
+        }
+
         void Start()
         {
+            Debug.Log("id: " + UniqueID);
             m_mainCamera = Camera.main;
 
             InitializeNode();
@@ -82,7 +84,9 @@ namespace Immersal.Samples.Navigation
         {
             if (isPressed)
             {
-                Vector3 projection = m_mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, m_DragPlaneDistance));
+                Vector3 projection = m_mainCamera.ScreenToWorldPoint(
+                    new Vector3(Input.mousePosition.x, Input.mousePosition.y, m_DragPlaneDistance)
+                );
                 DrawPreviewConnection(position, projection, 0.1f, m_Mesh);
 
                 RaycastHit hit;
@@ -115,12 +119,14 @@ namespace Immersal.Samples.Navigation
             }
         }
 
-        private void OnDestroy()
-        {
-            NavigationGraphManager.Instance.RemoveWaypoint(this);
-        }
+       
 
-        private void DrawPreviewConnection(Vector3 startPosition, Vector3 endPosition, float lineWidth, Mesh mesh)
+        private void DrawPreviewConnection(
+            Vector3 startPosition,
+            Vector3 endPosition,
+            float lineWidth,
+            Mesh mesh
+        )
         {
             Vector3 camPos = m_mainCamera.transform.position;
             float length = (endPosition - startPosition).magnitude;
@@ -155,10 +161,20 @@ namespace Immersal.Samples.Navigation
             int[] idx = new int[6];
             Vector2[] uv = new Vector2[4];
 
-            vtx[0] = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(startPosition.x, startPosition.y, startPosition.z) - (x[0] * lineWidth * 0.5f));
-            vtx[1] = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(endPosition.x, endPosition.y, endPosition.z) - (x[1] * lineWidth * 0.5f));
-            vtx[2] = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(endPosition.x, endPosition.y, endPosition.z) + (x[1] * lineWidth * 0.5f));
-            vtx[3] = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(startPosition.x, startPosition.y, startPosition.z) + (x[0] * lineWidth * 0.5f));
+            vtx[0] = transform.worldToLocalMatrix.MultiplyPoint(
+                new Vector3(startPosition.x, startPosition.y, startPosition.z)
+                    - (x[0] * lineWidth * 0.5f)
+            );
+            vtx[1] = transform.worldToLocalMatrix.MultiplyPoint(
+                new Vector3(endPosition.x, endPosition.y, endPosition.z) - (x[1] * lineWidth * 0.5f)
+            );
+            vtx[2] = transform.worldToLocalMatrix.MultiplyPoint(
+                new Vector3(endPosition.x, endPosition.y, endPosition.z) + (x[1] * lineWidth * 0.5f)
+            );
+            vtx[3] = transform.worldToLocalMatrix.MultiplyPoint(
+                new Vector3(startPosition.x, startPosition.y, startPosition.z)
+                    + (x[0] * lineWidth * 0.5f)
+            );
 
             idx[0] = 0;
             idx[1] = 1;
@@ -186,7 +202,11 @@ namespace Immersal.Samples.Navigation
                 Debug.Log(m_timeHeld);
 
                 isPressed = true;
-                m_DragPlaneDistance = Vector3.Dot(transform.position - m_mainCamera.transform.position, m_mainCamera.transform.forward) / m_mainCamera.transform.forward.sqrMagnitude;
+                m_DragPlaneDistance =
+                    Vector3.Dot(
+                        transform.position - m_mainCamera.transform.position,
+                        m_mainCamera.transform.forward
+                    ) / m_mainCamera.transform.forward.sqrMagnitude;
             }
         }
 
