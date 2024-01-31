@@ -52,7 +52,6 @@ namespace Immersal.Samples.Navigation
 
         void Start()
         {
-            Debug.Log("id: " + UniqueID);
             m_mainCamera = Camera.main;
 
             InitializeNode();
@@ -115,6 +114,7 @@ namespace Immersal.Samples.Navigation
                 if (isEditing)
                 {
                     transform.position = projection;
+                    NavigationGraphManager.Instance.SaveWaypoints();
                 }
             }
         }
@@ -198,8 +198,6 @@ namespace Immersal.Samples.Navigation
         {
             if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
             {
-                Debug.Log("pointer down");
-                Debug.Log(m_timeHeld);
 
                 isPressed = true;
                 m_DragPlaneDistance =
@@ -207,7 +205,10 @@ namespace Immersal.Samples.Navigation
                         transform.position - m_mainCamera.transform.position,
                         m_mainCamera.transform.forward
                     ) / m_mainCamera.transform.forward.sqrMagnitude;
+
+                
             }
+
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -233,10 +234,12 @@ namespace Immersal.Samples.Navigation
                             if (!neighbours.Contains(wp))
                             {
                                 neighbours.Add(wp);
+                                NavigationGraphManager.Instance.SaveWaypoints();
                             }
                             if (!wp.neighbours.Contains(this))
                             {
                                 wp.neighbours.Add(this);
+                                NavigationGraphManager.Instance.SaveWaypoints();
                             }
                         }
                     }

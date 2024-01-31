@@ -45,17 +45,17 @@ namespace Immersal.Samples.Navigation
         public string uniqueId;
         public Vector3 position;
 
-        // public List<string> neighbourIds;
+        public List<string> neighbourIds;
 
         public WaypointData(Waypoint waypoint)
         {
             uniqueId = waypoint.UniqueID;
             position = waypoint.transform.position;
-            // neighbourIds = new List<string>();
-            // foreach (Waypoint neighbour in waypoint.neighbours)
-            // {
-            //     neighbourIds.Add(neighbour.UniqueID);
-            // }
+            neighbourIds = new List<string>();
+            foreach (Waypoint neighbour in waypoint.neighbours)
+            {
+                neighbourIds.Add(neighbour.UniqueID);
+            }
         }
     }
 
@@ -386,21 +386,46 @@ namespace Immersal.Samples.Navigation
             {
                 string json = System.IO.File.ReadAllText(path);
                 WaypointDataList container = JsonUtility.FromJson<WaypointDataList>(json);
-                Debug.Log("container" + container);
                 foreach (WaypointData waypointData in container.waypoints)
                 {
-                    Debug.Log("more inside");
                     GameObject wpObject = Instantiate(
                         waypointPrefab,
                         waypointData.position,
                         Quaternion.identity,
                         m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
                     );
+                    //log out the nieghbors
+                    foreach (string neighbor in waypointData.neighbourIds)
+                    {
+                        Debug.Log("neighbor: " + neighbor);
+                        Debug.Log("poop");
+                    }
 
                     Waypoint wp = wpObject.GetComponent<Waypoint>();
                     wp.UniqueID = waypointData.uniqueId;
+                    //add neighbor ids to list
+
+
                     m_Waypoints.Add(wp);
                     // Add wp to m_Waypoints list and reconstruct neighbours...
+                }
+
+                foreach (WaypointData waypointData in container.waypoints)
+                {
+                    foreach (Waypoint waypointObject in m_Waypoints)
+                    {
+                        if (waypointData.uniqueId == waypointObject.UniqueID)
+                        {
+                            Debug.Log("inside the real mom ");
+                            foreach (string neighborId in waypointData.neighbourIds)
+                            {
+                                Debug.Log("inside deeply the real mom ");
+                                waypointObject.neighbours.Add(
+                                    m_Waypoints.Find(x => x.UniqueID == neighborId)
+                                );
+                            }
+                        }
+                    }
                 }
 
                 // Reconstruct the neighbors for each waypoint...
