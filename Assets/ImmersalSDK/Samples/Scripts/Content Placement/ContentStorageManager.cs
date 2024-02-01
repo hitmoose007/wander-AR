@@ -14,6 +14,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using TMPro;
+using NativeGalleryNamespace;
 
 namespace Immersal.Samples.ContentPlacement
 {
@@ -33,6 +34,10 @@ namespace Immersal.Samples.ContentPlacement
         private Savefile m_Savefile;
         private List<Vector3> m_Positions = new List<Vector3>();
         private List<string> m_Texts = new List<string>(); // Create list for text
+
+        [SerializeField]
+        private GameObject quadPrefab;
+
         [System.Serializable]
         public struct Savefile
         {
@@ -100,7 +105,6 @@ namespace Immersal.Samples.ContentPlacement
             go.GetComponent<TextMeshPro>().text = m_ContentPrefab.GetComponent<TextMeshPro>().text;
             //get the text and save it in a new variable
             //  go.GetComponent<TextMeshPro>().text;
-
         }
 
         public void DeleteAllContent()
@@ -186,6 +190,59 @@ namespace Immersal.Samples.ContentPlacement
         public void ChangePrefab(GameObject newPrefab)
         {
             m_ContentPrefab = newPrefab;
+        }
+
+        public void LoadImageFromGallery()
+        {
+            NativeGallery.Permission permission = NativeGallery.GetImageFromGallery(
+                (path) =>
+                {
+                    Debug.Log("Image path: " + path);
+                    if (path != null)
+                    {
+                        // Create Texture from selected image
+                        Texture2D texture = NativeGallery.LoadImageAtPath(path, 512, false, false);
+                        if (texture == null)
+                        {
+                            Debug.Log("Couldn't load texture from " + path);
+                            return;
+                        }
+
+                        // Create a quad and position it in front of the camera
+                        GameObject quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                        quad.transform.position =
+                            Camera.main.transform.position + Camera.main.transform.forward * 2.5f;
+                        quad.transform.forward = Camera.main.transform.forward;
+
+                        // Adjust the scale of the quad based on the texture's aspect ratio
+                        quad.transform.localScale = new Vector3(
+                            1f,
+                            texture.height / (float)texture.width,
+                            1f
+                        );
+
+                        // Apply the texture to the quad
+                        Material material = quad.GetComponent<Renderer>().material;
+                        Debug.Log("material: " + material.shader.name);
+                        // if (!material.shader.isSupported) // Check if the shader is supported
+                        // {
+                            Debug.LogWarning(
+                                "The shader on this material is not supported on this device. " +
+                                "The image will be displayed using the default shader."
+                            );
+                            material.shader = Shader.Find("DummyPipeline/VariantStrippingTestsShader");
+                        // }
+
+                        material.mainTexture = texture;
+
+                        // Optionally, set the quad to be destroyed after a certain time
+                        // Remove or adjust this line if you want the quad to persist
+                        // Destroy(quad, 5f);
+                    }
+                },
+                "Select a PNG image",
+                "image/png"
+            );
         }
     }
 }
