@@ -211,31 +211,24 @@ namespace Immersal.Samples.ContentPlacement
                         // Create a quad and position it in front of the camera
                         GameObject quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
                         quad.transform.position =
-                            Camera.main.transform.position + Camera.main.transform.forward * 2.5f;
+                            Camera.main.transform.position + Camera.main.transform.forward * 1f;
                         quad.transform.forward = Camera.main.transform.forward;
 
                         // Adjust the scale of the quad based on the texture's aspect ratio
                         quad.transform.localScale = new Vector3(
-                            1f,
-                            texture.height / (float)texture.width,
+                            0.2f,
+                            texture.height / (float)texture.width * 0.2f,
                             1f
                         );
 
+                        quad.transform.parent = m_ARSpace.transform;
+
                         // Apply the texture to the quad
                         Material material = quad.GetComponent<Renderer>().material;
-                        Debug.Log("material: " + material.shader.name);
-                        // if (!material.shader.isSupported) // Check if the shader is supported
-                        // {
-                            Debug.LogWarning(
-                                "The shader on this material is not supported on this device. " +
-                                "The image will be displayed using the default shader."
-                            );
-                            material.shader = Shader.Find("DummyPipeline/VariantStrippingTestsShader");
-                        // }
-
-                        material.mainTexture = texture;
-
                         // Optionally, set the quad to be destroyed after a certain time
+                        // Apply the texture to the quad using a widely compatible shader
+                        material.shader = Shader.Find("Unlit/Texture");
+                        material.mainTexture = texture;
                         // Remove or adjust this line if you want the quad to persist
                         // Destroy(quad, 5f);
                     }
