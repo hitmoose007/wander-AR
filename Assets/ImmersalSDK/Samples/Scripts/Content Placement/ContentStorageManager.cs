@@ -24,7 +24,10 @@ namespace Immersal.Samples.ContentPlacement
         public List<MovableContent> contentList = new List<MovableContent>();
 
         [SerializeField]
-        private GameObject m_ContentPrefab = null;
+        private GameObject m_TextContentPrefab = null;
+
+        [SerializeField]
+        private GameObject quadPrefab;
 
         [SerializeField]
         private Immersal.AR.ARSpace m_ARSpace;
@@ -34,9 +37,6 @@ namespace Immersal.Samples.ContentPlacement
         private Savefile m_Savefile;
         private List<Vector3> m_Positions = new List<Vector3>();
         private List<string> m_Texts = new List<string>(); // Create list for text
-
-        [SerializeField]
-        private GameObject quadPrefab;
 
         [System.Serializable]
         public struct Savefile
@@ -96,13 +96,15 @@ namespace Immersal.Samples.ContentPlacement
         {
             Transform cameraTransform = Camera.main.transform;
             GameObject go = Instantiate(
-                m_ContentPrefab,
+                m_TextContentPrefab,
                 cameraTransform.position + cameraTransform.forward,
                 Quaternion.identity,
                 m_ARSpace.transform
             );
             // go.AddComponent<TextMeshPro>();
-            go.GetComponent<TextMeshPro>().text = m_ContentPrefab.GetComponent<TextMeshPro>().text;
+            go.GetComponent<TextMeshPro>().text = m_TextContentPrefab
+                .GetComponent<TextMeshPro>()
+                .text;
             //get the text and save it in a new variable
             //  go.GetComponent<TextMeshPro>().text;
         }
@@ -122,14 +124,24 @@ namespace Immersal.Samples.ContentPlacement
             }
         }
 
-        public void SaveContents()
+        public void SaveContents(MovableContent movableContent)
         {
+            
+            if(movableContent.contentType == MovableContent.ContentType.Image)
+            {
+                return;
+            }
+            
+            {
+                contentList.Add(movableContent);
+            }
             m_Positions.Clear();
             m_Texts.Clear(); // Clear text list
             // List<string> texts = new List<string>(); // Create list for text
 
             foreach (MovableContent content in contentList)
             {
+                
                 m_Positions.Add(content.transform.localPosition);
 
                 //convert prefab to text mesh pro and save text
@@ -159,7 +171,7 @@ namespace Immersal.Samples.ContentPlacement
                 int index = 0;
                 foreach (Vector3 pos in loadFile.positions)
                 {
-                    GameObject go = Instantiate(m_ContentPrefab, m_ARSpace.transform);
+                    GameObject go = Instantiate(m_TextContentPrefab, m_ARSpace.transform);
                     go.transform.localPosition = pos;
 
                     go.GetComponent<TextMeshPro>().text = loadFile.texts[index];
@@ -189,7 +201,7 @@ namespace Immersal.Samples.ContentPlacement
 
         public void ChangePrefab(GameObject newPrefab)
         {
-            m_ContentPrefab = newPrefab;
+            m_TextContentPrefab = newPrefab;
         }
 
         public void LoadImageFromGallery()
@@ -208,34 +220,57 @@ namespace Immersal.Samples.ContentPlacement
                             return;
                         }
 
-                        // Create a quad and position it in front of the camera
-                        GameObject quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                        quad.transform.position =
-                            Camera.main.transform.position + Camera.main.transform.forward * 1f;
-                        quad.transform.forward = Camera.main.transform.forward;
+                        // Instantiate the quad prefab and position it
+                        Transform cameraTransform = Camera.main.transform;
+                        GameObject quadInstance = Instantiate(
+                            quadPrefab,
+                            cameraTransform.position + cameraTransform.forward,
+                            Quaternion.identity,
+                            m_ARSpace.transform
+                        );
+                        quadInstance.transform.forward = Camera.main.transform.forward;
 
                         // Adjust the scale of the quad based on the texture's aspect ratio
-                        quad.transform.localScale = new Vector3(
+                        quadInstance.transform.localScale = new Vector3(
                             0.2f,
                             texture.height / (float)texture.width * 0.2f,
                             1f
                         );
 
-                        quad.transform.parent = m_ARSpace.transform;
+                        quadInstance.transform.parent = m_ARSpace.transform;
 
-                        // Apply the texture to the quad
-                        Material material = quad.GetComponent<Renderer>().material;
-                        // Optionally, set the quad to be destroyed after a certain time
-                        // Apply the texture to the quad using a widely compatible shader
-                        material.shader = Shader.Find("Unlit/Texture");
-                        material.mainTexture = texture;
-                        // Remove or adjust this line if you want the quad to persist
-                        // Destroy(quad, 5f);
+                        // Apply the texture to the second child of the quad
+                        ApplyTextureToSecondChild(quadInstance, texture);
                     }
                 },
                 "Select a PNG image",
                 "image/png"
             );
+        }
+
+        void ApplyTextureToSecondChild(GameObject quad, Texture2D texture)
+        {
+            // Check if the quad has at least two children
+            if (quad.transform.childCount >= 2)
+            {
+                Transform secondChild = quad.transform.GetChild(1);
+                Renderer childRenderer = secondChild.GetComponent<Renderer>();
+
+                if (childRenderer != null)
+                {
+                    // Apply the texture to the second child
+                    childRenderer.material.shader = Shader.Find("Unlit/Texture");
+                    childRenderer.material.mainTexture = texture;
+                }
+                else
+                {
+                    Debug.LogWarning("Renderer not found on the second child of the quad prefab");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("The quad prefab does not have enough children");
+            }
         }
     }
 }
