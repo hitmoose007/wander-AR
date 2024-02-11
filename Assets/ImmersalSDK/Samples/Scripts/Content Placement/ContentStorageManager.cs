@@ -15,6 +15,10 @@ using System;
 using System.IO;
 using TMPro;
 using NativeGalleryNamespace;
+using Firebase;
+using Firebase.Firestore;
+
+using Immersal.Samples.Util;
 
 namespace Immersal.Samples.ContentPlacement
 {
@@ -28,9 +32,12 @@ namespace Immersal.Samples.ContentPlacement
 
         [SerializeField]
         private GameObject quadPrefab;
+        // private DatabaseReference db_reference;
 
         [SerializeField]
         private Immersal.AR.ARSpace m_ARSpace;
+
+        private FirebaseFirestore db;
 
         [SerializeField]
         private string m_Filename = "content.json";
@@ -84,11 +91,25 @@ namespace Immersal.Samples.ContentPlacement
             {
                 m_ARSpace = GameObject.FindObjectOfType<Immersal.AR.ARSpace>();
             }
+
+            //check if firebase instance exists
+            if (FirebaseManager.Instance != null)
+            {
+                // db_reference = FirebaseDatabase.DefaultInstance.RootReference;
+                db = FirebaseFirestore.DefaultInstance;
+            }
+            else
+            {
+                Debug.LogError("FirebaseManager instance not found");
+            }
+
+            ///check firebase intialized
         }
 
         private void Start()
         {
             contentList.Clear();
+
             LoadContents();
         }
 
@@ -126,22 +147,20 @@ namespace Immersal.Samples.ContentPlacement
 
         public void SaveContents(MovableContent movableContent)
         {
-            
-            if(movableContent.contentType == MovableContent.ContentType.Image)
+            if (movableContent.contentType == MovableContent.ContentType.Image)
             {
                 return;
             }
-            
-            {
-                contentList.Add(movableContent);
-            }
+
+            contentList.Add(movableContent);
+
+            //use firebase to save the content
             m_Positions.Clear();
             m_Texts.Clear(); // Clear text list
             // List<string> texts = new List<string>(); // Create list for text
 
             foreach (MovableContent content in contentList)
             {
-                
                 m_Positions.Add(content.transform.localPosition);
 
                 //convert prefab to text mesh pro and save text
@@ -151,6 +170,10 @@ namespace Immersal.Samples.ContentPlacement
 
             m_Savefile.positions = m_Positions;
             m_Savefile.texts = m_Texts; // Assign text to struct
+
+            //save to firebase
+
+           
 
             string jsonstring = JsonUtility.ToJson(m_Savefile, true);
             string dataPath = Path.Combine(Application.persistentDataPath, m_Filename);
