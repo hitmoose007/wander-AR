@@ -58,28 +58,29 @@ namespace Immersal.Samples.ContentPlacement
 
         private void StoreContent()
         {
-            if (this.contentType == MovableContent.ContentType.Image)
-            {
-                return;
-            }
+            // if (this.contentType == MovableContent.ContentType.Image)
+            // {
+            //     return;
+            // }
             if (!ContentStorageManager.Instance.contentList.Contains(this))
             {
                 ContentStorageManager.Instance.contentList.Add(this);
             }
-            ContentStorageManager.Instance.SaveContents(this);
+            
+            ContentStorageManager.Instance.SaveContents();
         }
 
         public void RemoveContent()
         {
-            if (this.contentType == MovableContent.ContentType.Image)
-            {
-                return;
-            }
+            // if (this.contentType == MovableContent.ContentType.Image)
+            // {
+            //     return;
+            // }
             if (ContentStorageManager.Instance.contentList.Contains(this))
             {
                 ContentStorageManager.Instance.contentList.Remove(this);
             }
-            ContentStorageManager.Instance.SaveContents(this);
+            ContentStorageManager.Instance.SaveContents();
             Destroy(gameObject);
         }
 
@@ -100,14 +101,14 @@ namespace Immersal.Samples.ContentPlacement
 
         private void OnMouseUp()
         {
-            if (this.contentType != MovableContent.ContentType.Image)
-            {
-                StoreContent();
-                m_timeHold = 0f;
-                m_EditingContent = false;
-                return;
-            }
-                m_EditingContent = false;
+            // if (this.contentType != MovableContent.ContentType.Image)
+            // {
+            StoreContent();
+            m_timeHold = 0f;
+            m_EditingContent = false;
+            return;
+            // }
+            //     m_EditingContent = false;
         }
     }
 }

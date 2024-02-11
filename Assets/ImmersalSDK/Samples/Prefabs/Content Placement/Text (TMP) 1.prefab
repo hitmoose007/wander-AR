@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3406088101328601400}
   - component: {fileID: 2724205381384657471}
   - component: {fileID: 7869532119287256283}
-  - component: {fileID: -17013338582345930}
+  - component: {fileID: 638839290756506441}
   - component: {fileID: -6406414193240412704}
   - component: {fileID: 5863576361714055033}
   m_Layer: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 2724205381384657471}
   m_maskType: 0
---- !u!114 &-17013338582345930
+--- !u!114 &638839290756506441
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -187,7 +187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ClickHoldTime: 0.1
-  contentType: 1
+  contentType: 0
 --- !u!114 &-6406414193240412704
 MonoBehaviour:
   m_ObjectHideFlags: 0

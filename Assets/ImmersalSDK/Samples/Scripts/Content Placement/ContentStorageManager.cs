@@ -32,6 +32,7 @@ namespace Immersal.Samples.ContentPlacement
 
         [SerializeField]
         private GameObject quadPrefab;
+
         // private DatabaseReference db_reference;
 
         [SerializeField]
@@ -40,7 +41,7 @@ namespace Immersal.Samples.ContentPlacement
         private FirebaseFirestore db;
 
         [SerializeField]
-        private string m_Filename = "content.json";
+        private string m_Filename = "contentttt.json";
         private Savefile m_Savefile;
         private List<Vector3> m_Positions = new List<Vector3>();
         private List<string> m_Texts = new List<string>(); // Create list for text
@@ -108,7 +109,23 @@ namespace Immersal.Samples.ContentPlacement
 
         private void Start()
         {
-            contentList.Clear();
+            string directoryPath = Application.persistentDataPath;
+
+            // if (Directory.Exists(directoryPath))
+            // {
+            //     // Delete all files in the directory
+            //     foreach (var file in Directory.GetFiles(directoryPath))
+            //     {
+            //         File.Delete(file);
+            //     }
+
+            //     Debug.Log("All persistent data deleted.");
+            // }
+            // else
+            // {
+            //     Debug.LogWarning("Directory does not exist: " + directoryPath);
+            // }
+            // contentList.Clear();
 
             LoadContents();
         }
@@ -145,14 +162,14 @@ namespace Immersal.Samples.ContentPlacement
             }
         }
 
-        public void SaveContents(MovableContent movableContent)
+        public void SaveContents()
         {
-            if (movableContent.contentType == MovableContent.ContentType.Image)
-            {
-                return;
-            }
+            // if (movableContent.contentType == MovableContent.ContentType.Image)
+            // {
+            //     return;
+            // }
 
-            contentList.Add(movableContent);
+            // contentList.Add(movableContent);
 
             //use firebase to save the content
             m_Positions.Clear();
@@ -173,7 +190,7 @@ namespace Immersal.Samples.ContentPlacement
 
             //save to firebase
 
-           
+
 
             string jsonstring = JsonUtility.ToJson(m_Savefile, true);
             string dataPath = Path.Combine(Application.persistentDataPath, m_Filename);
