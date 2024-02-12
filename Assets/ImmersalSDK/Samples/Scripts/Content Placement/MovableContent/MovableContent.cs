@@ -10,23 +10,21 @@ Contact sales@immersal.com for licensing requests.
 ===============================================================================*/
 
 using UnityEngine;
+using Firebase.Firestore;
+using System.Data.Common;
+using System;
 
 namespace Immersal.Samples.ContentPlacement
 {
-    public class MovableContent : MonoBehaviour
+    public abstract class MovableContent : MonoBehaviour
     {
         [SerializeField]
         private float m_ClickHoldTime = 0.1f;
 
-        public enum ContentType
-        {
-            Image,
-            Text
-        };
-
-        [SerializeField]
-        public ContentType contentType;
+        [HideInInspector]
+        public string m_contentId = null;
         private float m_timeHold = 0f;
+        protected FirebaseFirestore db;
 
         private bool m_EditingContent = false;
 
@@ -35,14 +33,18 @@ namespace Immersal.Samples.ContentPlacement
 
         //add enum for two types of content
 
+
+
+
         private void Start()
         {
+            db = FirebaseFirestore.DefaultInstance;
             m_CameraTransform = Camera.main.transform;
-            if (this.contentType == ContentType.Image)
-            {
-                return;
-            }
             StoreContent();
+            if (db == null)
+            {
+                Debug.LogError("Firestore not found");
+            }
         }
 
         private void Update()
@@ -56,19 +58,11 @@ namespace Immersal.Samples.ContentPlacement
             }
         }
 
-        private void StoreContent()
-        {
-            // if (this.contentType == MovableContent.ContentType.Image)
-            // {
-            //     return;
-            // }
-            if (!ContentStorageManager.Instance.contentList.Contains(this))
-            {
-                ContentStorageManager.Instance.contentList.Add(this);
-            }
-            
-            ContentStorageManager.Instance.SaveContents();
-        }
+        public abstract void StoreContent();
+
+        // if (this.contentType == MovableContent.ContentType.Image)
+        // {
+        //     return;
 
         public void RemoveContent()
         {

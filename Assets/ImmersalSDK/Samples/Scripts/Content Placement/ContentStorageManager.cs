@@ -19,6 +19,7 @@ using Firebase;
 using Firebase.Firestore;
 
 using Immersal.Samples.Util;
+using Firebase.Extensions;
 
 namespace Immersal.Samples.ContentPlacement
 {
@@ -93,16 +94,7 @@ namespace Immersal.Samples.ContentPlacement
                 m_ARSpace = GameObject.FindObjectOfType<Immersal.AR.ARSpace>();
             }
 
-            //check if firebase instance exists
-            if (FirebaseManager.Instance != null)
-            {
-                // db_reference = FirebaseDatabase.DefaultInstance.RootReference;
-                db = FirebaseFirestore.DefaultInstance;
-            }
-            else
-            {
-                Debug.LogError("FirebaseManager instance not found");
-            }
+            db = FirebaseFirestore.DefaultInstance;
 
             ///check firebase intialized
         }
@@ -202,41 +194,58 @@ namespace Immersal.Samples.ContentPlacement
 
         public void LoadContents()
         {
-            string dataPath = Path.Combine(Application.persistentDataPath, m_Filename);
-            Debug.LogFormat("Trying to load file: {0}", dataPath);
+            db = FirebaseFirestore.DefaultInstance;
 
-            try
-            {
-                Savefile loadFile = JsonUtility.FromJson<Savefile>(File.ReadAllText(dataPath));
-                int index = 0;
-                foreach (Vector3 pos in loadFile.positions)
+            // Reference to your Firestore collection
+            CollectionReference collectionRef = db.Collection("text_content");
+
+            // Fetch all documents from the collection
+            collectionRef
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
                 {
-                    GameObject go = Instantiate(m_TextContentPrefab, m_ARSpace.transform);
-                    go.transform.localPosition = pos;
+                    if (task.IsFaulted)
+                    {
+                        Debug.LogError("Error fetching collection documents: " + task.Exception);
+                        return;
+                    }
 
-                    go.GetComponent<TextMeshPro>().text = loadFile.texts[index];
+                    QuerySnapshot snapshot = task.Result;
 
-                    index++;
-                }
+                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    {
+                        // Assuming each document has a 'position' map and a 'text' field
+                        if (document.Exists)
+                        {
+                            Dictionary<string, object> documentData = document.ToDictionary();
 
-                Debug.Log("Successfully loaded file!");
-            }
-            catch (FileNotFoundException e)
-            {
-                Debug.LogWarningFormat(
-                    "{0}\n.json file for content storage not found. Created a new file!",
-                    e.Message
-                );
-                File.WriteAllText(dataPath, "");
-            }
-            catch (NullReferenceException err)
-            {
-                Debug.LogWarningFormat(
-                    "{0}\n.json file for content storage not found. Created a new file!",
-                    err.Message
-                );
-                File.WriteAllText(dataPath, "");
-            }
+                            // Extracting the position map
+                            Dictionary<string, object> positionMap =
+                                documentData["position"] as Dictionary<string, object>;
+                            Vector3 pos = new Vector3(
+                                Convert.ToSingle(positionMap["x"]),
+                                Convert.ToSingle(positionMap["y"]),
+                                Convert.ToSingle(positionMap["z"])
+                            );
+
+                            // Extracting the text
+                            string text = documentData["text"] as string;
+
+                            // Instantiating the content prefab and setting its properties
+                            GameObject go = Instantiate(m_TextContentPrefab, m_ARSpace.transform);
+                            go.transform.localPosition = pos;
+                            //add id of document to the game object
+                            go.GetComponent<MovableContent>().m_contentId = document.Id;
+                            TextMeshPro textComponent = go.GetComponent<TextMeshPro>();
+                            if (textComponent != null)
+                            {
+                                textComponent.text = text;
+                            }
+                        }
+                    }
+
+                    Debug.Log("Successfully loaded Firestore documents.");
+                });
         }
 
         public void ChangePrefab(GameObject newPrefab)
