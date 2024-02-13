@@ -1,17 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Immersal.Samples.ContentPlacement;
 using UnityEngine;
 
-public class MovableImageContent : MonoBehaviour
+public class MovableImageContent : MovableContent 
 {
     // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
+    //implement the abstract method
+    
+    public override void StoreContent()
     {
         
     }
