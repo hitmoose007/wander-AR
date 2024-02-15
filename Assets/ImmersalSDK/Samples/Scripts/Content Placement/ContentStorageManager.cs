@@ -202,8 +202,9 @@ namespace Immersal.Samples.ContentPlacement
 
         public void LoadContents()
         {
-            FetchAndInstantiateTextContent();
+            //fetch both functions in parrallel
             FetchAndDownloadImageContent();
+            FetchAndInstantiateTextContent();
             // Reference to your Firestore collection
             //for text content
         }
@@ -322,7 +323,7 @@ namespace Immersal.Samples.ContentPlacement
                                     1f
                                 );
                                 quadInstance.transform.localPosition = pos;
-                                Debug.Log(image_ref_path);
+                                // Debug.Log(image_ref_path);
 
                                 ApplyTextureToSecondChild(quadInstance, texture);
                                 // Instantiating the content prefab and setting its properties

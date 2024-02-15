@@ -12,6 +12,10 @@ Contact sales@immersal.com for licensing requests.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Firebase;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Linq;
 
 namespace Immersal.Samples.Navigation
 {
@@ -50,7 +54,6 @@ namespace Immersal.Samples.Navigation
         public WaypointData(Waypoint waypoint)
         {
             uniqueId = waypoint.UniqueID;
-            position = waypoint.transform.position;
             neighbourIds = new List<string>();
             foreach (Waypoint neighbour in waypoint.neighbours)
             {
@@ -73,6 +76,8 @@ namespace Immersal.Samples.Navigation
     public class NavigationGraphManager : MonoBehaviour
     {
         private Immersal.AR.ARSpace m_ARSpace;
+
+        private FirebaseFirestore db;
 
         public class LineSegment
         {
@@ -155,6 +160,7 @@ namespace Immersal.Samples.Navigation
 
         void Start()
         {
+            db = FirebaseFirestore.DefaultInstance;
             InitializeMeshRenderer();
 
             m_ArSpace = FindObjectOfType<Immersal.AR.ARSpace>();
@@ -300,9 +306,39 @@ namespace Immersal.Samples.Navigation
             if (wp != null && !m_Waypoints.Contains(wp))
             {
                 m_Waypoints.Add(wp);
+
+                Dictionary<string, object> positionData = new Dictionary<string, object>
+                {
+                    { "x", wp.transform.position.x },
+                    { "y", wp.transform.position.y },
+                    { "z", wp.transform.position.z }
+                };
+
+                Dictionary<string, object> documentData = new Dictionary<string, object>
+                {
+                    { "position", positionData }
+                };
+
+                wp.UniqueID = System.Guid.NewGuid().ToString();
+                // Add or update the document in the "text_content" collection
+                DocumentReference docRef = db.Collection("waypoint_object").Document(wp.UniqueID);
+                docRef
+                    .SetAsync(documentData)
+                    .ContinueWith(task =>
+                    {
+                        if (task.IsCompleted && !task.IsFaulted)
+                        {
+                            Debug.Log("Content stored successfully!");
+                        }
+                        else
+                        {
+                            Debug.LogError("Failed to store content: " + task.Exception.ToString());
+                        }
+                    });
+
                 SaveWaypoints(); // Save waypoints after adding
             }
-            Debug.Log("AddWaypoint: " + (wp != null ? wp.name : "null"));
+            // Debug.Log("AddWaypoint: " + (wp != null ? wp.name : "null"));
         }
 
         public void RemoveWaypoint(Waypoint wp)
@@ -375,61 +411,137 @@ namespace Immersal.Samples.Navigation
             WaypointDataList container = new WaypointDataList(waypointDataList);
             string json = JsonUtility.ToJson(container);
 
-            Debug.Log("Serialized waypoints JSON: " + json);
-            System.IO.File.WriteAllText(Application.persistentDataPath + "/waypoints.json", json);
+            // Debug.Log("Serialized waypoints JSON: " + json);
+            // System.IO.File.WriteAllText(Application.persistentDataPath + "/waypoints.json", json);
         }
 
         public void LoadWaypoints()
         {
-            string path = Application.persistentDataPath + "/waypoints.json";
-            if (System.IO.File.Exists(path))
-            {
-                string json = System.IO.File.ReadAllText(path);
-                WaypointDataList container = JsonUtility.FromJson<WaypointDataList>(json);
-                foreach (WaypointData waypointData in container.waypoints)
+            Debug.Log("loading waypoints");
+            db.Collection("waypoint_object")
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
                 {
-                    GameObject wpObject = Instantiate(
-                        waypointPrefab,
-                        waypointData.position,
-                        Quaternion.identity,
-                        m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
-                    );
-                    //log out the nieghbors
-                    foreach (string neighbor in waypointData.neighbourIds)
+                    if (task.IsFaulted)
                     {
-                        Debug.Log("neighbor: " + neighbor);
-                        Debug.Log("poop");
+                        Debug.LogError("Error fetching collection documents: " + task.Exception);
+                        return;
                     }
-
-                    Waypoint wp = wpObject.GetComponent<Waypoint>();
-                    wp.UniqueID = waypointData.uniqueId;
-                    //add neighbor ids to list
-
-
-                    m_Waypoints.Add(wp);
-                    // Add wp to m_Waypoints list and reconstruct neighbours...
-                }
-
-                foreach (WaypointData waypointData in container.waypoints)
-                {
-                    foreach (Waypoint waypointObject in m_Waypoints)
+                    QuerySnapshot snapshot = task.Result;
+                    foreach (DocumentSnapshot document in snapshot.Documents)
                     {
-                        if (waypointData.uniqueId == waypointObject.UniqueID)
+                        if (document.Exists)
                         {
-                            Debug.Log("inside the real mom ");
-                            foreach (string neighborId in waypointData.neighbourIds)
-                            {
-                                Debug.Log("inside deeply the real mom ");
-                                waypointObject.neighbours.Add(
-                                    m_Waypoints.Find(x => x.UniqueID == neighborId)
-                                );
-                            }
+                            Dictionary<string, object> data = document.ToDictionary();
+
+                            Dictionary<string, object> positionData =
+                                data["position"] as Dictionary<string, object>;
+                            Vector3 position = new Vector3(
+                                System.Convert.ToSingle(positionData["x"]),
+                                System.Convert.ToSingle(positionData["y"]),
+                                System.Convert.ToSingle(positionData["z"])
+                            );
+                            GameObject wpObject = Instantiate(
+                                waypointPrefab,
+                                position,
+                                Quaternion.identity,
+                                m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
+                            );
+
+                            Waypoint wp = wpObject.GetComponent<Waypoint>();
+
+                            wp.UniqueID = document.Id;
+
+                            m_Waypoints.Add(wp);
                         }
                     }
-                }
 
-                // Reconstruct the neighbors for each waypoint...
-            }
+                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    {
+                        try
+                        {
+                            if (document.Exists)
+                            {
+                                Dictionary<string, object> data = document.ToDictionary();
+
+                                if (data.ContainsKey("neighbours"))
+                                {
+                                    Debug.Log(data["neighbours"].GetType() + " is the type");
+                                    Waypoint wp = m_Waypoints.Find(x => x.UniqueID == document.Id);
+
+                                    List<object> neighboursListObj =
+                                        data["neighbours"] as List<object>;
+                                    List<string> neighbourIds = neighboursListObj
+                                        .Where(obj => obj != null) // Ensure the object is not null
+                                        .Select(obj => obj.ToString()) // Convert each object to string
+                                        .ToList();
+
+                                    Debug.Log(neighbourIds.Count);
+                                    neighbourIds.ForEach(neighbourId => Debug.Log(neighbourId));
+
+                                    foreach (string neighbourId in neighbourIds)
+                                    {
+                                        Debug.Log(neighbourId);
+                                        wp.neighbours.Add(
+                                            m_Waypoints.Find(x => x.UniqueID == neighbourId)
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                        catch (System.Exception e)
+                        {
+                            Debug.Log(e);
+                        }
+                    }
+                });
+            // if (System.IO.File.Exists(path))
+            // {
+            //     string json = System.IO.File.ReadAllText(path);
+            //     WaypointDataList container = JsonUtility.FromJson<WaypointDataList>(json);
+            //     foreach (WaypointData waypointData in container.waypoints)
+            //     {
+            //         GameObject wpObject = Instantiate(
+            //             waypointPrefab,
+            //             waypointData.position,
+            //             Quaternion.identity,
+            //             m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
+            //         );
+            //         //log out the nieghbors
+            //         foreach (string neighbor in waypointData.neighbourIds)
+            //         {
+            //             Debug.Log("neighbor: " + neighbor);
+            //         }
+
+            //         Waypoint wp = wpObject.GetComponent<Waypoint>();
+            //         wp.UniqueID = waypointData.uniqueId;
+            //         //add neighbor ids to list
+
+
+            //         m_Waypoints.Add(wp);
+            //         // Add wp to m_Waypoints list and reconstruct neighbours...
+            //     }
+
+            //     foreach (WaypointData waypointData in container.waypoints)
+            //     {
+            //         foreach (Waypoint waypointObject in m_Waypoints)
+            //         {
+            //             if (waypointData.uniqueId == waypointObject.UniqueID)
+            //             {
+            //                 Debug.Log("inside the real mom ");
+            //                 foreach (string neighborId in waypointData.neighbourIds)
+            //                 {
+            //                     Debug.Log("inside deeply the real mom ");
+            //                     waypointObject.neighbours.Add(
+            //                         m_Waypoints.Find(x => x.UniqueID == neighborId)
+            //                     );
+            //                 }
+            //             }
+            //         }
+            //     }
+
+            //     // Reconstruct the neighbors for each waypoint...
+            // }
         }
 
         public List<Vector3> FindPath(Vector3 startPosition, Vector3 endPosition)

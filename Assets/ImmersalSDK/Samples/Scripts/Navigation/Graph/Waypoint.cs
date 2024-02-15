@@ -15,6 +15,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+using Firebase;
+using Firebase.Firestore;
+
 namespace Immersal.Samples.Navigation
 {
     public class Waypoint : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
@@ -27,7 +30,7 @@ namespace Immersal.Samples.Navigation
             set { }
         }
         public string UniqueID;
-        
+        private FirebaseFirestore db;
 
         [SerializeField]
         private float m_ClickHoldTime = 1f;
@@ -52,6 +55,7 @@ namespace Immersal.Samples.Navigation
 
         void Start()
         {
+            db = FirebaseFirestore.DefaultInstance;
             m_mainCamera = Camera.main;
 
             InitializeNode();
@@ -114,12 +118,9 @@ namespace Immersal.Samples.Navigation
                 if (isEditing)
                 {
                     transform.position = projection;
-                    NavigationGraphManager.Instance.SaveWaypoints();
                 }
             }
         }
-
-       
 
         private void DrawPreviewConnection(
             Vector3 startPosition,
@@ -198,21 +199,40 @@ namespace Immersal.Samples.Navigation
         {
             if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
             {
-
                 isPressed = true;
                 m_DragPlaneDistance =
                     Vector3.Dot(
                         transform.position - m_mainCamera.transform.position,
                         m_mainCamera.transform.forward
                     ) / m_mainCamera.transform.forward.sqrMagnitude;
-
-                
             }
-
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            // if(isEdi)
+
+            if (isEditing)
+            {
+                db.Collection("waypoint_object")
+                    .Document(UniqueID)
+                    .SetAsync(
+                        new Dictionary<string, object>
+                        {
+                            {
+                                "position",
+                                new Dictionary<string, object>
+                                {
+                                    { "x", transform.position.x },
+                                    { "y", transform.position.y },
+                                    { "z", transform.position.z }
+                                }
+                            }
+                        }
+                    );
+
+                NavigationGraphManager.Instance.SaveWaypoints();
+            }
             isPressed = false;
             isEditing = false;
             m_timeHeld = 0f;
@@ -233,11 +253,22 @@ namespace Immersal.Samples.Navigation
                         {
                             if (!neighbours.Contains(wp))
                             {
+                                Debug.Log("ok this is neighbors now");
                                 neighbours.Add(wp);
+                                var update = FieldValue.ArrayUnion(wp.UniqueID);
+                                db.Collection("waypoint_object")
+                                    .Document(UniqueID)
+                                    .UpdateAsync("neighbours", update);
+
                                 NavigationGraphManager.Instance.SaveWaypoints();
                             }
                             if (!wp.neighbours.Contains(this))
                             {
+                                var update = FieldValue.ArrayUnion(this.UniqueID);
+                                db.Collection("waypoint_object")
+                                    .Document(UniqueID)
+                                    .UpdateAsync("neighbours", update);
+                                Debug.Log("ok this is wp");
                                 wp.neighbours.Add(this);
                                 NavigationGraphManager.Instance.SaveWaypoints();
                             }
