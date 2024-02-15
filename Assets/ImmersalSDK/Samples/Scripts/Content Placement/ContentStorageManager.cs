@@ -12,14 +12,19 @@ Contact sales@immersal.com for licensing requests.
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Threading.Tasks;
+using UnityEngine.Networking;
+
 using System.IO;
 using TMPro;
 using NativeGalleryNamespace;
 using Firebase;
 using Firebase.Firestore;
+using Firebase.Storage;
 
 using Immersal.Samples.Util;
 using Firebase.Extensions;
+using System.Collections;
 
 namespace Immersal.Samples.ContentPlacement
 {
@@ -40,6 +45,8 @@ namespace Immersal.Samples.ContentPlacement
         private Immersal.AR.ARSpace m_ARSpace;
 
         private FirebaseFirestore db;
+
+        private FirebaseStorage firebase_storage;
 
         [SerializeField]
         private string m_Filename = "contentttt.json";
@@ -96,6 +103,7 @@ namespace Immersal.Samples.ContentPlacement
 
             db = FirebaseFirestore.DefaultInstance;
 
+            firebase_storage = FirebaseStorage.DefaultInstance;
             ///check firebase intialized
         }
 
@@ -194,13 +202,18 @@ namespace Immersal.Samples.ContentPlacement
 
         public void LoadContents()
         {
-            db = FirebaseFirestore.DefaultInstance;
-
+            FetchAndInstantiateTextContent();
+            FetchAndDownloadImageContent();
             // Reference to your Firestore collection
-            CollectionReference collectionRef = db.Collection("text_content");
+            //for text content
+        }
+
+        private void FetchAndInstantiateTextContent()
+        {
+            CollectionReference textCollectionRef = db.Collection("text_content");
 
             // Fetch all documents from the collection
-            collectionRef
+            textCollectionRef
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
                 {
@@ -248,6 +261,130 @@ namespace Immersal.Samples.ContentPlacement
                 });
         }
 
+        private void FetchAndDownloadImageContent()
+        {
+            CollectionReference imageCollectionRef = db.Collection("image_content");
+
+            // Fetch all documents from the collection
+            imageCollectionRef
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
+                {
+                    if (task.IsFaulted)
+                    {
+                        Debug.LogError("Error fetching collection documents: " + task.Exception);
+                        return;
+                    }
+
+                    QuerySnapshot snapshot = task.Result;
+
+                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    {
+                        // Assuming each document has a 'position' map and a 'text' field
+                        if (document.Exists)
+                        {
+                            Dictionary<string, object> documentData = document.ToDictionary();
+
+                            // Extracting the position map
+                            Dictionary<string, object> positionMap =
+                                documentData["position"] as Dictionary<string, object>;
+                            Vector3 pos = new Vector3(
+                                Convert.ToSingle(positionMap["x"]),
+                                Convert.ToSingle(positionMap["y"]),
+                                Convert.ToSingle(positionMap["z"])
+                            );
+
+                            // Extracting the text
+                            string image_ref_path = documentData["image_ref"] as string;
+
+                            //fetch image from storage
+                            //create a function to fetch image from storage
+                            //create lambda experssion
+                            Texture2D texture = null;
+                            Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
+                            {
+                                texture = newTexture; // Assign the new texture to your original texture variable
+                                if (texture != null)
+                                    Debug.Log("yeah baby " + texture);
+                                if (texture == null)
+                                {
+                                    Debug.Log("Couldn't load texture from " + image_ref_path);
+                                    return;
+                                }
+                                GameObject quadInstance = Instantiate(
+                                    quadPrefab,
+                                    m_ARSpace.transform
+                                );
+
+                                quadInstance.transform.localScale = new Vector3(
+                                    0.2f,
+                                    texture.height / (float)texture.width * 0.2f,
+                                    1f
+                                );
+                                quadInstance.transform.localPosition = pos;
+                                Debug.Log(image_ref_path);
+
+                                ApplyTextureToSecondChild(quadInstance, texture);
+                                // Instantiating the content prefab and setting its properties
+                                // GameObject go = Instantiate(m_TextContentPrefab, m_ARSpace.transform);
+                                //add id of document to the game object
+                                quadInstance.GetComponent<MovableImageContent>().m_contentId =
+                                    document.Id;
+                                quadInstance.GetComponent<MovableImageContent>().imageRef =
+                                    image_ref_path;
+                            };
+
+                            firebase_storage
+                                .GetReference(image_ref_path)
+                                .GetDownloadUrlAsync()
+                                .ContinueWithOnMainThread(task =>
+                                {
+                                    if (!task.IsFaulted && !task.IsCanceled)
+                                    {
+                                        string downloadUrl = task.Result.ToString();
+                                        // Proceed to download the image and convert it into a Texture2D
+                                        StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded));
+                                    }
+                                    else
+                                    {
+                                        Debug.LogError("Failed to get download URL.");
+                                    }
+                                });
+
+                            // TextMeshPro textComponent = go.GetComponent<TextMeshPro>();
+                            // if (textComponent != null)
+                            // {
+                            //     textComponent.text = text;
+                            // }
+                        }
+                    }
+
+                    Debug.Log("Successfully loaded Firestore Image documents.");
+                });
+        }
+
+        private IEnumerator DownloadImage(string imageUrl, Action<Texture2D> onTextureLoaded)
+        {
+            using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(imageUrl))
+            {
+                Debug.Log("starting download");
+                yield return www.SendWebRequest();
+                Debug.Log("done lol");
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError("Failed to download image: " + www.error);
+                }
+                else
+                {
+                    // Create a Texture
+                    Texture2D downloadedTexture = DownloadHandlerTexture.GetContent(www);
+                    onTextureLoaded?.Invoke(downloadedTexture); // Invoke the callback
+                    // Here you can use the texture, for example, apply it to a GameObject to display the image
+                    // Example: yourGameObject.GetComponent<Renderer>().material.mainTexture = texture;
+                }
+            }
+        }
+
         public void ChangePrefab(GameObject newPrefab)
         {
             m_TextContentPrefab = newPrefab;
@@ -263,6 +400,29 @@ namespace Immersal.Samples.ContentPlacement
                     {
                         // Create Texture from selected image
                         Texture2D texture = NativeGallery.LoadImageAtPath(path, 512, false, false);
+                        byte[] imageBytes = texture.EncodeToJPG(); // or EncodeToPNG() based on your preference
+
+                        string image_path = "images/" + Guid.NewGuid().ToString() + ".jpg";
+                        ;
+                        StorageReference imageRef = firebase_storage.GetReference(image_path);
+
+                        imageRef
+                            .PutBytesAsync(imageBytes)
+                            .ContinueWithOnMainThread(
+                                (task) =>
+                                {
+                                    if (task.IsFaulted || task.IsCanceled)
+                                    {
+                                        Debug.LogError(task.Exception.ToString());
+                                        // Handle the error
+                                    }
+                                    else
+                                    {
+                                        // Image uploaded successfully
+                                        Debug.Log("Image uploaded: " + image_path);
+                                    }
+                                }
+                            );
                         if (texture == null)
                         {
                             Debug.Log("Couldn't load texture from " + path);
@@ -288,6 +448,8 @@ namespace Immersal.Samples.ContentPlacement
 
                         quadInstance.transform.parent = m_ARSpace.transform;
 
+                        //store image path so that content in firestore is able to access it
+                        quadInstance.GetComponent<MovableImageContent>().imageRef = image_path;
                         // Apply the texture to the second child of the quad
                         ApplyTextureToSecondChild(quadInstance, texture);
                     }
@@ -297,7 +459,7 @@ namespace Immersal.Samples.ContentPlacement
             );
         }
 
-        void ApplyTextureToSecondChild(GameObject quad, Texture2D texture)
+        private void ApplyTextureToSecondChild(GameObject quad, Texture2D texture)
         {
             // Check if the quad has at least two children
             if (quad.transform.childCount >= 2)
