@@ -210,7 +210,6 @@ namespace Immersal.Samples.Navigation
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            // if(isEdi)
 
             if (isEditing)
             {
@@ -239,6 +238,7 @@ namespace Immersal.Samples.Navigation
 
             m_Mesh.Clear();
 
+            //add niegbours whichever hits collieder and vice versa
             if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
             {
                 RaycastHit hit;
@@ -253,7 +253,6 @@ namespace Immersal.Samples.Navigation
                         {
                             if (!neighbours.Contains(wp))
                             {
-                                Debug.Log("ok this is neighbors now");
                                 neighbours.Add(wp);
                                 var update = FieldValue.ArrayUnion(wp.UniqueID);
                                 db.Collection("waypoint_object")
@@ -266,9 +265,8 @@ namespace Immersal.Samples.Navigation
                             {
                                 var update = FieldValue.ArrayUnion(this.UniqueID);
                                 db.Collection("waypoint_object")
-                                    .Document(UniqueID)
+                                    .Document(wp.UniqueID)
                                     .UpdateAsync("neighbours", update);
-                                Debug.Log("ok this is wp");
                                 wp.neighbours.Add(this);
                                 NavigationGraphManager.Instance.SaveWaypoints();
                             }
