@@ -47,12 +47,14 @@ namespace Immersal.Samples.ContentPlacement
             db = FirebaseFirestore.DefaultInstance;
             m_CameraTransform = Camera.main.transform;
             //if its not loaded from database wont have any id already
+            Debug.Log("heyyy" + m_contentId);
             if (m_contentId == null || m_contentId == "")
             {
                 StoreContent();
                 Debug.Log("in here lol");
             }
-            Debug.Log("not there lol");
+            else
+                Debug.Log("not there lol");
             if (db == null)
             {
                 Debug.LogError("Firestore not found");
@@ -102,6 +104,21 @@ namespace Immersal.Samples.ContentPlacement
                         m_CameraTransform.forward
                     ) / m_CameraTransform.forward.sqrMagnitude;
                 m_EditingContent = true;
+            }
+
+            // Change rotation to face the user (camera)
+            if (m_EditingContent)
+            {
+                // Calculate the direction from the object to the camera
+                Vector3 directionToCamera = transform.position - m_CameraTransform.position;
+
+                // Create a new rotation that looks in the direction of the camera but stays upright.
+                // Assuming that the camera's up direction is the global up direction (Vector3.up).
+                Quaternion targetRotation = Quaternion.LookRotation(directionToCamera, Vector3.up);
+
+                // Apply the rotation to the object. You can also use Quaternion.Slerp for a smoother transition:
+                // transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+                transform.rotation = targetRotation;
             }
         }
 

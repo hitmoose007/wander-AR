@@ -305,16 +305,17 @@ namespace Immersal.Samples.ContentPlacement
                             Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
                             {
                                 texture = newTexture; // Assign the new texture to your original texture variable
-                                if (texture != null)
-                                    Debug.Log("yeah baby " + texture);
                                 if (texture == null)
                                 {
                                     Debug.Log("Couldn't load texture from " + image_ref_path);
                                     return;
                                 }
+
                                 GameObject quadInstance = Instantiate(
                                     quadPrefab,
-                                    m_ARSpace.transform
+                                    pos, // Use the target position here
+                                    Quaternion.identity, // This means "no rotation"
+                                    m_ARSpace.transform // This sets the parent
                                 );
 
                                 quadInstance.transform.localScale = new Vector3(
@@ -322,7 +323,6 @@ namespace Immersal.Samples.ContentPlacement
                                     texture.height / (float)texture.width * 0.2f,
                                     1f
                                 );
-                                quadInstance.transform.localPosition = pos;
                                 // Debug.Log(image_ref_path);
 
                                 ApplyTextureToSecondChild(quadInstance, texture);
