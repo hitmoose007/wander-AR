@@ -34,7 +34,13 @@ namespace Immersal.Samples.ContentPlacement
         //add enum for two types of content
 
 
+        //constructor with id passed in
+        // public MovableContent(string id)
+        // {
+        //     m_contentId = id;
+        // }
 
+        // public MovableContent() { }
 
         private void Start()
         {
@@ -44,7 +50,9 @@ namespace Immersal.Samples.ContentPlacement
             if (m_contentId == null || m_contentId == "")
             {
                 StoreContent();
+                Debug.Log("in here lol");
             }
+            Debug.Log("not there lol");
             if (db == null)
             {
                 Debug.LogError("Firestore not found");

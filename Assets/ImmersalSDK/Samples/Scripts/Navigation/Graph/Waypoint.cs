@@ -47,16 +47,13 @@ namespace Immersal.Samples.Navigation
         private MeshRenderer m_MeshRenderer = null;
         private Mesh m_Mesh = null;
 
-        void Awake()
-        {
-            // Generate a UUID
-            UniqueID = System.Guid.NewGuid().ToString();
-        }
 
         void Start()
         {
+            UniqueID = System.Guid.NewGuid().ToString();
             db = FirebaseFirestore.DefaultInstance;
             m_mainCamera = Camera.main;
+
 
             InitializeNode();
             NavigationGraphManager.Instance.AddWaypoint(this);

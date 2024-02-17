@@ -417,7 +417,6 @@ namespace Immersal.Samples.Navigation
 
         public void LoadWaypoints()
         {
-            Debug.Log("loading waypoints");
             db.Collection("waypoint_object")
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
@@ -466,7 +465,6 @@ namespace Immersal.Samples.Navigation
 
                                 if (data.ContainsKey("neighbours"))
                                 {
-                                    Debug.Log(data["neighbours"].GetType() + " is the type");
                                     Waypoint wp = m_Waypoints.Find(x => x.UniqueID == document.Id);
 
                                     List<object> neighboursListObj =
@@ -476,12 +474,10 @@ namespace Immersal.Samples.Navigation
                                         .Select(obj => obj.ToString()) // Convert each object to string
                                         .ToList();
 
-                                    Debug.Log(neighbourIds.Count);
                                     neighbourIds.ForEach(neighbourId => Debug.Log(neighbourId));
 
                                     foreach (string neighbourId in neighbourIds)
                                     {
-                                        Debug.Log(neighbourId);
                                         wp.neighbours.Add(
                                             m_Waypoints.Find(x => x.UniqueID == neighbourId)
                                         );

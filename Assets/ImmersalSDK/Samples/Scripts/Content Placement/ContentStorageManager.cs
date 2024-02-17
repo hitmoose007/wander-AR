@@ -393,6 +393,10 @@ namespace Immersal.Samples.ContentPlacement
 
         public void LoadImageFromGallery()
         {
+            //instantiate before to remember location
+            Transform cameraTransform = Camera.main.transform;
+            Vector3 forward = cameraTransform.forward;
+            Vector3 position = cameraTransform.position + cameraTransform.forward;
             NativeGallery.Permission permission = NativeGallery.GetImageFromGallery(
                 (path) =>
                 {
@@ -431,14 +435,13 @@ namespace Immersal.Samples.ContentPlacement
                         }
 
                         // Instantiate the quad prefab and position it
-                        Transform cameraTransform = Camera.main.transform;
                         GameObject quadInstance = Instantiate(
                             quadPrefab,
-                            cameraTransform.position + cameraTransform.forward,
+                            position,
                             Quaternion.identity,
                             m_ARSpace.transform
                         );
-                        quadInstance.transform.forward = Camera.main.transform.forward;
+                        quadInstance.transform.forward = forward;
 
                         // Adjust the scale of the quad based on the texture's aspect ratio
                         quadInstance.transform.localScale = new Vector3(
