@@ -368,9 +368,7 @@ namespace Immersal.Samples.ContentPlacement
         {
             using (UnityWebRequest www = UnityWebRequestTexture.GetTexture(imageUrl))
             {
-                Debug.Log("starting download");
                 yield return www.SendWebRequest();
-                Debug.Log("done lol");
                 if (www.result != UnityWebRequest.Result.Success)
                 {
                     Debug.LogError("Failed to download image: " + www.error);

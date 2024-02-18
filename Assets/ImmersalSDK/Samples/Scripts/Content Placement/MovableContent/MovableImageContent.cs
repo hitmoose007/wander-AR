@@ -31,6 +31,7 @@ public class MovableImageContent : MovableContent
             { "y", position.y },
             { "z", position.z }
         };
+        //store rotation data
 
         // Prepare the document data
         Dictionary<string, object> documentData = new Dictionary<string, object>
