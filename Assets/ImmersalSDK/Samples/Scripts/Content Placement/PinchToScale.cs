@@ -11,6 +11,7 @@ public class ScaleObject : MonoBehaviour
     {
         // Calculate 75% of the prefab's original scale as the minimum allowed scale
         originalPrefabScaleMin = prefab.transform.localScale * 0.75f;
+        originalPrefabScaleMax = prefab.transform.localScale * 1.4f;
     }
 
     void Update()
