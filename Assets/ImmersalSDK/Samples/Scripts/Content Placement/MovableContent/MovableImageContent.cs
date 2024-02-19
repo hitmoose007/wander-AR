@@ -31,13 +31,21 @@ public class MovableImageContent : MovableContent
             { "y", position.y },
             { "z", position.z }
         };
+        Dictionary<string, object> rotationData = new Dictionary<string, object>
+        {
+            { "x", transform.rotation.x },
+            { "y", transform.rotation.y },
+            { "z", transform.rotation.z },
+            { "w", transform.rotation.w }
+        };
         //store rotation data
 
         // Prepare the document data
         Dictionary<string, object> documentData = new Dictionary<string, object>
         {
-            { "image_ref", imageRef},
-            { "position", positionData }
+            { "image_ref", imageRef },
+            { "position", positionData },
+            { "rotation", rotationData }
         };
 
         // Generate a unique document ID or use a specific identifier

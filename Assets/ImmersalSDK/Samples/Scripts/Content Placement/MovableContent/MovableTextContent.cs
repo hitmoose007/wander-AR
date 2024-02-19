@@ -24,11 +24,19 @@ public class MovableTextContent : MovableContent
             { "y", position.y },
             { "z", position.z }
         };
+        Dictionary<string, object> rotationData = new Dictionary<string, object>
+        {
+            { "x", transform.rotation.x },
+            { "y", transform.rotation.y },
+            { "z", transform.rotation.z },
+            { "w", transform.rotation.w }
+        };
 
         // Prepare the document data
         Dictionary<string, object> documentData = new Dictionary<string, object>
         {
             { "text", textContent },
+            { "rotation", rotationData },
             { "position", positionData }
         };
 

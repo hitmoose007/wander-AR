@@ -1,5 +1,8 @@
 using UnityEngine;
 
+using Firebase.Firestore;
+using System.Collections.Generic;
+
 public class ScaleObject : MonoBehaviour
 {
     public float scaleSpeed = 0.025f; // Control the speed of scaling
@@ -7,8 +10,12 @@ public class ScaleObject : MonoBehaviour
     private Vector3 originalPrefabScaleMin;
     private Vector3 originalPrefabScaleMax;
 
+    //add firestore db
+    private FirebaseFirestore db;
+
     void Start()
     {
+        db = FirebaseFirestore.DefaultInstance;
         // Calculate 75% of the prefab's original scale as the minimum allowed scale
         originalPrefabScaleMin = prefab.transform.localScale * 0.75f;
         originalPrefabScaleMax = prefab.transform.localScale * 1.4f;
@@ -16,8 +23,6 @@ public class ScaleObject : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("Touch count: " + Input.touchCount);
-
         if (Input.touchCount == 2)
         {
             // Convert touch positions into rays
@@ -34,8 +39,6 @@ public class ScaleObject : MonoBehaviour
                 && hit.transform == transform
             )
             {
-                Debug.Log("Pinch detected on object");
-
                 Touch touchZero = Input.GetTouch(0);
                 Touch touchOne = Input.GetTouch(1);
 
@@ -65,6 +68,35 @@ public class ScaleObject : MonoBehaviour
                 newScale.y = Mathf.Min(newScale.y, originalPrefabScaleMax.y);
 
                 transform.localScale = newScale;
+
+                //store scale in dictionary
+
+                Dictionary<string, object> scaleDictionary = new Dictionary<string, object>
+                {
+                    { "scale_x", newScale.x },
+                    { "scale_y", newScale.y }
+                };
+
+                string content_id = GetComponent<MovableTextContent>().m_contentId;
+                if (content_id != null && content_id != "")
+                {
+                    db.Collection("text_content")
+                        .Document(content_id)
+                        .SetAsync(scaleDictionary)
+                        .ContinueWith(task =>
+                        {
+                            if (task.IsCompleted && !task.IsFaulted)
+                            {
+                                Debug.Log("Scale stored successfully!");
+                            }
+                            else
+                            {
+                                Debug.LogError(
+                                    "Failed to store scale: " + task.Exception.ToString()
+                                );
+                            }
+                        });
+                }
             }
         }
     }
