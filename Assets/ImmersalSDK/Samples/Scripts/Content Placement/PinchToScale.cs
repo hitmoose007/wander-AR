@@ -2,13 +2,15 @@ using UnityEngine;
 
 public class ScaleObject : MonoBehaviour
 {
-    public float scaleSpeed = 0.05f; // Control the speed of scaling
+    public float scaleSpeed = 0.025f; // Control the speed of scaling
     public GameObject prefab;
-    private Vector3 originalPrefabScale;
+    private Vector3 originalPrefabScaleMin;
+    private Vector3 originalPrefabScaleMax;
 
     void Start()
     {
-        originalPrefabScale = prefab.transform.localScale * 0.75f;
+        // Calculate 75% of the prefab's original scale as the minimum allowed scale
+        originalPrefabScaleMin = prefab.transform.localScale * 0.75f;
     }
 
     void Update()
@@ -42,19 +44,25 @@ public class ScaleObject : MonoBehaviour
                 float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
                 float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
 
-                float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+                float deltaMagnitudeDiff = touchDeltaMag - prevTouchDeltaMag;
 
-                // Apply scalingmn
-                Vector3 newScale =
-                    transform.localScale
-                    - new Vector3(deltaMagnitudeDiff, deltaMagnitudeDiff, deltaMagnitudeDiff)
-                        * scaleSpeed
-                        * Time.deltaTime;
-                newScale = new Vector3(
-                    Mathf.Max(newScale.x, originalPrefabScale.x),
-                    Mathf.Max(newScale.y, originalPrefabScale.y),
-                    Mathf.Max(newScale.z, originalPrefabScale.z)
-                ); // Prevent negative scale
+                // Apply scaling
+                Vector3 scaleChange =
+                    new Vector3(deltaMagnitudeDiff, deltaMagnitudeDiff, 0)
+                    * scaleSpeed
+                    * Time.deltaTime;
+                Vector3 newScale = transform.localScale + scaleChange;
+
+                // Maintain the original Z scale of the object
+                newScale.z = transform.localScale.z;
+
+                // Apply the minimum scale limit based on the original prefab scale
+                newScale.x = Mathf.Max(newScale.x, originalPrefabScaleMin.x);
+                newScale.y = Mathf.Max(newScale.y, originalPrefabScaleMin.y);
+
+                newScale.x = Mathf.Min(newScale.x, originalPrefabScaleMax.x);
+                newScale.y = Mathf.Min(newScale.y, originalPrefabScaleMax.y);
+
                 transform.localScale = newScale;
             }
         }
