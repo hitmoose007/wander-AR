@@ -24,7 +24,7 @@ public class MovableImageContent : MovableContent
         // Get the text from the TextMeshPro component
 
         // Serialize the position to a format suitable for Firestore
-        Vector3 position = this.transform.position;
+        Vector3 position = transform.position;
         Dictionary<string, object> positionData = new Dictionary<string, object>
         {
             { "x", position.x },
@@ -38,6 +38,13 @@ public class MovableImageContent : MovableContent
             { "z", transform.rotation.z },
             { "w", transform.rotation.w }
         };
+
+        Dictionary<string, object> scaleData = new Dictionary<string, object>
+        {
+            { "x", transform.localScale.x },
+            { "y", transform.localScale.y },
+            { "z", transform.localScale.z }
+        };
         //store rotation data
 
         // Prepare the document data
@@ -45,7 +52,8 @@ public class MovableImageContent : MovableContent
         {
             { "image_ref", imageRef },
             { "position", positionData },
-            { "rotation", rotationData }
+            { "rotation", rotationData },
+            { "scale", scaleData }
         };
 
         // Generate a unique document ID or use a specific identifier

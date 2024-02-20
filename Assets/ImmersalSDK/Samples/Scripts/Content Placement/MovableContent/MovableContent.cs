@@ -47,14 +47,11 @@ namespace Immersal.Samples.ContentPlacement
             db = FirebaseFirestore.DefaultInstance;
             m_CameraTransform = Camera.main.transform;
             //if its not loaded from database wont have any id already
-            Debug.Log("heyyy" + m_contentId);
             if (m_contentId == null || m_contentId == "")
             {
                 StoreContent();
-                Debug.Log("in here lol");
             }
-            else
-                Debug.Log("not there lol");
+
             if (db == null)
             {
                 Debug.LogError("Firestore not found");

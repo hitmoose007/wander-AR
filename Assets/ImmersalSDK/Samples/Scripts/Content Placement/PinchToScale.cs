@@ -18,7 +18,7 @@ public class ScaleObject : MonoBehaviour
         db = FirebaseFirestore.DefaultInstance;
         // Calculate 75% of the prefab's original scale as the minimum allowed scale
         originalPrefabScaleMin = prefab.transform.localScale * 0.75f;
-        originalPrefabScaleMax = prefab.transform.localScale * 1.4f;
+        originalPrefabScaleMax = prefab.transform.localScale * 1.8f;
     }
 
     void Update()
@@ -71,10 +71,17 @@ public class ScaleObject : MonoBehaviour
 
                 //store scale in dictionary
 
+
+
                 Dictionary<string, object> scaleDictionary = new Dictionary<string, object>
                 {
-                    { "scale_x", newScale.x },
-                    { "scale_y", newScale.y }
+                    { "x", newScale.x },
+                    { "y", newScale.y },
+                    { "z", newScale.z }
+                };
+                Dictionary<string, object> scaleData = new Dictionary<string, object>
+                {
+                    { "scale", scaleDictionary }
                 };
 
                 string content_id = GetComponent<MovableTextContent>().m_contentId;
@@ -82,7 +89,7 @@ public class ScaleObject : MonoBehaviour
                 {
                     db.Collection("text_content")
                         .Document(content_id)
-                        .SetAsync(scaleDictionary)
+                        .UpdateAsync(scaleData)
                         .ContinueWith(task =>
                         {
                             if (task.IsCompleted && !task.IsFaulted)

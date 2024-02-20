@@ -136,7 +136,7 @@ namespace Immersal.Samples.ContentPlacement
             GameObject go = Instantiate(
                 m_TextContentPrefab,
                 cameraTransform.position + cameraTransform.forward,
-                Quaternion.identity,
+                cameraTransform.rotation,
                 m_ARSpace.transform
             );
             // go.AddComponent<TextMeshPro>();
@@ -203,8 +203,10 @@ namespace Immersal.Samples.ContentPlacement
         public void LoadContents()
         {
             //fetch both functions in parrallel
+            Debug.Log("going babes");
             FetchAndDownloadImageContent();
             FetchAndInstantiateTextContent();
+            Debug.Log("coming babes");
             // Reference to your Firestore collection
             //for text content
         }
@@ -214,84 +216,8 @@ namespace Immersal.Samples.ContentPlacement
             CollectionReference textCollectionRef = db.Collection("text_content");
 
             // Fetch all documents from the collection
-            try
-            {
-                textCollectionRef
-                    .GetSnapshotAsync()
-                    .ContinueWithOnMainThread(task =>
-                    {
-                        if (task.IsFaulted)
-                        {
-                            Debug.LogError(
-                                "Error fetching collection documents: " + task.Exception
-                            );
-                            return;
-                        }
 
-                        QuerySnapshot snapshot = task.Result;
-
-                        foreach (DocumentSnapshot document in snapshot.Documents)
-                        {
-                            // Assuming each document has a 'position' map and a 'text' field
-                            if (document.Exists)
-                            {
-                                Dictionary<string, object> documentData = document.ToDictionary();
-
-                                // Extracting the position map
-                                Dictionary<string, object> positionMap =
-                                    documentData["position"] as Dictionary<string, object>;
-                                Vector3 pos = new Vector3(
-                                    Convert.ToSingle(positionMap["x"]),
-                                    Convert.ToSingle(positionMap["y"]),
-                                    Convert.ToSingle(positionMap["z"])
-                                );
-
-                                Dictionary<string, object> rotationMap =
-                                    documentData["rotation"] as Dictionary<string, object>;
-                                Quaternion rot = new Quaternion(
-                                    Convert.ToSingle(rotationMap["x"]),
-                                    Convert.ToSingle(rotationMap["y"]),
-                                    Convert.ToSingle(rotationMap["z"]),
-                                    Convert.ToSingle(rotationMap["w"])
-                                );
-
-                                // Extracting the text
-                                string text = documentData["text"] as string;
-
-                                // Instantiating the content prefab and setting its properties
-                                GameObject go = Instantiate(
-                                    m_TextContentPrefab,
-                                    pos,
-                                    rot,
-                                    m_ARSpace.transform
-                                );
-
-                                go.transform.localPosition = pos;
-                                //add id of document to the game object
-                                go.GetComponent<MovableContent>().m_contentId = document.Id;
-                                TextMeshPro textComponent = go.GetComponent<TextMeshPro>();
-                                if (textComponent != null)
-                                {
-                                    textComponent.text = text;
-                                }
-                            }
-                        }
-                    });
-            }
-            catch (Exception e)
-            {
-                Debug.Log("Error fetching collection documents: " + e);
-            }
-
-            Debug.Log("Successfully loaded Firestore documents.");
-        }
-
-        private void FetchAndDownloadImageContent()
-        {
-            CollectionReference imageCollectionRef = db.Collection("image_content");
-
-            // Fetch all documents from the collection
-            imageCollectionRef
+            textCollectionRef
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
                 {
@@ -305,12 +231,118 @@ namespace Immersal.Samples.ContentPlacement
 
                     foreach (DocumentSnapshot document in snapshot.Documents)
                     {
+                        Debug.Log("starting text");
                         // Assuming each document has a 'position' map and a 'text' field
                         if (document.Exists)
                         {
                             Dictionary<string, object> documentData = document.ToDictionary();
 
                             // Extracting the position map
+                            if (documentData.ContainsKey("position") == false)
+                            {
+                                Debug.LogWarning("position not found");
+                                continue;
+                            }
+                            Dictionary<string, object> positionMap =
+                                documentData["position"] as Dictionary<string, object>;
+
+                            Vector3 pos = new Vector3(
+                                Convert.ToSingle(positionMap["x"]),
+                                Convert.ToSingle(positionMap["y"]),
+                                Convert.ToSingle(positionMap["z"])
+                            );
+
+                            if (documentData.ContainsKey("rotation") == false)
+                            {
+                                Debug.LogWarning("rotation not found");
+                                continue;
+                            }
+                            Debug.Log("positionMap: for text " + positionMap);
+                            Dictionary<string, object> rotationMap =
+                                documentData["rotation"] as Dictionary<string, object>;
+                            Quaternion rot = new Quaternion(
+                                Convert.ToSingle(rotationMap["x"]),
+                                Convert.ToSingle(rotationMap["y"]),
+                                Convert.ToSingle(rotationMap["z"]),
+                                Convert.ToSingle(rotationMap["w"])
+                            );
+                            if (documentData.ContainsKey("scale") == false)
+                            {
+                                Debug.LogWarning("scale not found");
+                                continue;
+                            }
+                            Dictionary<string, object> scaleMap =
+                                documentData["scale"] as Dictionary<string, object>;
+                            Vector3 scale = new Vector3(
+                                Convert.ToSingle(scaleMap["x"]),
+                                Convert.ToSingle(scaleMap["y"]),
+                                Convert.ToSingle(scaleMap["z"])
+                            );
+
+                            // Extracting the text
+                            if (documentData.ContainsKey("text") == false)
+                            {
+                                Debug.LogWarning("text not found");
+                                continue;
+                            }
+                            string text = documentData["text"] as string;
+
+                            // Instantiating the content prefab and setting its properties
+                            GameObject go = Instantiate(
+                                m_TextContentPrefab,
+                                pos,
+                                rot,
+                                m_ARSpace.transform
+                            );
+                            go.transform.localScale = scale;
+
+                            //add id of document to the game object
+                            go.GetComponent<MovableContent>().m_contentId = document.Id;
+                            TextMeshPro textComponent = go.GetComponent<TextMeshPro>();
+                            if (textComponent != null)
+                            {
+                                textComponent.text = text;
+                            }
+                        }
+                    }
+                });
+        }
+
+        private void FetchAndDownloadImageContent()
+        {
+            CollectionReference imageCollectionRef = db.Collection("image_content");
+
+            Debug.Log("imageCollectionRef:  lol" + imageCollectionRef);
+            // Fetch all documents from the collection
+            imageCollectionRef
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
+                {
+                    if (task.IsFaulted)
+                    {
+                        Debug.LogError("Error fetching collection documents: " + task.Exception);
+                        return;
+                    }
+
+                    Debug.Log("task.Result:  lol for images" + task.Result);
+                    QuerySnapshot snapshot = task.Result;
+
+                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    {
+                        Debug.Log("heyyy babes");
+                        // Assuming each document has a 'position' map and a 'text' field
+                        if (document.Exists)
+                        {
+                            Dictionary<string, object> documentData = document.ToDictionary();
+
+                            // Extracting the position map
+                            //add error checking
+
+                            if (documentData.ContainsKey("position") == false)
+                            {
+                                Debug.LogWarning("position not found");
+                                continue;
+                            }
                             Dictionary<string, object> positionMap =
                                 documentData["position"] as Dictionary<string, object>;
                             Vector3 pos = new Vector3(
@@ -319,6 +351,11 @@ namespace Immersal.Samples.ContentPlacement
                                 Convert.ToSingle(positionMap["z"])
                             );
 
+                            if (documentData.ContainsKey("rotation") == false)
+                            {
+                                Debug.LogWarning("rotation not found");
+                                continue;
+                            }
                             Dictionary<string, object> rotationMap =
                                 documentData["rotation"] as Dictionary<string, object>;
                             Quaternion rot = new Quaternion(
@@ -328,7 +365,25 @@ namespace Immersal.Samples.ContentPlacement
                                 Convert.ToSingle(rotationMap["w"])
                             );
 
+                            if (documentData.ContainsKey("scale") == false)
+                            {
+                                Debug.LogWarning("scale not found");
+                                continue;
+                            }
+                            Dictionary<string, object> scaleMap =
+                                documentData["scale"] as Dictionary<string, object>;
+                            Vector3 scale = new Vector3(
+                                Convert.ToSingle(scaleMap["x"]),
+                                Convert.ToSingle(scaleMap["y"]),
+                                Convert.ToSingle(scaleMap["z"])
+                            );
                             // Extracting the text
+
+                            if (documentData.ContainsKey("image_ref") == false)
+                            {
+                                Debug.LogWarning("image_ref not found");
+                                continue;
+                            }
                             string image_ref_path = documentData["image_ref"] as string;
 
                             //fetch image from storage
@@ -351,6 +406,7 @@ namespace Immersal.Samples.ContentPlacement
                                     m_ARSpace.transform // This sets the parent
                                 );
 
+                                // quadInstance.transform.localScale = scale;
                                 quadInstance.transform.localScale = new Vector3(
                                     0.2f,
                                     texture.height / (float)texture.width * 0.2f,

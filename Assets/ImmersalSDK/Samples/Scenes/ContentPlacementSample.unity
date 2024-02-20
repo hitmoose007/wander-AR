@@ -871,6 +871,7 @@ MonoBehaviour:
   ContentUI: {fileID: 0}
   NavUI: {fileID: 0}
   WaypointUI: {fileID: 0}
+  activateForEditor: 0
 --- !u!1 &207243061
 GameObject:
   m_ObjectHideFlags: 0
@@ -2171,6 +2172,10 @@ PrefabInstance:
       propertyPath: WaypointUI
       value: 
       objectReference: {fileID: 1115867590}
+    - target: {fileID: 3102087571950318525, guid: 95dc4be3870d4db4d887e735d1013940, type: 3}
+      propertyPath: activateForEditor
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6190593991564591475, guid: 95dc4be3870d4db4d887e735d1013940, type: 3}
       propertyPath: m_Name
       value: ActivateGameObjects
@@ -2909,7 +2914,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -2934,11 +2939,11 @@ PrefabInstance:
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 11500000, guid: 74e9c90e7d2903642b04a3366b951d05, type: 3}
+      objectReference: {fileID: 1427776849}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 3102087571950318525, guid: 95dc4be3870d4db4d887e735d1013940, type: 3}
+      objectReference: {fileID: 1427776849}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[3].m_Target
       value: 
@@ -2961,11 +2966,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Start
+      value: ActivateContentUI
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: 
+      value: ActivateNavUI
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
@@ -2997,7 +3002,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: 
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName

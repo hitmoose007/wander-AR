@@ -32,12 +32,21 @@ public class MovableTextContent : MovableContent
             { "w", transform.rotation.w }
         };
 
+        //scale
+        Dictionary<string, object> scaleData = new Dictionary<string, object>
+        {
+            { "x", transform.localScale.x },
+            { "y", transform.localScale.y },
+            { "z", transform.localScale.z }
+        };
         // Prepare the document data
         Dictionary<string, object> documentData = new Dictionary<string, object>
         {
             { "text", textContent },
             { "rotation", rotationData },
-            { "position", positionData }
+            { "position", positionData },
+            { "scale", scaleData }
+
         };
 
         // Generate a unique document ID or use a specific identifier
