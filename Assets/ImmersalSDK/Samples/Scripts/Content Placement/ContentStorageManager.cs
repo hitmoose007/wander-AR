@@ -407,11 +407,13 @@ namespace Immersal.Samples.ContentPlacement
                                 );
 
                                 // quadInstance.transform.localScale = scale;
-                                quadInstance.transform.localScale = new Vector3(
-                                    0.2f,
-                                    texture.height / (float)texture.width * 0.2f,
-                                    1f
-                                );
+                                // quadInstance.transform.localScale = new Vector3(
+                                //     0.2f,
+                                //     texture.height / (float)texture.width * 0.2f,
+                                //     1f
+                                // );
+
+                                quadInstance.transform.localScale = scale;
                                 // Debug.Log(image_ref_path);
 
                                 ApplyTextureToSecondChild(quadInstance, texture);

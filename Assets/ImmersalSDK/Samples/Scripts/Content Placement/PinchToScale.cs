@@ -84,39 +84,8 @@ public class ScaleObject : MonoBehaviour
 
                 //store scale in dictionary
 
+                //scale is being saved in firebase in the MovableContent.cs storeContent() method
 
-
-                Dictionary<string, object> scaleDictionary = new Dictionary<string, object>
-                {
-                    { "x", newScale.x },
-                    { "y", newScale.y },
-                    { "z", newScale.z }
-                };
-                Dictionary<string, object> scaleData = new Dictionary<string, object>
-                {
-                    { "scale", scaleDictionary }
-                };
-
-                string content_id = GetComponent<MovableTextContent>().m_contentId;
-                if (content_id != null && content_id != "")
-                {
-                    db.Collection("text_content")
-                        .Document(content_id)
-                        .UpdateAsync(scaleData)
-                        .ContinueWith(task =>
-                        {
-                            if (task.IsCompleted && !task.IsFaulted)
-                            {
-                                Debug.Log("Scale stored successfully!");
-                            }
-                            else
-                            {
-                                Debug.LogError(
-                                    "Failed to store scale: " + task.Exception.ToString()
-                                );
-                            }
-                        });
-                }
             }
         }
     }

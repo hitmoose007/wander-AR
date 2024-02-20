@@ -62,6 +62,10 @@ namespace Immersal.Samples.ContentPlacement
         {
             if (m_EditingContent)
             {
+                if (Input.touchCount > 1)
+                {
+                    return;
+                }
                 Vector3 projection = Camera.main.ScreenToWorldPoint(
                     new Vector3(Input.mousePosition.x, Input.mousePosition.y, m_MovePlaneDistance)
                 );
