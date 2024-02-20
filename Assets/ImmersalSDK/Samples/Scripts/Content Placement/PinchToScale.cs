@@ -7,8 +7,11 @@ public class ScaleObject : MonoBehaviour
 {
     public float scaleSpeed = 0.025f; // Control the speed of scaling
     public GameObject prefab;
-    private Vector3 originalPrefabScaleMin;
-    private Vector3 originalPrefabScaleMax;
+    private float originalPrefabScaleMin_x;
+
+    private float originalPrefabScaleMin_y;
+    private float originalPrefabScaleMax_x;
+    private float originalPrefabScaleMax_y;
 
     //add firestore db
     private FirebaseFirestore db;
@@ -17,8 +20,10 @@ public class ScaleObject : MonoBehaviour
     {
         db = FirebaseFirestore.DefaultInstance;
         // Calculate 75% of the prefab's original scale as the minimum allowed scale
-        originalPrefabScaleMin = prefab.transform.localScale * 0.75f;
-        originalPrefabScaleMax = prefab.transform.localScale * 1.8f;
+        originalPrefabScaleMin_x = prefab.transform.localScale.x * 0.75f;
+        originalPrefabScaleMin_y = prefab.transform.localScale.y * 0.75f;
+        originalPrefabScaleMax_x = prefab.transform.localScale.x * 1.8f;
+        originalPrefabScaleMax_y = prefab.transform.localScale.y * 1.8f;
     }
 
     void Update()
@@ -61,11 +66,19 @@ public class ScaleObject : MonoBehaviour
                 newScale.z = transform.localScale.z;
 
                 // Apply the minimum scale limit based on the original prefab scale
-                newScale.x = Mathf.Max(newScale.x, originalPrefabScaleMin.x);
-                newScale.y = Mathf.Max(newScale.y, originalPrefabScaleMin.y);
+                //check if one of them hits max scale limit then stop scaling
 
-                newScale.x = Mathf.Min(newScale.x, originalPrefabScaleMax.x);
-                newScale.y = Mathf.Min(newScale.y, originalPrefabScaleMax.y);
+                if (
+                    newScale.x >= originalPrefabScaleMax_x || newScale.y >= originalPrefabScaleMax_y
+                )
+                {
+                    return;
+                }
+                newScale.x = Mathf.Max(newScale.x, originalPrefabScaleMin_x);
+                newScale.y = Mathf.Max(newScale.y, originalPrefabScaleMin_y);
+
+                newScale.x = Mathf.Min(newScale.x, originalPrefabScaleMax_x);
+                newScale.y = Mathf.Min(newScale.y, originalPrefabScaleMax_y);
 
                 transform.localScale = newScale;
 
