@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class ScaleObject : MonoBehaviour
 {
-    public float scaleSpeed = 0.025f; // Control the speed of scaling
+    public float scaleSpeed = 0.05f; // Control the speed of scaling
     public GameObject prefab;
     private float originalPrefabScaleMin_x;
 
@@ -14,11 +14,9 @@ public class ScaleObject : MonoBehaviour
     private float originalPrefabScaleMax_y;
 
     //add firestore db
-    private FirebaseFirestore db;
 
     void Start()
     {
-        db = FirebaseFirestore.DefaultInstance;
         // Calculate 75% of the prefab's original scale as the minimum allowed scale
         originalPrefabScaleMin_x = prefab.transform.localScale.x * 0.75f;
         originalPrefabScaleMin_y = prefab.transform.localScale.y * 0.75f;
@@ -57,7 +55,11 @@ public class ScaleObject : MonoBehaviour
 
                 // Apply scaling
                 Vector3 scaleChange =
-                    new Vector3(deltaMagnitudeDiff, deltaMagnitudeDiff, 0)
+                    new Vector3(
+                        deltaMagnitudeDiff * prefab.transform.localScale.x,
+                        deltaMagnitudeDiff * prefab.transform.localScale.y,
+                        0
+                    )
                     * scaleSpeed
                     * Time.deltaTime;
                 Vector3 newScale = transform.localScale + scaleChange;
@@ -68,12 +70,12 @@ public class ScaleObject : MonoBehaviour
                 // Apply the minimum scale limit based on the original prefab scale
                 //check if one of them hits max scale limit then stop scaling
 
-                if (
-                    newScale.x >= originalPrefabScaleMax_x || newScale.y >= originalPrefabScaleMax_y
-                )
-                {
-                    return;
-                }
+                // if (
+                //     newScale.x >= originalPrefabScaleMax_x || newScale.y >= originalPrefabScaleMax_y
+                // )
+                // {
+                //     return;
+                // }
                 newScale.x = Mathf.Max(newScale.x, originalPrefabScaleMin_x);
                 newScale.y = Mathf.Max(newScale.y, originalPrefabScaleMin_y);
 
@@ -85,7 +87,6 @@ public class ScaleObject : MonoBehaviour
                 //store scale in dictionary
 
                 //scale is being saved in firebase in the MovableContent.cs storeContent() method
-
             }
         }
     }
