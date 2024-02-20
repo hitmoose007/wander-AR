@@ -534,9 +534,11 @@ namespace Immersal.Samples.ContentPlacement
 
                         // Adjust the scale of the quad based on the texture's aspect ratio
                         quadInstance.transform.localScale = new Vector3(
-                            0.2f,
-                            texture.height / (float)texture.width * 0.2f,
-                            1f
+                            quadInstance.transform.localScale.x,
+                            quadInstance.transform.localScale.y
+                                * texture.height
+                                / (float)texture.width,
+                            quadInstance.transform.localScale.z
                         );
 
                         quadInstance.transform.parent = m_ARSpace.transform;
