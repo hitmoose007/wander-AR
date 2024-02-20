@@ -2174,7 +2174,7 @@ PrefabInstance:
       objectReference: {fileID: 1115867590}
     - target: {fileID: 3102087571950318525, guid: 95dc4be3870d4db4d887e735d1013940, type: 3}
       propertyPath: activateForEditor
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6190593991564591475, guid: 95dc4be3870d4db4d887e735d1013940, type: 3}
       propertyPath: m_Name
@@ -2970,11 +2970,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ActivateNavUI
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
-      value: ActivateWaypointUI
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8869940821398010349, guid: 181e478384bef4862b94db5a060df1b6, type: 3}
       propertyPath: onPoseFound.m_PersistentCalls.m_Calls.Array.data[3].m_MethodName
