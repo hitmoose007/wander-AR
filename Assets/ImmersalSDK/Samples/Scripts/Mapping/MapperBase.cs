@@ -20,6 +20,9 @@ using Immersal.AR;
 using Immersal.REST;
 using Immersal.Samples.Util;
 using UnityEngine.Events;
+
+using Firebase;
+using Firebase.Firestore;
 #if PLATFORM_ANDROID
 using UnityEngine.Android;
 #endif
@@ -639,6 +642,10 @@ namespace Immersal.Samples.Mapping
                 Debug.LogFormat("Started constructing a map width ID {0}, containing {1} images and detail level of {2}", result.id, result.size, j.featureCount);
             };
 
+
+
+            
+
             m_Jobs.Add(j);
         }
 
@@ -783,11 +790,11 @@ namespace Immersal.Samples.Mapping
             m_Jobs.Add(j);
         }
 
-        public void Logout()
-        {
-            if (LoginManager.Instance != null)
-                LoginManager.Instance.Logout();
-        }
+        // public void Logout()
+        // {
+        //     if (LoginManager.Instance != null)
+        //         LoginManager.Instance.Logout();
+        // }
     }
 
     public class MapperStats

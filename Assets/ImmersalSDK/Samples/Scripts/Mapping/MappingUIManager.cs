@@ -65,11 +65,11 @@ namespace Immersal.Samples.Mapping
 	        DebugConsole.Instance.Show(value);
         }
 
-        public void LogoutButtonPressed()
-        {
-	        visualizeManager.ResetMaps();
-	        LoginManager.Instance.Logout();
-        }
+        // public void LogoutButtonPressed()
+        // {
+	    //     visualizeManager.ResetMaps();
+	    //     LoginManager.Instance.Logout();
+        // }
 
 		private void ChangeState(UIState state) {
 			switch (state) {
