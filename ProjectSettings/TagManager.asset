@@ -3,7 +3,10 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Content_UI
+  - Navigation_UI
+  - Waypoint_UI
   layers:
   - Default
   - TransparentFX

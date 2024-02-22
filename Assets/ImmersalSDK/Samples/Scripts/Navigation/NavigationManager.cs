@@ -210,6 +210,8 @@ namespace Immersal.Samples.Navigation
 
                     corners = m_NavigationGraphManager.FindPath(startPosition, targetPosition);
 
+                    //log the corners in unity editor
+                    // Debug.Log("corners: " + corners);
                     if (corners.Count >= 2)
                     {
                         m_navigationActive = true;
