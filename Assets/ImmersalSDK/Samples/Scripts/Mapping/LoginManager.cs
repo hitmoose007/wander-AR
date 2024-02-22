@@ -119,7 +119,7 @@ namespace Immersal.Samples.Mapping
 
             FadeOut();
 
-            OnLogin?.Invoke();
+            // OnLogin?.Invoke();
         }
 
         private void FadeOut()

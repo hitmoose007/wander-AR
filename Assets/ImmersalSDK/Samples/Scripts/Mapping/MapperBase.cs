@@ -23,6 +23,10 @@ using UnityEngine.Events;
 
 using Firebase;
 using Firebase.Firestore;
+using System.Data.Common;
+using Firebase.Extensions;
+using System.Linq;
+
 #if PLATFORM_ANDROID
 using UnityEngine.Android;
 #endif
@@ -39,10 +43,13 @@ namespace Immersal.Samples.Mapping
 
         [HideInInspector]
         public MappingUIManager mappingUIManager;
+
         [HideInInspector]
         public MapperSettings mapperSettings;
+
         [HideInInspector]
         public WorkspaceManager workspaceManager;
+
         [HideInInspector]
         public VisualizeManager visualizeManager;
 
@@ -54,6 +61,7 @@ namespace Immersal.Samples.Mapping
         protected bool m_IsTracking = false;
         protected List<JobAsync> m_Jobs = new List<JobAsync>();
         private int m_JobLock = 0;
+        private FirebaseFirestore db;
         protected ImmersalSDK m_Sdk;
         protected double m_Latitude = 0.0;
         protected double m_Longitude = 0.0;
@@ -65,7 +73,7 @@ namespace Immersal.Samples.Mapping
         protected double m_VAltitude = 0.0;
         protected float m_VBearing = 0f;
         protected bool m_bCaptureRunning = false;
-		protected IntPtr m_PixelBuffer = IntPtr.Zero;
+        protected IntPtr m_PixelBuffer = IntPtr.Zero;
 
         private AudioSource m_CameraShutterClick;
         private IEnumerator m_UpdateJobList;
@@ -92,19 +100,16 @@ namespace Immersal.Samples.Mapping
 
         public bool gpsOn
         {
-            #if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
             get { return NativeBindings.LocationServicesEnabled(); }
-            #else
+#else
             get { return Input.location.status == LocationServiceStatus.Running; }
-            #endif
+#endif
         }
 
         public string tempImagePath
         {
-            get
-            {
-                return string.Format("{0}/Images", Application.persistentDataPath);
-            }
+            get { return string.Format("{0}/Images", Application.persistentDataPath); }
         }
 
         #region Abstract methods
@@ -128,12 +133,12 @@ namespace Immersal.Samples.Mapping
 
             Directory.CreateDirectory(tempImagePath);
 
-            #if UNITY_IOS
+#if UNITY_IOS
             UnityEngine.iOS.Device.SetNoBackupFlag(tempImagePath);
-            #endif
+#endif
 
             m_enableStatusPolling = true;
-            
+
             mappingUIManager.vLocationText.text = "No VGPS localizations";
 
             if (mapperSettings.useGps)
@@ -150,7 +155,7 @@ namespace Immersal.Samples.Mapping
             bool deleteToken = true;
             if (PlayerPrefs.HasKey("rememberMe"))
             {
-                if(bool.Parse(PlayerPrefs.GetString("rememberMe")))
+                if (bool.Parse(PlayerPrefs.GetString("rememberMe")))
                 {
                     Debug.Log("Remember me feature is on - skipping token deletion");
                     deleteToken = false;
@@ -159,9 +164,9 @@ namespace Immersal.Samples.Mapping
             if (deleteToken)
             {
                 PlayerPrefs.DeleteKey("token");
-                m_Sdk.developerToken = null;    
+                m_Sdk.developerToken = null;
             }
-            
+
             m_enableStatusPolling = false;
         }
 
@@ -198,8 +203,8 @@ namespace Immersal.Samples.Mapping
 
         #endregion
 
-		public void OnGPSToggleChanged(bool value)
-		{
+        public void OnGPSToggleChanged(bool value)
+        {
             if (value)
             {
                 Invoke("StartGPS", 0.1f);
@@ -208,7 +213,7 @@ namespace Immersal.Samples.Mapping
             {
                 Invoke("StopGPS", 0.1f);
             }
-		}
+        }
 
         internal void ImageRunUpdate()
         {
@@ -240,49 +245,49 @@ namespace Immersal.Samples.Mapping
 
             if (mapperSettings.downsampleWhenLocalizing)
             {
-                Immersal.Core.SetInteger("LocalizationMaxPixels", 960*720);
+                Immersal.Core.SetInteger("LocalizationMaxPixels", 960 * 720);
             }
         }
 
 #if PLATFORM_ANDROID
-		private IEnumerator WaitForLocationPermission()
-		{
-			while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
-			{
-				yield return null;
-			}
+        private IEnumerator WaitForLocationPermission()
+        {
+            while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+            {
+                yield return null;
+            }
 
-			Debug.Log("Location permission OK");
-			StartCoroutine(EnableLocationServices());
-			yield return null;
-		}
+            Debug.Log("Location permission OK");
+            StartCoroutine(EnableLocationServices());
+            yield return null;
+        }
 #endif
 
         public void StartGPS()
         {
-            #if UNITY_IOS
+#if UNITY_IOS
             StartCoroutine(EnableLocationServices());
-			#elif PLATFORM_ANDROID
-			if (Permission.HasUserAuthorizedPermission(Permission.FineLocation))
-			{
-				Debug.Log("Location permission OK");
-				StartCoroutine(EnableLocationServices());
-			}
-			else
-			{
-				Permission.RequestUserPermission(Permission.FineLocation);
-				StartCoroutine(WaitForLocationPermission());
-			}
-			#endif
+#elif PLATFORM_ANDROID
+            if (Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+            {
+                Debug.Log("Location permission OK");
+                StartCoroutine(EnableLocationServices());
+            }
+            else
+            {
+                Permission.RequestUserPermission(Permission.FineLocation);
+                StartCoroutine(WaitForLocationPermission());
+            }
+#endif
         }
 
         public void StopGPS()
         {
-            #if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
             NativeBindings.StopLocation();
-            #else
+#else
             Input.location.Stop();
-            #endif
+#endif
             mapperSettings.SetUseGPS(false);
             NotificationManager.Instance.GenerateNotification("Geolocation tracking stopped");
             mappingUIManager.locationText.text = "GPS not enabled";
@@ -301,19 +306,19 @@ namespace Immersal.Samples.Mapping
             }
 
             // Start service before querying location
-            #if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
             NativeBindings.StartLocation();
-            #else
+#else
             Input.location.Start(0.001f, 0.001f);
-            #endif
+#endif
 
             // Wait until service initializes
             int maxWait = 20;
-            #if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
             while (!NativeBindings.LocationServicesEnabled() && maxWait > 0)
-            #else
+#else
             while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
-            #endif
+#endif
             {
                 yield return new WaitForSeconds(1);
                 maxWait--;
@@ -330,24 +335,26 @@ namespace Immersal.Samples.Mapping
             }
 
             // Connection has failed
-            #if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
             if (!NativeBindings.LocationServicesEnabled())
-            #else
+#else
             if (Input.location.status == LocationServiceStatus.Failed)
-            #endif
+#endif
             {
                 mappingUIManager.gpsToggle.SetIsOnWithoutNotify(false);
                 mapperSettings.SetUseGPS(false);
-                NotificationManager.Instance.GenerateNotification("Unable to determine device location");
+                NotificationManager.Instance.GenerateNotification(
+                    "Unable to determine device location"
+                );
                 Debug.Log("Unable to determine device location");
                 yield break;
             }
 
-            #if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
             if (NativeBindings.LocationServicesEnabled())
-            #else
+#else
             if (Input.location.status == LocationServiceStatus.Running)
-            #endif
+#endif
             {
                 mappingUIManager.gpsToggle.SetIsOnWithoutNotify(true);
                 mapperSettings.SetUseGPS(true);
@@ -431,7 +438,7 @@ namespace Immersal.Samples.Mapping
         async void StatusPoll()
         {
             int polledUserLevel = 0;
-            
+
             JobStatusAsync j = new JobStatusAsync();
             j.OnResult += (SDKStatusResult result) =>
             {
@@ -442,7 +449,7 @@ namespace Immersal.Samples.Mapping
 
             await j.RunJobAsync();
             mapperSettings.UpdateLevelRestriction(polledUserLevel);
-            
+
             await Task.Delay(3000);
 
             if (Application.isPlaying && m_enableStatusPolling)
@@ -513,7 +520,11 @@ namespace Immersal.Samples.Mapping
             int rw = Immersal.Core.PosMapToWgs84(wgs84, ARHelper.SwitchHandedness(a), mapToEcef);
             Matrix4x4 R = Rot3d(wgs84[0], wgs84[1]);
 
-            Vector3 v = new Vector3((float)(bEcef[0] - aEcef[0]), (float)(bEcef[1] - aEcef[1]), (float)(bEcef[2] - aEcef[2]));
+            Vector3 v = new Vector3(
+                (float)(bEcef[0] - aEcef[0]),
+                (float)(bEcef[1] - aEcef[1]),
+                (float)(bEcef[2] - aEcef[2])
+            );
             Vector3 vt = R.MultiplyVector(v.normalized);
 
             Vector2 d = new Vector2(vt.x, vt.y);
@@ -524,27 +535,29 @@ namespace Immersal.Samples.Mapping
         {
             if (gpsOn)
             {
-                #if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || PLATFORM_ANDROID) && !UNITY_EDITOR
                 m_Latitude = NativeBindings.GetLatitude();
                 m_Longitude = NativeBindings.GetLongitude();
                 m_Altitude = NativeBindings.GetAltitude();
                 m_Haccuracy = NativeBindings.GetHorizontalAccuracy();
                 m_Vaccuracy = NativeBindings.GetVerticalAccuracy();
-                #else
+#else
                 m_Latitude = Input.location.lastData.latitude;
                 m_Longitude = Input.location.lastData.longitude;
                 m_Altitude = Input.location.lastData.altitude;
                 m_Haccuracy = Input.location.lastData.horizontalAccuracy;
                 m_Vaccuracy = Input.location.lastData.verticalAccuracy;
-                #endif
+#endif
 
-                string txt = string.Format("Lat: {0}, Lon: {1}, Alt: {2}, HAcc: {3}, VAcc: {4}", 
-                                m_Latitude.ToString("0.00000"), 
-                                m_Longitude.ToString("0.00000"), 
-                                m_Altitude.ToString("0.0"), 
-                                m_Haccuracy.ToString("0.0"), 
-                                m_Vaccuracy.ToString("0.0"));
-                
+                string txt = string.Format(
+                    "Lat: {0}, Lon: {1}, Alt: {2}, HAcc: {3}, VAcc: {4}",
+                    m_Latitude.ToString("0.00000"),
+                    m_Longitude.ToString("0.00000"),
+                    m_Altitude.ToString("0.0"),
+                    m_Haccuracy.ToString("0.0"),
+                    m_Vaccuracy.ToString("0.0")
+                );
+
                 mappingUIManager.locationText.text = txt;
             }
 
@@ -554,7 +567,7 @@ namespace Immersal.Samples.Mapping
             {
                 Vector2 cd = CompassDir(mainCamera, localizerPose.matrix, localizerPose.mapToEcef);
                 float bearing = Mathf.Atan2(-cd.x, cd.y) * (180f / (float)Math.PI);
-                if(bearing >= 0f)
+                if (bearing >= 0f)
                 {
                     m_VBearing = bearing;
                 }
@@ -563,12 +576,20 @@ namespace Immersal.Samples.Mapping
                     m_VBearing = 360f - Mathf.Abs(bearing);
                 }
 
-                Matrix4x4 trackerSpace = Matrix4x4.TRS(mainCamera.transform.position, mainCamera.transform.rotation, Vector3.one);
+                Matrix4x4 trackerSpace = Matrix4x4.TRS(
+                    mainCamera.transform.position,
+                    mainCamera.transform.rotation,
+                    Vector3.one
+                );
                 Matrix4x4 m = localizerPose.matrix * trackerSpace;
                 Vector3 pos = m.GetColumn(3);
 
                 double[] wgs84 = new double[3];
-                int r = Immersal.Core.PosMapToWgs84(wgs84, ARHelper.SwitchHandedness(pos), localizerPose.mapToEcef);
+                int r = Immersal.Core.PosMapToWgs84(
+                    wgs84,
+                    ARHelper.SwitchHandedness(pos),
+                    localizerPose.mapToEcef
+                );
                 m_VLatitude = wgs84[0];
                 m_VLongitude = wgs84[1];
                 m_VAltitude = wgs84[2];
@@ -577,12 +598,14 @@ namespace Immersal.Samples.Mapping
                 localizerPose.lastUpdatedPose.rotation = m.rotation;
             }
 
-            string txt2 = string.Format("VLat: {0}, VLon: {1}, VAlt: {2}, VBRG: {3}", 
-                            m_VLatitude.ToString("0.000000"),
-                            m_VLongitude.ToString("0.000000"),
-                            m_VAltitude.ToString("0.0"),
-                            m_VBearing.ToString("0.0"));
-            
+            string txt2 = string.Format(
+                "VLat: {0}, VLon: {1}, VAlt: {2}, VBRG: {3}",
+                m_VLatitude.ToString("0.000000"),
+                m_VLongitude.ToString("0.000000"),
+                m_VAltitude.ToString("0.0"),
+                m_VBearing.ToString("0.0")
+            );
+
             mappingUIManager.vLocationText.text = txt2;
         }
 
@@ -639,19 +662,21 @@ namespace Immersal.Samples.Mapping
             j.compressionLevel = mapperSettings.compressionLevel;
             j.OnResult += (SDKConstructResult result) =>
             {
-                Debug.LogFormat("Started constructing a map width ID {0}, containing {1} images and detail level of {2}", result.id, result.size, j.featureCount);
+                Debug.LogFormat(
+                    "Started constructing a map width ID {0}, containing {1} images and detail level of {2}",
+                    result.id,
+                    result.size,
+                    j.featureCount
+                );
             };
-
-
-
-            
 
             m_Jobs.Add(j);
         }
 
         public void NotifyIfConnected(CaptureInfo info)
         {
-            Dispatch.Dispatch(() => {
+            Dispatch.Dispatch(() =>
+            {
                 if (!m_SessionFirstImage)
                 {
                     if (info.connected == 0)
@@ -668,7 +693,8 @@ namespace Immersal.Samples.Mapping
 
         public void ImageLimitExceeded()
         {
-            Dispatch.Dispatch(() => {
+            Dispatch.Dispatch(() =>
+            {
                 Debug.Log("Account image limit exceeded, aborting image capture");
                 this.onImageLimitExceeded?.Invoke();
             });
@@ -714,8 +740,16 @@ namespace Immersal.Samples.Mapping
             };
             j.OnResult += async (SDKMapResult result) =>
             {
-                Debug.LogFormat("Load map {0} ({1} bytes) ({2}/{3})", job.id, result.mapData.Length, CryptoUtil.SHA256(result.mapData), result.sha256_al);
-    			Color pointCloudColor = ARMap.pointCloudColors[UnityEngine.Random.Range(0, ARMap.pointCloudColors.Length)];
+                Debug.LogFormat(
+                    "Load map {0} ({1} bytes) ({2}/{3})",
+                    job.id,
+                    result.mapData.Length,
+                    CryptoUtil.SHA256(result.mapData),
+                    result.sha256_al
+                );
+                Color pointCloudColor = ARMap.pointCloudColors[
+                    UnityEngine.Random.Range(0, ARMap.pointCloudColors.Length)
+                ];
 
                 Transform root = null;
                 if (!mapperSettings.useDifferentARSpaces)
@@ -732,7 +766,13 @@ namespace Immersal.Samples.Mapping
 
                 bool applyAlignment = !mapperSettings.useDifferentARSpaces;
 
-                await ARSpace.LoadAndInstantiateARMap(root, result, ARMap.RenderMode.EditorAndRuntime, pointCloudColor, applyAlignment);
+                await ARSpace.LoadAndInstantiateARMap(
+                    root,
+                    result,
+                    ARMap.RenderMode.EditorAndRuntime,
+                    pointCloudColor,
+                    applyAlignment
+                );
                 //await ARSpace.LoadAndInstantiateARMap(root, job, result.mapData, ARMap.RenderMode.EditorAndRuntime, pointCloudColor, applyAlignment);
 
                 m_Sdk.Localizer.stats.localizationAttemptCount = 0;
@@ -784,7 +824,57 @@ namespace Immersal.Samples.Mapping
                     }
                 }
 
-                this.visualizeManager.SetMapListData(jobList.ToArray(), activeMaps);
+                PlayerPrefs.SetString("email", "mom@gmail.com");
+
+                //make int array
+                List<SDKJob> filteredJobs = new List<SDKJob>();
+                List<int> firebaseMapsId = new List<int>();
+                //use firestore document fetch dont check dependency
+                db = FirebaseFirestore.DefaultInstance;
+                db.Collection("map")
+                    .WhereEqualTo("email", PlayerPrefs.GetString("email"))
+                    .GetSnapshotAsync()
+                    .ContinueWithOnMainThread(task =>
+                    {
+                        QuerySnapshot snapshot = task.Result;
+                        foreach (DocumentSnapshot document in snapshot.Documents)
+                        {
+                            Dictionary<string, object> map = document.ToDictionary();
+                            Debug.Log(map["id"]);
+                            if (map["email"].ToString() == PlayerPrefs.GetString("email"))
+                            {
+                                firebaseMapsId.Add(int.Parse(map["id"].ToString()));
+                            }
+                            foreach (SDKJob job in jobList)
+                            {
+                                foreach (int firebaseMapId in firebaseMapsId)
+                                {
+                                    Debug.Log("yep");
+                                    Debug.Log("jobid" + job.id);
+                                    Debug.Log("fire id " + firebaseMapId);
+                                    if (job.id == firebaseMapId)
+                                    {
+                                        filteredJobs.Add(job);
+                                        Debug.Log("yep i survived");
+                                    }
+                                    Debug.Log("nop");
+                                }
+
+                                Debug.Log("Filtered Jobs 1");
+                                Debug.Log(filteredJobs.Count());
+                            }
+
+                            Debug.Log("Filtered Jobs 2");
+                            Debug.Log(filteredJobs.Count());
+
+                            this.visualizeManager.SetMapListData(
+                                filteredJobs.ToArray(),
+                                activeMaps
+                            );
+                        }
+                    });
+
+                //only extract the job list data with matching ids with
             };
 
             m_Jobs.Add(j);

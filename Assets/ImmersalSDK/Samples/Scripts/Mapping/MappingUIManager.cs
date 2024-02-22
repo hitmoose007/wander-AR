@@ -65,6 +65,7 @@ namespace Immersal.Samples.Mapping
 	        DebugConsole.Instance.Show(value);
         }
 
+        
         // public void LogoutButtonPressed()
         // {
 	    //     visualizeManager.ResetMaps();
