@@ -36,6 +36,7 @@ namespace Immersal.Samples.Mapping.ScrollList
 		
 		public void SetData(SDKJob[] data, List<int> activeMaps)
 		{
+            Debug.Log("SetData");
 			bool newDataAvailable = false;
 			if (m_Data != null)
 			{

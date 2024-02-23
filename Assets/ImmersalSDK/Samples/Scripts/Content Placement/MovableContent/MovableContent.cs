@@ -93,6 +93,9 @@ namespace Immersal.Samples.ContentPlacement
             Destroy(gameObject);
         }
 
+        //change destroy to be also like remove content
+        
+
         private void OnMouseDrag()
         {
             m_timeHold += Time.deltaTime;
