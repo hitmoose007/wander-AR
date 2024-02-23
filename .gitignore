@@ -70,24 +70,22 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
-
-# Custom ignored directories
-/[Aa]ssets/[Ee]ditor [Dd]efault [Rr]esources/
-/[Aa]ssets/[Ee]xternal[Dd]ependency[Mm]anager/
-/[Aa]ssets/[Ff]irebase/
-/[Aa]ssets/[Gg]eneratedLocalRepo/
-
-        Assets/GeneratedLocalRepo.meta
-        Assets/Plugins/Android/FirebaseApp.androidlib/res/values/google-services.xml
-        Assets/Plugins/Android/FirebaseApp.androidlib.meta
-        Assets/Plugins/Android/gradleTemplate.properties
-        Assets/Plugins/Android/gradleTemplate.properties.meta
-        Assets/Plugins/Android/mainTemplate.gradle  
-        Assets/Plugins/Android/mainTemplate.gradle.meta
-        Assets/Plugins/Android/settingsTemplate.gradle
-        Assets/Plugins/Android/settingsTemplate.gradle.meta
-        Assets/StreamingAssets.meta
-        Assets/StreamingAssets/google-services-desktop.json
-        Assets/StreamingAssets/google-services-desktop.json.meta
-        ProjectSettings/AndroidResolverDependencies.xml
-        ProjectSettings/GvhProjectSettings.xml 
+Assets/Firebase
+Assets/google-services.json
+Assets/GeneratedLocalRepo.meta
+Assets/Plugins/Android/FirebaseApp.androidlib.meta
+Assets/Plugins/Android/FirebaseApp.androidlib/res/values/google-services.xml
+Assets/Plugins/Android/gradleTemplate.properties
+Assets/Plugins/Android/gradleTemplate.properties.meta
+Assets/Plugins/Android/mainTemplate.gradle
+Assets/Plugins/Android/mainTemplate.gradle.meta
+Assets/Plugins/Android/settingsTemplate.gradle
+Assets/Plugins/Android/settingsTemplate.gradle.meta
+Assets/StreamingAssets.meta
+Assets/StreamingAssets/google-services-desktop.json
+Assets/StreamingAssets/google-services-desktop.json.meta
+Packages/manifest.json
+Packages/packages-lock.json
+ProjectSettings/AndroidResolverDependencies.xml
+ProjectSettings/GvhProjectSettings.xml
+ProjectSettings/ProjectSettings.asset
