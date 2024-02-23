@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/ImmersalSDK/Samples/Scenes/MappingApp.unity
     guid: c248af4dffbfc36498566b9e4934d129
-  - enabled: 0
+  - enabled: 1
     path: Assets/ImmersalSDK/Samples/Scenes/ContentPlacementSample.unity
     guid: a5347933d518cc34ba0c72bc19f2f118
   - enabled: 0
@@ -29,9 +29,6 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/ImmersalSDK/Samples/Scenes/RealtimeMappingSample.unity
     guid: c4d541a67648244d6a20f52893bcf122
-  - enabled: 1
-    path: Assets/ImmersalSDK/Samples/Scenes/login.unity
-    guid: 4055950cd19e83247b00ee40bf7966ba
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 0eb36a35e1ef1cb4fae59380454bdd83, type: 2}
     UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: c7e362ba310afd24e8fde9976aac5180, type: 2}
