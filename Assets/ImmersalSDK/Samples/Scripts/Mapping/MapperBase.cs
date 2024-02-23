@@ -668,7 +668,34 @@ namespace Immersal.Samples.Mapping
                     result.size,
                     j.featureCount
                 );
+
+                db = FirebaseFirestore.DefaultInstance;
+                DocumentReference docRef = db.Collection("map").Document();
+                Dictionary<string, object> map = new Dictionary<string, object>
+                {
+                    { "id", result.id },
+                    { "email", PlayerPrefs.GetString("email") }
+                };
+                docRef.SetAsync(map);
             };
+
+            // db.Collection("map")
+            //     .WhereEqualTo("email", PlayerPrefs.GetString("email"))
+            //     .GetSnapshotAsync()
+            //     .ContinueWithOnMainThread(task =>
+            //     {
+            //         QuerySnapshot snapshot = task.Result;
+            //         foreach (DocumentSnapshot document in snapshot.Documents)
+            //         {
+            //             Dictionary<string, object> map = document.ToDictionary();
+            //             Debug.Log(map["id"]);
+            //             if (map["email"].ToString() == PlayerPrefs.GetString("email"))
+            //             {
+            //                 j.id = int.Parse(map["id"].ToString());
+            //             }
+            //         }
+            //     });
+
 
             m_Jobs.Add(j);
         }
@@ -849,23 +876,12 @@ namespace Immersal.Samples.Mapping
                             {
                                 foreach (int firebaseMapId in firebaseMapsId)
                                 {
-                                    Debug.Log("yep");
-                                    Debug.Log("jobid" + job.id);
-                                    Debug.Log("fire id " + firebaseMapId);
                                     if (job.id == firebaseMapId)
                                     {
                                         filteredJobs.Add(job);
-                                        Debug.Log("yep i survived");
                                     }
-                                    Debug.Log("nop");
                                 }
-
-                                Debug.Log("Filtered Jobs 1");
-                                Debug.Log(filteredJobs.Count());
                             }
-
-                            Debug.Log("Filtered Jobs 2");
-                            Debug.Log(filteredJobs.Count());
 
                             this.visualizeManager.SetMapListData(
                                 filteredJobs.ToArray(),
