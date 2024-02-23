@@ -15,6 +15,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+using Firebase;
+using Firebase.Firestore;
+
 namespace Immersal.Samples.Navigation
 {
     public class Waypoint : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
@@ -23,16 +26,11 @@ namespace Immersal.Samples.Navigation
 
         public Vector3 position
         {
-            get
-            {
-                return m_collider.bounds.center;
-            }
-
-            set
-            {
-
-            }
+            get { return m_collider.bounds.center; }
+            set { }
         }
+        public string UniqueID;
+        private FirebaseFirestore db;
 
         [SerializeField]
         private float m_ClickHoldTime = 1f;
@@ -49,9 +47,13 @@ namespace Immersal.Samples.Navigation
         private MeshRenderer m_MeshRenderer = null;
         private Mesh m_Mesh = null;
 
+
         void Start()
         {
+            UniqueID = System.Guid.NewGuid().ToString();
+            db = FirebaseFirestore.DefaultInstance;
             m_mainCamera = Camera.main;
+
 
             InitializeNode();
             NavigationGraphManager.Instance.AddWaypoint(this);
@@ -82,7 +84,9 @@ namespace Immersal.Samples.Navigation
         {
             if (isPressed)
             {
-                Vector3 projection = m_mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, m_DragPlaneDistance));
+                Vector3 projection = m_mainCamera.ScreenToWorldPoint(
+                    new Vector3(Input.mousePosition.x, Input.mousePosition.y, m_DragPlaneDistance)
+                );
                 DrawPreviewConnection(position, projection, 0.1f, m_Mesh);
 
                 RaycastHit hit;
@@ -115,12 +119,12 @@ namespace Immersal.Samples.Navigation
             }
         }
 
-        private void OnDestroy()
-        {
-            NavigationGraphManager.Instance.RemoveWaypoint(this);
-        }
-
-        private void DrawPreviewConnection(Vector3 startPosition, Vector3 endPosition, float lineWidth, Mesh mesh)
+        private void DrawPreviewConnection(
+            Vector3 startPosition,
+            Vector3 endPosition,
+            float lineWidth,
+            Mesh mesh
+        )
         {
             Vector3 camPos = m_mainCamera.transform.position;
             float length = (endPosition - startPosition).magnitude;
@@ -155,10 +159,20 @@ namespace Immersal.Samples.Navigation
             int[] idx = new int[6];
             Vector2[] uv = new Vector2[4];
 
-            vtx[0] = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(startPosition.x, startPosition.y, startPosition.z) - (x[0] * lineWidth * 0.5f));
-            vtx[1] = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(endPosition.x, endPosition.y, endPosition.z) - (x[1] * lineWidth * 0.5f));
-            vtx[2] = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(endPosition.x, endPosition.y, endPosition.z) + (x[1] * lineWidth * 0.5f));
-            vtx[3] = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(startPosition.x, startPosition.y, startPosition.z) + (x[0] * lineWidth * 0.5f));
+            vtx[0] = transform.worldToLocalMatrix.MultiplyPoint(
+                new Vector3(startPosition.x, startPosition.y, startPosition.z)
+                    - (x[0] * lineWidth * 0.5f)
+            );
+            vtx[1] = transform.worldToLocalMatrix.MultiplyPoint(
+                new Vector3(endPosition.x, endPosition.y, endPosition.z) - (x[1] * lineWidth * 0.5f)
+            );
+            vtx[2] = transform.worldToLocalMatrix.MultiplyPoint(
+                new Vector3(endPosition.x, endPosition.y, endPosition.z) + (x[1] * lineWidth * 0.5f)
+            );
+            vtx[3] = transform.worldToLocalMatrix.MultiplyPoint(
+                new Vector3(startPosition.x, startPosition.y, startPosition.z)
+                    + (x[0] * lineWidth * 0.5f)
+            );
 
             idx[0] = 0;
             idx[1] = 1;
@@ -182,22 +196,46 @@ namespace Immersal.Samples.Navigation
         {
             if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
             {
-                Debug.Log("pointer down");
-                Debug.Log(m_timeHeld);
-
                 isPressed = true;
-                m_DragPlaneDistance = Vector3.Dot(transform.position - m_mainCamera.transform.position, m_mainCamera.transform.forward) / m_mainCamera.transform.forward.sqrMagnitude;
+                m_DragPlaneDistance =
+                    Vector3.Dot(
+                        transform.position - m_mainCamera.transform.position,
+                        m_mainCamera.transform.forward
+                    ) / m_mainCamera.transform.forward.sqrMagnitude;
             }
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
+
+            if (isEditing)
+            {
+                db.Collection("waypoint_object")
+                    .Document(UniqueID)
+                    .SetAsync(
+                        new Dictionary<string, object>
+                        {
+                            {
+                                "position",
+                                new Dictionary<string, object>
+                                {
+                                    { "x", transform.position.x },
+                                    { "y", transform.position.y },
+                                    { "z", transform.position.z }
+                                }
+                            }
+                        }
+                    );
+
+                NavigationGraphManager.Instance.SaveWaypoints();
+            }
             isPressed = false;
             isEditing = false;
             m_timeHeld = 0f;
 
             m_Mesh.Clear();
 
+            //add niegbours whichever hits collieder and vice versa
             if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
             {
                 RaycastHit hit;
@@ -213,10 +251,21 @@ namespace Immersal.Samples.Navigation
                             if (!neighbours.Contains(wp))
                             {
                                 neighbours.Add(wp);
+                                var update = FieldValue.ArrayUnion(wp.UniqueID);
+                                db.Collection("waypoint_object")
+                                    .Document(UniqueID)
+                                    .UpdateAsync("neighbours", update);
+
+                                NavigationGraphManager.Instance.SaveWaypoints();
                             }
                             if (!wp.neighbours.Contains(this))
                             {
+                                var update = FieldValue.ArrayUnion(this.UniqueID);
+                                db.Collection("waypoint_object")
+                                    .Document(wp.UniqueID)
+                                    .UpdateAsync("neighbours", update);
                                 wp.neighbours.Add(this);
+                                NavigationGraphManager.Instance.SaveWaypoints();
                             }
                         }
                     }
