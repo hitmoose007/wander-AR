@@ -53,6 +53,8 @@ public class ActivateObject : MonoBehaviour
         {
             actionsToRunOnMainThread.Dequeue().Invoke();
         }
+
+        //check if ar space exists
     }
 
     // Enqueues an action to be performed on the main thread
