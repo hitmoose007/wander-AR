@@ -85,6 +85,15 @@ namespace Immersal.Samples.ContentPlacement
             // {
             //     return;
             // }
+
+            //check which sub class it is and delete from the right collection
+
+
+            if (this is MovableImageContent)
+                db.Collection("image_content").Document(m_contentId).DeleteAsync();
+            else if (this is MovableTextContent)
+                db.Collection("text_content").Document(m_contentId).DeleteAsync();
+
             if (ContentStorageManager.Instance.contentList.Contains(this))
             {
                 ContentStorageManager.Instance.contentList.Remove(this);
@@ -94,7 +103,7 @@ namespace Immersal.Samples.ContentPlacement
         }
 
         //change destroy to be also like remove content
-        
+
 
         private void OnMouseDrag()
         {

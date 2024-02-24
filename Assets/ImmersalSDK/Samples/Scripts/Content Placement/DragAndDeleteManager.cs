@@ -22,7 +22,8 @@ public class DragAndDeleteManager : MonoBehaviour
                     RaycastHit hit;
                     if (Physics.Raycast(ray, out hit))
                     {
-                        MovableContent movableContent = hit.collider.gameObject.GetComponent<MovableContent>();
+                        MovableContent movableContent =
+                            hit.collider.gameObject.GetComponent<MovableContent>();
                         if (movableContent != null)
                         {
                             selectedObject = hit.collider.gameObject;
@@ -30,23 +31,24 @@ public class DragAndDeleteManager : MonoBehaviour
                         }
                     }
                     break;
-                    // Intentionally fall through to Moved phase to check for hovering immediately
+                // Intentionally fall through to Moved phase to check for hovering immediately
                 case TouchPhase.Moved:
                     // Check if hovering over the delete button as the touch moves
                     isHoveringDeleteButton = IsOverDeleteButton(touch.position);
                     // Adjust delete button's scale based on hovering state
-                    deleteButtonRectTransform.localScale = isHoveringDeleteButton ? Vector3.one * 1.2f : Vector3.one;
+                    deleteButtonRectTransform.localScale = isHoveringDeleteButton
+                        ? Vector3.one * 1.2f
+                        : Vector3.one;
                     break;
 
                 case TouchPhase.Ended:
                     if (selectedObject != null && isHoveringDeleteButton)
                     {
-                        Destroy(selectedObject);
-                        Debug.Log("Deleted: " + selectedObject.name);
+                        selectedObject.GetComponent<MovableContent>().RemoveContent();
                         selectedObject = null; // Reset selection
                     }
                     // Reset delete button size when touch ends
-                    deleteButtonRectTransform.localScale = Vector3.one; 
+                    deleteButtonRectTransform.localScale = Vector3.one;
                     isHoveringDeleteButton = false;
                     break;
             }
@@ -55,7 +57,16 @@ public class DragAndDeleteManager : MonoBehaviour
 
     bool IsOverDeleteButton(Vector2 screenPosition)
     {
-        PointerEventData eventData = new PointerEventData(EventSystem.current) { position = screenPosition };
+        //check if its movable content or else dont enlarge and return
+        if (selectedObject == null)
+        {
+            return false;
+        }
+
+        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        {
+            position = screenPosition
+        };
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
