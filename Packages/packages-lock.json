@@ -34,6 +34,22 @@
         "com.google.firebase.app": "11.7.0"
       }
     },
+    "com.google.firebase.firestore": {
+      "version": "file:../GooglePackages/com.google.firebase.firestore-11.7.0.tgz",
+      "depth": 0,
+      "source": "local-tarball",
+      "dependencies": {
+        "com.google.firebase.app": "11.7.0"
+      }
+    },
+    "com.google.firebase.storage": {
+      "version": "file:../GooglePackages/com.google.firebase.storage-11.7.0.tgz",
+      "depth": 0,
+      "source": "local-tarball",
+      "dependencies": {
+        "com.google.firebase.auth": "11.7.0"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,

@@ -4,6 +4,8 @@
     "com.google.external-dependency-manager": "file:../GooglePackages/com.google.external-dependency-manager-1.2.179.tgz",
     "com.google.firebase.app": "file:../GooglePackages/com.google.firebase.app-11.7.0.tgz",
     "com.google.firebase.auth": "file:../GooglePackages/com.google.firebase.auth-11.7.0.tgz",
+    "com.google.firebase.firestore": "file:../GooglePackages/com.google.firebase.firestore-11.7.0.tgz",
+    "com.google.firebase.storage": "file:../GooglePackages/com.google.firebase.storage-11.7.0.tgz",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ai.navigation": "1.1.5",
     "com.unity.collab-proxy": "2.0.7",
