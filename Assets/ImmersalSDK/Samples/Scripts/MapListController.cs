@@ -23,6 +23,7 @@ namespace Immersal.Samples
         [SerializeField]
         private ARMap m_ARMap = null;
 
+        public Transform ARSpace_transform;
         private List<SDKJob> m_Maps;
 
         // private TMP_Dropdown m_Dropdown;
@@ -133,7 +134,7 @@ namespace Immersal.Samples
                 ARMap.RenderMode renderMode = m_ARMap?.renderMode ?? ARMap.RenderMode.EditorOnly;
 
                 Debug.Log("Loading map...");
-                await ARSpace.LoadAndInstantiateARMap(null, result, renderMode, pointCloudColor);
+                await ARSpace.LoadAndInstantiateARMap(ARSpace_transform, result, renderMode, pointCloudColor);
                 Debug.Log("Map loaded");
             };
             j.OnError += (e) =>

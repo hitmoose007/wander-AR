@@ -25,14 +25,13 @@ using Firebase.Storage;
 using Immersal.Samples.Util;
 using Firebase.Extensions;
 using System.Collections;
+using System.Linq;
+using UnityEngine.Assertions.Must;
 
 namespace Immersal.Samples.ContentPlacement
 {
     public class ContentStorageManager : MonoBehaviour
     {
-        [HideInInspector]
-        public List<MovableContent> contentList = new List<MovableContent>();
-
         [SerializeField]
         private GameObject m_TextContentPrefab = null;
 
@@ -47,19 +46,6 @@ namespace Immersal.Samples.ContentPlacement
         private FirebaseFirestore db;
 
         private FirebaseStorage firebase_storage;
-
-        [SerializeField]
-        private string m_Filename = "contentttt.json";
-        private Savefile m_Savefile;
-        private List<Vector3> m_Positions = new List<Vector3>();
-        private List<string> m_Texts = new List<string>(); // Create list for text
-
-        [System.Serializable]
-        public struct Savefile
-        {
-            public List<Vector3> positions;
-            public List<string> texts;
-        }
 
         public static ContentStorageManager Instance
         {
@@ -109,24 +95,6 @@ namespace Immersal.Samples.ContentPlacement
 
         private void Start()
         {
-            string directoryPath = Application.persistentDataPath;
-
-            // if (Directory.Exists(directoryPath))
-            // {
-            //     // Delete all files in the directory
-            //     foreach (var file in Directory.GetFiles(directoryPath))
-            //     {
-            //         File.Delete(file);
-            //     }
-
-            //     Debug.Log("All persistent data deleted.");
-            // }
-            // else
-            // {
-            //     Debug.LogWarning("Directory does not exist: " + directoryPath);
-            // }
-            // contentList.Clear();
-
             LoadContents();
         }
 
@@ -147,68 +115,25 @@ namespace Immersal.Samples.ContentPlacement
             //  go.GetComponent<TextMeshPro>().text;
         }
 
-        public void DeleteAllContent()
-        {
-            List<MovableContent> copy = new List<MovableContent>();
-
-            foreach (MovableContent content in contentList)
-            {
-                copy.Add(content);
-            }
-
-            foreach (MovableContent content in copy)
-            {
-                content.RemoveContent();
-            }
-        }
-
-        public void SaveContents()
-        {
-            // if (movableContent.contentType == MovableContent.ContentType.Image)
-            // {
-            //     return;
-            // }
-
-            // contentList.Add(movableContent);
-
-            //use firebase to save the content
-            m_Positions.Clear();
-            m_Texts.Clear(); // Clear text list
-            // List<string> texts = new List<string>(); // Create list for text
-
-            foreach (MovableContent content in contentList)
-            {
-                m_Positions.Add(content.transform.localPosition);
-
-                //convert prefab to text mesh pro and save text
-                // Debug.Log("content.text: " + content);
-                m_Texts.Add(content.GetComponent<TextMeshPro>().text); // Access text from MovableContent (adjust based on your implementation)
-            }
-
-            m_Savefile.positions = m_Positions;
-            m_Savefile.texts = m_Texts; // Assign text to struct
-
-            //save to firebase
-
-
-
-            string jsonstring = JsonUtility.ToJson(m_Savefile, true);
-            string dataPath = Path.Combine(Application.persistentDataPath, m_Filename);
-
-            // Debug.LogFormat("Trying to save file: {0}", dataPath);
-            Debug.LogFormat("Saving contents: {0}", jsonstring);
-            File.WriteAllText(dataPath, jsonstring);
-        }
-
         public void LoadContents()
         {
             //fetch both functions in parrallel
-            Debug.Log("going babes");
             FetchAndDownloadImageContent();
             FetchAndInstantiateTextContent();
-            Debug.Log("coming babes");
+
+            //wait 10 seconds before setting all game objects to active
+            StartCoroutine(WaitAndSetActive());
             // Reference to your Firestore collection
             //for text content
+        }
+
+        IEnumerator WaitAndSetActive()
+        {
+            yield return new WaitForSeconds(10);
+            foreach (Transform child in m_ARSpace.transform)
+            {
+                child.gameObject.SetActive(true);
+            }
         }
 
         private void FetchAndInstantiateTextContent()
@@ -303,6 +228,7 @@ namespace Immersal.Samples.ContentPlacement
                             {
                                 textComponent.text = text;
                             }
+                            go.SetActive(false);
                         }
                     }
                 });
@@ -329,7 +255,6 @@ namespace Immersal.Samples.ContentPlacement
 
                     foreach (DocumentSnapshot document in snapshot.Documents)
                     {
-                        Debug.Log("heyyy babes");
                         // Assuming each document has a 'position' map and a 'text' field
                         if (document.Exists)
                         {
@@ -379,13 +304,35 @@ namespace Immersal.Samples.ContentPlacement
                             );
                             // Extracting the text
 
-                            if (documentData.ContainsKey("image_ref") == false)
+                            Debug.Log(
+                                "documentData:  key value pairs"
+                                    + documentData.ContainsKey("image_ref")
+                            );
+                            if (
+                                documentData.ContainsKey("image_ref") == false
+                                || documentData["image_ref"] == null
+                            )
                             {
                                 Debug.LogWarning("image_ref not found");
                                 continue;
                             }
                             string image_ref_path = documentData["image_ref"] as string;
 
+                            GameObject quadInstance = Instantiate(
+                                quadPrefab,
+                                pos, // Use the target position here
+                                rot, // Use the target rotation here
+                                m_ARSpace.transform // This sets the parent
+                            );
+
+                            quadInstance.transform.localScale = scale;
+
+                            quadInstance.GetComponent<MovableImageContent>().m_contentId =
+                                document.Id;
+                            quadInstance.GetComponent<MovableImageContent>().imageRef =
+                                image_ref_path;
+                            quadInstance.SetActive(false);
+                            //deactivate
                             //fetch image from storage
                             //create a function to fetch image from storage
                             //create lambda experssion
@@ -399,12 +346,7 @@ namespace Immersal.Samples.ContentPlacement
                                     return;
                                 }
 
-                                GameObject quadInstance = Instantiate(
-                                    quadPrefab,
-                                    pos, // Use the target position here
-                                    rot, // Use the target rotation here
-                                    m_ARSpace.transform // This sets the parent
-                                );
+                                //disable game object
 
                                 // quadInstance.transform.localScale = scale;
                                 // quadInstance.transform.localScale = new Vector3(
@@ -413,17 +355,12 @@ namespace Immersal.Samples.ContentPlacement
                                 //     1f
                                 // );
 
-                                quadInstance.transform.localScale = scale;
                                 // Debug.Log(image_ref_path);
 
                                 ApplyTextureToSecondChild(quadInstance, texture);
                                 // Instantiating the content prefab and setting its properties
                                 // GameObject go = Instantiate(m_TextContentPrefab, m_ARSpace.transform);
                                 //add id of document to the game object
-                                quadInstance.GetComponent<MovableImageContent>().m_contentId =
-                                    document.Id;
-                                quadInstance.GetComponent<MovableImageContent>().imageRef =
-                                    image_ref_path;
                             };
 
                             firebase_storage
@@ -578,5 +515,7 @@ namespace Immersal.Samples.ContentPlacement
                 Debug.LogWarning("The quad prefab does not have enough children");
             }
         }
+
+        //function to set all game objects to active
     }
 }

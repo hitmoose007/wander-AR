@@ -20,7 +20,9 @@ public class FirebaseManager : MonoBehaviour
             // Log error if instance is still null when accessed
             if (instance == null)
             {
-                Debug.LogError("No FirebaseManager instance found. Ensure one exists in the scene.");
+                Debug.LogError(
+                    "No FirebaseManager instance found. Ensure one exists in the scene."
+                );
             }
             return instance;
         }
@@ -42,18 +44,28 @@ public class FirebaseManager : MonoBehaviour
 
     private void InitializeFirebase()
     {
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
-            var dependencyStatus = task.Result;
-            if (dependencyStatus == DependencyStatus.Available)
+        //player preferences set map id
+        if (!PlayerPrefs.HasKey("mapId"))
+        {
+            PlayerPrefs.SetInt("mapId", 91787);
+        }
+        FirebaseApp
+            .CheckAndFixDependenciesAsync()
+            .ContinueWith(task =>
             {
-                // Firebase is ready for use
-                Debug.Log("Firebase is ready");
-                // Initialize other Firebase features here if necessary
-            }
-            else
-            {
-                Debug.LogError($"Could not resolve all Firebase dependencies: {dependencyStatus}");
-            }
-        });
+                var dependencyStatus = task.Result;
+                if (dependencyStatus == DependencyStatus.Available)
+                {
+                    // Firebase is ready for use
+                    Debug.Log("Firebase is ready");
+                    // Initialize other Firebase features here if necessary
+                }
+                else
+                {
+                    Debug.LogError(
+                        $"Could not resolve all Firebase dependencies: {dependencyStatus}"
+                    );
+                }
+            });
     }
 }
