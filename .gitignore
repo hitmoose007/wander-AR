@@ -82,7 +82,7 @@ crashlytics-build.properties
 /[Aa]ssets/[Gg]oogle-services.json.meta
 
 Assets/GeneratedLocalRepo.meta
-# Assets/Plugins/Android
+Assets/Plugins/Android
 Assets/StreamingAssets.meta
 Assets/StreamingAssets
 Asset/TextMesh Pro
