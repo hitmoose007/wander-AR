@@ -11,9 +11,9 @@ public class MapListView : MonoBehaviour
 {
     public GameObject listItemPrefab;
     public Transform listItemHolder;
-    public int numOfListItems;
-    List<string> mapNames = new List<string>();
 
+    //public int numOfListItems;
+    //List<string> mapNames = new List<string>();
     FirebaseFirestore db;
 
     void Start()
