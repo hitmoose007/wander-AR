@@ -82,13 +82,13 @@ crashlytics-build.properties
 /[Aa]ssets/[Gg]oogle-services.json.meta
 
 Assets/GeneratedLocalRepo.meta
-Assets/Plugins/Android
+# Assets/Plugins/Android
 Assets/StreamingAssets.meta
 Assets/StreamingAssets
 Asset/TextMesh Pro
 ProjectSettings/AndroidResolverDependencies.xml
  ProjectSettings/GvhProjectSettings.xml
 
-Assets/Plugins/Android/androidx.collection.collection-1.1.0.jar.meta
-Assets/Plugins/Android/androidx.activity.activity-1.0.0.aar
+# Assets/Plugins/Android/androidx.collection.collection-1.1.0.jar.meta
+# Assets/Plugins/Android/androidx.activity.activity-1.0.0.aar
 ProjectSettings/GvhProjectSettings.xml
