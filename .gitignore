@@ -77,4 +77,5 @@ crashlytics-build.properties
 /[Aa]ssets/[Ff]irebase/
 /[Aa]ssets/[Gg]eneratedLocalRepo/
 /[Aa]ssets/[Ss]treamingAssets/
+/[Aa]ssets/[Gg]oogle-services.json
 
