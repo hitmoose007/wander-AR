@@ -16,6 +16,7 @@ public class MovableImageContent : MovableContent
 
     public override void StoreContent()
     {
+        Debug.Log("Storing content");
         // if (!ContentStorageManager.Instance.contentList.Contains(this))
         // {
         //     ContentStorageManager.Instance.contentList.Add(this);

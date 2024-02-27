@@ -75,26 +75,17 @@ namespace Immersal.Samples.ContentPlacement
 
         public abstract void StoreContent();
 
-        // if (this.contentType == MovableContent.ContentType.Image)
-        // {
-        //     return;
-
         public void RemoveContent()
         {
-            // if (this.contentType == MovableContent.ContentType.Image)
-            // {
-            //     return;
-            // }
-            if (ContentStorageManager.Instance.contentList.Contains(this))
-            {
-                ContentStorageManager.Instance.contentList.Remove(this);
-            }
-            ContentStorageManager.Instance.SaveContents();
+            if (this is MovableImageContent)
+                db.Collection("image_content").Document(m_contentId).DeleteAsync();
+            else if (this is MovableTextContent)
+                db.Collection("text_content").Document(m_contentId).DeleteAsync();
+
             Destroy(gameObject);
         }
 
-        //change destroy to be also like remove content
-        
+
 
         private void OnMouseDrag()
         {
