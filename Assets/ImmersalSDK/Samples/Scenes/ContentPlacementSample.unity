@@ -1701,9 +1701,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HumanSegmentationStencilMode: 1
   m_HumanSegmentationDepthMode: 1
-  m_EnvironmentDepthMode: 3
+  m_EnvironmentDepthMode: 2
   m_EnvironmentDepthTemporalSmoothing: 1
-  m_OcclusionPreferenceMode: 0
+  m_OcclusionPreferenceMode: 2
 --- !u!114 &645122390
 MonoBehaviour:
   m_ObjectHideFlags: 0

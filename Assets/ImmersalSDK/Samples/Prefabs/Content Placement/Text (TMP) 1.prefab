@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 2724205381384657471}
   - component: {fileID: 7869532119287256283}
   - component: {fileID: 6393898633588815608}
-  - component: {fileID: -6406414193240412704}
   - component: {fileID: 375785156680101604}
   - component: {fileID: -6692737814796807477}
+  - component: {fileID: 1338613542777855223}
   m_Layer: 0
   m_Name: Text (TMP) 1
   m_TagString: Untagged
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  - {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -189,20 +189,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ClickHoldTime: 0.1
   m_contentId: 
---- !u!114 &-6406414193240412704
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7387960259910525162}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5692841901ec7394a8819165832413cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Axis: {x: 0, y: 1, z: 0}
-  m_Speed: 40
 --- !u!114 &375785156680101604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,3 +224,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 20.366444, y: 4.8417487, z: 0.47578636}
   m_Center: {x: -0.18780829, y: -0.03952483, z: -0.054879706}
+--- !u!114 &1338613542777855223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7387960259910525162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ba977042646ee141806990ce1a6975d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraTransform: {fileID: 0}
+  renderDistance: 4
