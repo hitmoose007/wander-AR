@@ -15,7 +15,13 @@ public class MovableTextContent : MovableContent
 
         // Get the text from the TextMeshPro component
         string textContent = this.GetComponent<TextMeshPro>().text;
-
+        // get the color from the TextMeshPro component
+        Color textColor = this.GetComponent<TextMeshPro>().color;
+        // get the font from the TextMeshPro component
+        string textFont = this.GetComponent<TextMeshPro>().font.name;
+        // get font style from the TextMeshPro component
+        string fontStyle = this.GetComponent<TextMeshPro>().fontStyle.ToString();
+        Debug.Log("Font Style: " + fontStyle);
         // Serialize the position to a format suitable for Firestore
         Vector3 position = this.transform.position;
         Dictionary<string, object> positionData = new Dictionary<string, object>
@@ -39,13 +45,32 @@ public class MovableTextContent : MovableContent
             { "y", transform.localScale.y },
             { "z", transform.localScale.z }
         };
+        // color
+        Dictionary<string, object> colorData = new Dictionary<string, object>
+        {
+            { "r", textColor.r },
+            { "g", textColor.g },
+            { "b", textColor.b },
+            { "a", textColor.a }
+        };
+        // font
+        Dictionary<string, object> fontData = new Dictionary<string, object>
+        {
+            { "font", textFont }
+        };
+        // font style
+
         // Prepare the document data
+        
         Dictionary<string, object> documentData = new Dictionary<string, object>
         {
             { "text", textContent },
             { "rotation", rotationData },
             { "position", positionData },
-            { "scale", scaleData }
+            { "scale", scaleData },
+            { "color", colorData },
+            { "font", fontData },
+            { "fontStyle", fontStyle }
 
         };
 

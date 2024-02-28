@@ -10,11 +10,13 @@ Contact sales@immersal.com for licensing requests.
 ===============================================================================*/
 
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using System;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+
 
 using System.IO;
 using TMPro;
@@ -124,6 +126,8 @@ namespace Immersal.Samples.ContentPlacement
         {
             string directoryPath = Application.persistentDataPath;
 
+            Debug.Log("Data path: " + directoryPath);
+
             // if (Directory.Exists(directoryPath))
             // {
             //     // Delete all files in the directory
@@ -142,7 +146,6 @@ namespace Immersal.Samples.ContentPlacement
 
             LoadContents();
         }
-
         public void AddContent()
         {
             Transform cameraTransform = Camera.main.transform;
@@ -152,13 +155,39 @@ namespace Immersal.Samples.ContentPlacement
                 cameraTransform.rotation,
                 m_ARSpace.transform
             );
-            // go.AddComponent<TextMeshPro>();
-            go.GetComponent<TextMeshPro>().text = m_TextContentPrefab
-                .GetComponent<TextMeshPro>()
-                .text;
-            //get the text and save it in a new variable
-            //  go.GetComponent<TextMeshPro>().text;
+
+            // Add TextMeshPro component if not already present
+            TextMeshPro textMeshPro = go.GetComponent<TextMeshPro>();
+            if (textMeshPro == null)
+            {
+                textMeshPro = go.AddComponent<TextMeshPro>();
+            }
+
+            // Set the text
+            TextMeshPro textPrefabTMPro = m_TextContentPrefab.GetComponent<TextMeshPro>();
+            if (textPrefabTMPro != null)
+            {
+                textMeshPro.text = textPrefabTMPro.text;
+
+                // Set the font
+                if (textPrefabTMPro.font != null)
+                {
+                    textMeshPro.font = textPrefabTMPro.font;
+                }
+                else
+                {
+                    Debug.LogWarning("Font not found in the prefab.");
+                }
+
+                // Set the color
+                textMeshPro.color = textPrefabTMPro.color;
+            }
+            else
+            {
+                Debug.LogError("TextMeshPro component not found in the prefab.");
+            }
         }
+
 
         public void DeleteAllContent()
         {
@@ -177,42 +206,38 @@ namespace Immersal.Samples.ContentPlacement
 
         public void SaveContents()
         {
+            Debug.Log("Saving contents");
             m_Positions.Clear();
             m_Texts.Clear();
-            List<Color> textColors = new List<Color>(); // Initialize list for text color
-            // List<TMP_FontStyle> fontStyles = new List<TMP_FontStyle>(); // Initialize list for font style
-            List<TMP_FontAsset> fonts = new List<TMP_FontAsset>(); // Initialize list for font
+            m_TextColors.Clear(); // Clear text colors
+            m_Fonts.Clear(); // Clear fonts
 
             foreach (MovableContent content in contentList)
             {
                 m_Positions.Add(content.transform.localPosition);
                 m_Texts.Add(content.GetComponent<TextMeshPro>().text);
 
-                // Access TextMeshPro component
-                TextMeshPro tmp = content.GetComponent<TextMeshPro>();
+                // Extracting the text color
+                m_TextColors.Add(content.GetComponent<TextMeshPro>().color);
 
-                // Save text color
-                textColors.Add(tmp.color);
-
-                // Save font style
-                // fontStyles.Add(tmp.fontStyle);
-
-                // Save font
-                fonts.Add(tmp.font);
+                // Extracting the font name
+                m_Fonts.Add(content.GetComponent<TextMeshPro>().font);
             }
 
             m_Savefile.positions = m_Positions;
             m_Savefile.texts = m_Texts;
-            m_Savefile.textColors = textColors; // Assign text colors
-            // m_Savefile.fontStyles = fontStyles; // Assign font styles
-            m_Savefile.fonts = fonts; // Assign fonts
+            m_Savefile.textColors = m_TextColors; // Save text colors
+            m_Savefile.fonts = m_Fonts; // Save fonts
 
             string jsonstring = JsonUtility.ToJson(m_Savefile, true);
             string dataPath = Path.Combine(Application.persistentDataPath, m_Filename);
 
+            
+
             Debug.LogFormat("Saving contents: {0}", jsonstring);
             File.WriteAllText(dataPath, jsonstring);
         }
+
 
         public void LoadContents()
         {
@@ -244,11 +269,16 @@ namespace Immersal.Samples.ContentPlacement
 
                     foreach (DocumentSnapshot document in snapshot.Documents)
                     {
-                        Debug.Log("Starting text");
                         // Assuming each document has a 'position' map and a 'text' field
                         if (document.Exists)
                         {
                             Dictionary<string, object> documentData = document.ToDictionary();
+                            foreach (string key in documentData.Keys)
+                            {
+                                Debug.Log("Key: " + key);
+                            }
+
+                            // Debug.Log("documentData: " + documentData.ContainsKey("position") + documentData.ContainsKey("text") + documentData.ContainsKey("text_color") + documentData.ContainsKey("font"));
 
                             // Extracting the position map
                             if (!documentData.ContainsKey("position"))
@@ -281,6 +311,7 @@ namespace Immersal.Samples.ContentPlacement
                                 Debug.LogWarning("Scale not found");
                                 continue;
                             }
+
                             Dictionary<string, object> scaleMap = documentData["scale"] as Dictionary<string, object>;
                             Vector3 scale = new Vector3(
                                 Convert.ToSingle(scaleMap["x"]),
@@ -296,26 +327,52 @@ namespace Immersal.Samples.ContentPlacement
                             }
                             string text = documentData["text"] as string;
 
-                            // Additional properties
-                            Color textColor = Color.white;
-                            if (documentData.ContainsKey("textColor"))
+                            // Extracting the text color
+                            Color textColor;
+                            if (!documentData.ContainsKey("color"))
                             {
-                                string textColorString = documentData["textColor"] as string;
-                                ColorUtility.TryParseHtmlString(textColorString, out textColor);
+                                Debug.LogWarning("Text color not found");
+                                textColor = new Color(1f, 1f, 1f, 1f);
+                            }
+                            else
+                            {
+                                Dictionary<string, object> textColorMap = documentData["color"] as Dictionary<string, object>;
+
+                                textColor = new Color(
+                                    Convert.ToSingle(textColorMap["r"]),
+                                    Convert.ToSingle(textColorMap["g"]),
+                                    Convert.ToSingle(textColorMap["b"]),
+                                    Convert.ToSingle(textColorMap["a"])
+                                );
+                                Debug.Log("Text color: " + textColor);
                             }
 
-                            FontStyles fontStyle = FontStyles.Normal;
-                            if (documentData.ContainsKey("fontStyle"))
+                            // extracting font
+                            string fontName;
+                            if (!documentData.ContainsKey("font"))
                             {
-                                string fontStyleString = documentData["fontStyle"] as string;
-                                Enum.TryParse(fontStyleString, out fontStyle);
+                                Debug.LogWarning("Font not found");
+                                fontName = "Anton SDF";
+                            }
+                            else
+                            {
+                                fontName = documentData["font"] as string;
+                                Debug.Log("Font name: " + fontName);
                             }
 
-                            TMP_FontAsset fontAsset = null;
-                            if (documentData.ContainsKey("font"))
+                            TMP_FontAsset fontAsset = Resources.Load<TMP_FontAsset>("Fonts & Materials/" + fontName);
+                            Debug.Log("Font asset: " + fontAsset);
+                            // extracting the font style
+                            string fontStyle;
+                            if (!documentData.ContainsKey("fontStyle"))
                             {
-                                string fontName = documentData["font"] as string;
-                                fontAsset = Resources.Load<TMP_FontAsset>("Fonts/" + fontName);
+                                Debug.LogWarning("Font style not found");
+                                fontStyle = "Normal";
+                            }
+                            else
+                            {
+                                fontStyle = documentData["fontStyle"] as string;
+                                Debug.Log("Font style: " + fontStyle);
                             }
 
                             // Instantiating the content prefab and setting its properties
@@ -330,15 +387,53 @@ namespace Immersal.Samples.ContentPlacement
                             // Add id of document to the game object
                             go.GetComponent<MovableContent>().m_contentId = document.Id;
                             TextMeshPro textComponent = go.GetComponent<TextMeshPro>();
+                            Debug.Log("TextMeshPro component found in the prefab:" + textComponent.text + " " + textComponent.font + " " + textComponent.color);
+
                             if (textComponent != null)
                             {
                                 textComponent.text = text;
-                                textComponent.color = textColor; // Set text color
-                                textComponent.fontStyle = fontStyle; // Set font style
                                 if (fontAsset != null)
                                 {
                                     textComponent.font = fontAsset; // Set font
                                 }
+                                else
+                                {
+                                    Debug.LogWarning("Font asset is null");
+                                }
+
+                                textComponent.color = textColor; // Set text color
+                                Debug.Log("Fontstyle: " + fontStyle);
+                                switch (fontStyle)
+                                {
+                                    case "Normal":
+                                        textComponent.fontStyle = FontStyles.Normal;
+                                        break;
+                                    case "Bold":
+                                        textComponent.fontStyle = FontStyles.Bold;
+                                        break;
+                                    case "Italic":
+                                        textComponent.fontStyle = FontStyles.Italic;
+                                        break;
+                                    case "BoldItalic":
+                                        textComponent.fontStyle = FontStyles.Bold | FontStyles.Italic;
+                                        break;
+                                    case "Underline":
+                                        textComponent.fontStyle = FontStyles.Underline;
+                                        break;
+                                    case "Strikethrough":
+                                        textComponent.fontStyle = FontStyles.Strikethrough;
+                                        break;
+                                    case "UpperCase":
+                                        textComponent.fontStyle = FontStyles.UpperCase;
+                                        break;
+                                    default:
+                                        textComponent.fontStyle = FontStyles.Normal;
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                Debug.LogWarning("TextMeshPro component is null");
                             }
                         }
                     }
