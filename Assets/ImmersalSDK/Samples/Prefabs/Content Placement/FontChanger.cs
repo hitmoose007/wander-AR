@@ -4,35 +4,49 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
-public class font : MonoBehaviour
+public class FontAndButtonStyler : MonoBehaviour
 {
     public TMP_Text textMeshPro; // Assign your Text Mesh Pro object in the Inspector
-    public TMP_Dropdown dropdown; // Assign your Text Mesh Pro Dropdown object in the Inspector
+    public Button button; // Assign your Button object in the Inspector
+    public TMP_FontAsset[] fonts; // Array of font assets to cycle through
+    private int currentFontIndex = 0; // Index of the current font
 
-    //fonts are in Assets/TextMesh Pro/Examples & Extras / Resources
-    public void Changefont()
+    void Start()
     {
-        int style = dropdown.value;
-        switch (style)
+        // Initialize the array with the font assets used in the script
+        fonts = new TMP_FontAsset[]
         {
-            case 0:
-                textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Anton SDF");
-                break;
-            case 1:
-                textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Arial SDF");
-                break;
-            case 2:
-                textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Roboto-Bold SDF");
-                break;
-            case 3:
-                textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Bangers SDF");
-                break;
-            case 4:
-                textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald-Bold SDF");
-                break;
-            case 5:
-                textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Electronic Highway Sign SDF");
-                break;
+            Resources.Load<TMP_FontAsset>("Fonts & Materials/Anton SDF"),
+            Resources.Load<TMP_FontAsset>("Fonts & Materials/Arial SDF"),
+            Resources.Load<TMP_FontAsset>("Fonts & Materials/Roboto-Bold SDF"),
+            Resources.Load<TMP_FontAsset>("Fonts & Materials/Bangers SDF"),
+            Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald-Bold SDF"),
+            Resources.Load<TMP_FontAsset>("Fonts & Materials/Electronic Highway Sign SDF")
+        };
+
+        ChangeFont(fonts[currentFontIndex]);
+    }
+    public void CycleFont()
+    {
+        // Move to the next font index
+        currentFontIndex = (currentFontIndex + 1) % fonts.Length;
+        // Change the font
+        ChangeFont(fonts[currentFontIndex]);
+    }
+
+    private void ChangeFont(TMP_FontAsset font)
+    {
+        if (textMeshPro != null)
+        {
+            textMeshPro.font = font;
+        }
+        if (button != null)
+        {
+            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.font = font;
+            }
         }
     }
 }

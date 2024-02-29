@@ -2,39 +2,56 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class ColorChange : MonoBehaviour
 {
     public TMP_Text textMeshPro; // Assign your Text Mesh Pro object in the Inspector
+    public Button button; // Assign your Button object in the Inspector
 
-    public void ChangeColorBlue()
+    private Color[] colors; // Array of colors to cycle through
+    private int currentColorIndex = 0; // Index of the current color
+
+
+
+    void Start()
     {
-        // change to blue
-        textMeshPro.color = new Color (0, 0, 1, 1);
+        // Initialize the array with the colors you want to cycle through
+        colors = new Color[]
+        {
+            new Color(0, 0, 1, 1), // Blue
+            new Color(1, 0, 0, 1), // Red
+            new Color(0, 1, 0, 1), // Green
+            new Color(1, 1, 0, 1), // Yellow
+            new Color(1, 1, 1, 1), // White
+            new Color(0, 0, 0, 1)  // Black
+        };
+
+        // Set initial color
+        ChangeColor(colors[currentColorIndex]);
     }
-    public void ChangeColorRed()
+
+    public void CycleColor()
     {
-        // change to red
-        textMeshPro.color = new Color (1, 0, 0, 1);
+        // Move to the next color index
+        currentColorIndex = (currentColorIndex + 1) % colors.Length;
+        // Change the color
+        ChangeColor(colors[currentColorIndex]);
     }
-    public void ChangeColorGreen()
+
+    private void ChangeColor(Color color)
     {
-        // change to green
-        textMeshPro.color = new Color (0, 1, 0, 1);
-    }
-    public void ChangeColorYellow()
-    {
-        // change to yellow
-        textMeshPro.color = new Color (1, 1, 0, 1);
-    }
-    public void ChangeColorWhite()
-    {
-        // change to white
-        textMeshPro.color = new Color (1, 1, 1, 1);
-    }
-    public void ChangeColorBlack()
-    {
-        // change to black
-        textMeshPro.color = new Color (0, 0, 0, 1);
+        if (textMeshPro != null)
+        {
+            textMeshPro.color = color;
+        }
+        if (button != null)
+        {
+            Image buttonImage = button.GetComponent<Image>();
+            if (buttonImage != null)
+            {
+                buttonImage.color = color;
+            }
+        }
     }
 }
