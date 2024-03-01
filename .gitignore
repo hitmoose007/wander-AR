@@ -70,3 +70,25 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Custom ignored directories
+/[Aa]ssets/[Ee]ditor [Dd]efault [Rr]esources/
+/[Aa]ssets/[Ee]xternal[Dd]ependency[Mm]anager/
+/[Aa]ssets/[Ff]irebase/
+/[Aa]ssets/[Gg]eneratedLocalRepo/
+/[Aa]ssets/[Ss]treamingAssets/
+/[Aa]ssets/[Ss]treamingAssets.meta
+/[Aa]ssets/[Gg]oogle-services.json
+/[Aa]ssets/[Gg]oogle-services.json.meta
+
+Assets/GeneratedLocalRepo.meta
+Assets/Plugins/Android
+Assets/StreamingAssets.meta
+Assets/StreamingAssets
+Asset/TextMesh Pro
+ProjectSettings/AndroidResolverDependencies.xml
+ ProjectSettings/GvhProjectSettings.xml
+
+# Assets/Plugins/Android/androidx.collection.collection-1.1.0.jar.meta
+# Assets/Plugins/Android/androidx.activity.activity-1.0.0.aar
+ProjectSettings/GvhProjectSettings.xml

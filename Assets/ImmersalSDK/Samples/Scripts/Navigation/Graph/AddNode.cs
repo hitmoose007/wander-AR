@@ -1,15 +1,4 @@
-﻿/*===============================================================================
-Copyright (C) 2023 Immersal - Part of Hexagon. All Rights Reserved.
-
-This file is part of the Immersal SDK.
-
-The Immersal SDK cannot be copied, distributed, or made available to
-third-parties for commercial purposes without written permission of Immersal Ltd.
-
-Contact sales@immersal.com for licensing requests.
-===============================================================================*/
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,8 +27,6 @@ namespace Immersal.Samples.Navigation
         private Button button = null;
         private bool isPressed = false;
 
-        private GameObject nodeInstance = null;
-
         private Camera mainCamera = null;
 
         private Vector3 pos = Vector3.zero;
@@ -55,65 +42,11 @@ namespace Immersal.Samples.Navigation
             arspace = FindObjectOfType<ARSpace>();
         }
 
-        void Update()
-        {
-            if (isPressed)
-            {
-                if (nodeInstance != null)
-                {
-                    pos = mainCamera.transform.position + mainCamera.transform.forward * 1.5f;
-                    Vector3 x = Vector3.Cross(Vector3.up, mainCamera.transform.forward);
-                    Vector3 z = Vector3.Cross(x, Vector3.up);
-
-                    rot = Quaternion.LookRotation(z, Vector3.up) * randomRotation;
-
-                    nodeInstance.transform.position = pos;
-                    nodeInstance.transform.rotation = rot;
-                }
-            }
-        }
-
         public void OnPointerDown(PointerEventData eventData)
         {
             if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
             {
                 isPressed = true;
-
-                if (nodeInstance == null && waypointObject != null && targetObject != null)
-                {
-                    switch (m_NodeToAdd)
-                    {
-                        case NodeToAdd.Waypoint:
-                            nodeInstance = Instantiate(waypointObject);
-                            break;
-                        case NodeToAdd.Target:
-                            nodeInstance = Instantiate(targetObject);
-                            break;
-                        default:
-                            nodeInstance = Instantiate(waypointObject);
-                            break;
-
-                    }
-
-                    // REPLACE ALL MATERIALS WHILE PLACING THE WAYPOINT
-                    if (overrideMaterial != null)
-                    {
-                        foreach (MeshRenderer rend in nodeInstance.GetComponentsInChildren<MeshRenderer>())
-                        {
-                            if (rend != null)
-                            {
-                                Material[] mats = new Material[rend.materials.Length];
-
-                                for (int i = 0; i < mats.Length; i++)
-                                {
-                                    mats[i] = overrideMaterial;
-                                }
-
-                                rend.materials = mats;
-                            }
-                        }
-                    }
-                }
                 randomRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
             }
         }
@@ -122,35 +55,30 @@ namespace Immersal.Samples.Navigation
         {
             isPressed = false;
 
-            if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
+            if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode && arspace != null)
             {
-                if (nodeInstance != null)
+                GameObject finalNodeInstance;
+
+                switch (m_NodeToAdd)
                 {
-                    Destroy(nodeInstance);
+                    case NodeToAdd.Waypoint:
+                        finalNodeInstance = Instantiate(waypointObject, arspace.transform);
+                        break;
+                    case NodeToAdd.Target:
+                        finalNodeInstance = Instantiate(targetObject, arspace.transform);
+                        break;
+                    default:
+                        finalNodeInstance = Instantiate(waypointObject, arspace.transform);
+                        break;
                 }
 
-                // ACTUALLY PLACE THE WAYPOINT
-                if (arspace != null)
-                {
-                    GameObject nodeInstance;
+                pos = mainCamera.transform.position + mainCamera.transform.forward * 1.5f;
+                Vector3 x = Vector3.Cross(Vector3.up, mainCamera.transform.forward);
+                Vector3 z = Vector3.Cross(x, Vector3.up);
+                rot = Quaternion.LookRotation(z, Vector3.up) * randomRotation;
 
-                    switch (m_NodeToAdd)
-                    {
-                        case NodeToAdd.Waypoint:
-                            nodeInstance = Instantiate(waypointObject, arspace.transform);
-                            break;
-                        case NodeToAdd.Target:
-                            nodeInstance = Instantiate(targetObject, arspace.transform);
-                            break;
-                        default:
-                            nodeInstance = Instantiate(waypointObject, arspace.transform);
-                            break;
-
-                    }
-
-                    nodeInstance.transform.position = pos;
-                    nodeInstance.transform.rotation = rot;
-                }
+                finalNodeInstance.transform.position = pos;
+                finalNodeInstance.transform.rotation = rot;
             }
         }
     }
