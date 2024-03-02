@@ -24,7 +24,7 @@ public class MapDownload : MonoBehaviour
         db = FirebaseFirestore.DefaultInstance;
         firebase_storage = FirebaseStorage.DefaultInstance;
 
-        PlayerPrefs.SetString("email", "yourmom@gmail.com");
+        PlayerPrefs.SetString("email", "user@gmail.com");
         DownloadMaps();
     }
 
@@ -43,7 +43,7 @@ public class MapDownload : MonoBehaviour
                 }
             }
 
-            PlayerPrefs.SetString("email", "mom@gmail.com");
+            PlayerPrefs.SetString("email", "user@gmail.com");
 
             //make int array
             List<SDKJob> filteredJobs = new List<SDKJob>();
@@ -74,9 +74,7 @@ public class MapDownload : MonoBehaviour
                             Debug.LogWarning("Map name");
                             continue;
                         }
-                        item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
-                            "name"
-                        ].ToString();
+                        item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData["name"].ToString();
 
                         firebaseMapsId.Add(int.Parse(mapData["id"].ToString()));
                         foreach (SDKJob job in jobList)
