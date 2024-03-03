@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ public class ChangeScreen : MonoBehaviour
 {
     public GameObject panelA;
     public GameObject panelB;
-    public bool isEnabled = true;
+    public TextMeshProUGUI errorText;
 
     //Start is called before the first frame update
     void Start()
@@ -15,12 +16,6 @@ public class ChangeScreen : MonoBehaviour
         panelA.SetActive(true);
         panelB.SetActive(false);
     }
-
-    // Update is called once per frame
-    // void Update()
-    // {
-        
-    // }
 
     public void AddButtonClicked()
     {
@@ -30,8 +25,9 @@ public class ChangeScreen : MonoBehaviour
 
     public void BackButtonClicked()
     {
+        Destroy(TakePhotos.instance.mapImage);
+        errorText.text = "";
         panelB.SetActive(false);
         panelA.SetActive(true);
     }
-
 }
