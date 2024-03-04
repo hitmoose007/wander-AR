@@ -8,44 +8,107 @@ public class FontAndButtonStyler : MonoBehaviour
 {
     public TMP_Text textMeshPro; // Assign your Text Mesh Pro object in the Inspector
     public Button button; // Assign your Button object in the Inspector
-    public TMP_FontAsset[] fonts; // Array of font assets to cycle through
-    private int currentFontIndex = 0; // Index of the current font
 
-    void Start()
-    {
-        // Initialize the array with the font assets used in the script
-        fonts = new TMP_FontAsset[]
-        {
-            Resources.Load<TMP_FontAsset>("Fonts & Materials/Anton SDF"),
-            Resources.Load<TMP_FontAsset>("Fonts & Materials/Arial SDF"),
-            Resources.Load<TMP_FontAsset>("Fonts & Materials/Roboto-Bold SDF"),
-            Resources.Load<TMP_FontAsset>("Fonts & Materials/Bangers SDF"),
-            Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald-Bold SDF"),
-            Resources.Load<TMP_FontAsset>("Fonts & Materials/Electronic Highway Sign SDF")
-        };
+    // Fonts are in Assets/TextMesh Pro/Examples & Extras / Resources
 
-        ChangeFont(fonts[currentFontIndex]);
-    }
-    public void CycleFont()
-    {
-        // Move to the next font index
-        currentFontIndex = (currentFontIndex + 1) % fonts.Length;
-        // Change the font
-        ChangeFont(fonts[currentFontIndex]);
-    }
-
-    private void ChangeFont(TMP_FontAsset font)
+    public void ChangeToAntonFont()
     {
         if (textMeshPro != null)
         {
-            textMeshPro.font = font;
+            textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Anton SDF");
         }
+
         if (button != null)
         {
             TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
             if (buttonText != null)
             {
-                buttonText.font = font;
+                buttonText.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Anton SDF");
+            }
+        }
+    }
+
+    public void ChangeToArialFont()
+    {
+        if (textMeshPro != null)
+        {
+            textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Arial SDF");
+        }
+
+        if (button != null)
+        {
+            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Arial SDF");
+            }
+        }
+    }
+
+    public void ChangeToRobotoBoldFont()
+    {
+        if (textMeshPro != null)
+        {
+            textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Roboto-Bold SDF");
+        }
+
+        if (button != null)
+        {
+            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Roboto-Bold SDF");
+            }
+        }
+    }
+
+    public void ChangeToBangersFont()
+    {
+        if (textMeshPro != null)
+        {
+            textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Bangers SDF");
+        }
+
+        if (button != null)
+        {
+            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Bangers SDF");
+            }
+        }
+    }
+
+    public void ChangeToOswaldBoldFont()
+    {
+        if (textMeshPro != null)
+        {
+            textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald-Bold SDF");
+        }
+
+        if (button != null)
+        {
+            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald-Bold SDF");
+            }
+        }
+    }
+
+    public void ChangeToElectronicHighwaySignFont()
+    {
+        if (textMeshPro != null)
+        {
+            textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Electronic Highway Sign SDF");
+        }
+
+        if (button != null)
+        {
+            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Electronic Highway Sign SDF");
             }
         }
     }

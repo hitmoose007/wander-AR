@@ -4,56 +4,42 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
-public class FontAndButtonStyler : MonoBehaviour
+public class fontStyle : MonoBehaviour
 {
     public TMP_Text textMeshPro; // Assign your Text Mesh Pro object in the Inspector
-    public Button button; // Assign your Button object in the Inspector
 
-    private int currentStyleIndex = 0;
-    private FontStyles[] availableStyles = { FontStyles.Normal, FontStyles.Bold, FontStyles.Italic,
-                                             FontStyles.Bold | FontStyles.Italic, FontStyles.Underline,
-                                             FontStyles.Strikethrough, FontStyles.UpperCase };
-
-    // Start is called before the first frame update
-    void Start()
+    public void SetNormalStyle()
     {
-        // Initialize text style
-        ApplyStyleToText();
-        // Initialize button style
-        ApplyStyleToButton();
+        textMeshPro.fontStyle = FontStyles.Normal;
     }
 
-    public void CycleFontStyle()
+    public void SetBoldStyle()
     {
-        // Increment style index
-        currentStyleIndex = (currentStyleIndex + 1) % availableStyles.Length;
-
-        // Apply style to text
-        ApplyStyleToText();
-
-        // Apply style to button
-        ApplyStyleToButton();
+        textMeshPro.fontStyle = FontStyles.Bold;
     }
 
-    private void ApplyStyleToText()
+    public void SetItalicStyle()
     {
-        if (textMeshPro != null)
-        {
-            textMeshPro.fontStyle = availableStyles[currentStyleIndex];
-        }
+        textMeshPro.fontStyle = FontStyles.Italic;
     }
 
-    private void ApplyStyleToButton()
+    public void SetBoldItalicStyle()
     {
-        if (button != null)
-        {
-            TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
-            Debug.Log("Button Text: " + buttonText);
-            if (buttonText != null)
-            {
-                buttonText.fontStyle = availableStyles[currentStyleIndex];
-            }
-        }
+        textMeshPro.fontStyle = FontStyles.Bold | FontStyles.Italic;
     }
 
+    public void SetUnderlineStyle()
+    {
+        textMeshPro.fontStyle = FontStyles.Underline;
+    }
+
+    public void SetStrikethroughStyle()
+    {
+        textMeshPro.fontStyle = FontStyles.Strikethrough;
+    }
+
+    public void SetUpperCaseStyle()
+    {
+        textMeshPro.fontStyle = FontStyles.UpperCase;
+    }
 }

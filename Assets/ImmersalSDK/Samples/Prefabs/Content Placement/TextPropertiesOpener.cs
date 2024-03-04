@@ -5,7 +5,11 @@ using UnityEngine.UI;
 
 public class TextPropertiesOpener : MonoBehaviour
 {
-    public GameObject Panel;
+    public GameObject Panel1;
+    public GameObject Panel2;
+    public GameObject Panel3;
+    public GameObject Panel4;
+
     private Button button;
     private Text buttonText;
 
@@ -14,37 +18,37 @@ public class TextPropertiesOpener : MonoBehaviour
     {
         button = GetComponent<Button>();
         buttonText = button.GetComponentInChildren<Text>(); // Get the Text component inside the button
-
     }
 
     public void OpenPanel()
     {
         Debug.Log("Open Panel");
 
-        if (Panel != null)
+        // Close panels 2, 3, and 4
+        ClosePanel(Panel2);
+        ClosePanel(Panel3);
+        ClosePanel(Panel4);
+
+        // Toggle the state of Panel1
+        if (Panel1 != null)
         {
-            bool isActive = Panel.activeSelf;
-            Panel.SetActive(!isActive);
+            bool isActive = Panel1.activeSelf;
+            Panel1.SetActive(!isActive);
 
             // Change the button text based on the panel state
-            if (!isActive)
+            if (buttonText != null)
             {
-                // Panel is opening, change text to "X"
-                if (buttonText != null)
-                {
-                    Debug.Log("Change text to X");
-                    buttonText.text = "X";
-                }
+                buttonText.text = isActive ? "T" : "X";
             }
-            else
-            {
-                // Panel is closing, change text to "T"
-                if (buttonText != null)
-                {
-                    Debug.Log("Change text to T");
-                    buttonText.text = "T";
-                }
-            }
+        }
+    }
+
+    // Close a panel if it is active
+    private void ClosePanel(GameObject panel)
+    {
+        if (panel != null && panel.activeSelf)
+        {
+            panel.SetActive(false);
         }
     }
 }
