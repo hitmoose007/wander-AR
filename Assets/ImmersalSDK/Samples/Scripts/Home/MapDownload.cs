@@ -43,7 +43,7 @@ public class MapDownload : MonoBehaviour
                 }
             }
 
-            PlayerPrefs.SetString("email", "user@gmail.com");
+            PlayerPrefs.SetString("email", "mom@gmail.com");
 
             //make int array
             List<SDKJob> filteredJobs = new List<SDKJob>();
@@ -74,7 +74,9 @@ public class MapDownload : MonoBehaviour
                             Debug.LogWarning("Map name");
                             continue;
                         }
-                        item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData["name"].ToString();
+                        item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
+                            "name"
+                        ].ToString();
 
                         firebaseMapsId.Add(int.Parse(mapData["id"].ToString()));
                         foreach (SDKJob job in jobList)
