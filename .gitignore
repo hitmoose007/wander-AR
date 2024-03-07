@@ -76,4 +76,4 @@ crashlytics-build.properties
 /[Aa]ssets/[Ee]xternal[Dd]ependency[Mm]anager/
 /[Aa]ssets/[Ff]irebase/
 /[Aa]ssets/[Gg]eneratedLocalRepo/
-
+/[Aa]ssets/[Ss]treamingAssets/
