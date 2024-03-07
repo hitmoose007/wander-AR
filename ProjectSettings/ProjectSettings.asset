@@ -142,11 +142,6 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 8706608705033851146, guid: 0baf2c601641d904191e540fda355c5e, type: 2}
-  - {fileID: 11400000, guid: 8b50767f4cc159e4f8f13f48aa7ab6f1, type: 2}
-  - {fileID: 2763209885181866509, guid: 5066d500c9e54c64aa10117cec1ae4bf, type: 2}
-  - {fileID: 4800000, guid: c9f956787b1d945e7b36e0516201fc76, type: 3}
-  - {fileID: 4800000, guid: 0945859e5a1034c2cb6dce53cb4fb899, type: 3}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -353,7 +348,7 @@ PlayerSettings:
       m_Kind: 2
       m_SubKind: 
     - m_Textures:
-      - {fileID: 2800000, guid: a2f8cdbfc5b9c4164a227835e57331cb, type: 3}
+      - {fileID: 2800000, guid: 91541aa9c22b88c4595b5676fa6e26c2, type: 3}
       m_Width: 192
       m_Height: 192
       m_Kind: 0
@@ -930,7 +925,13 @@ PlayerSettings:
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
   cloudServicesEnabled:
+    Build: 0
+    Game Performance: 0
+    Legacy Analytics: 0
+    Purchasing: 0
+    UDP: 0
     UNet: 1
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -950,11 +951,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 86682403-cabe-40ff-94ac-112881df24d5
+  cloudProjectId: 6e8e9cc7-7f6c-4a09-9d2e-412e5ec2dc59
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: push-your-luck
-  organizationId: immersal
+  projectName: Wander (2)
+  organizationId: tictactoe8
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

@@ -30,14 +30,13 @@ using Firebase.Extensions;
 using System.Collections;
 using TMPro; // Add this line to import the TextMesh Pro namespace
 
+using System.Linq;
+using UnityEngine.Assertions.Must;
 
 namespace Immersal.Samples.ContentPlacement
 {
     public class ContentStorageManager : MonoBehaviour
     {
-        [HideInInspector]
-        public List<MovableContent> contentList = new List<MovableContent>();
-
         [SerializeField]
         private GameObject m_TextContentPrefab = null;
 
@@ -124,26 +123,6 @@ namespace Immersal.Samples.ContentPlacement
 
         private void Start()
         {
-            string directoryPath = Application.persistentDataPath;
-
-            Debug.Log("Data path: " + directoryPath);
-
-            // if (Directory.Exists(directoryPath))
-            // {
-            //     // Delete all files in the directory
-            //     foreach (var file in Directory.GetFiles(directoryPath))
-            //     {
-            //         File.Delete(file);
-            //     }
-
-            //     Debug.Log("All persistent data deleted.");
-            // }
-            // else
-            // {
-            //     Debug.LogWarning("Directory does not exist: " + directoryPath);
-            // }
-            // contentList.Clear();
-
             LoadContents();
         }
         public void AddContent()
@@ -188,66 +167,25 @@ namespace Immersal.Samples.ContentPlacement
             }
         }
 
-
-        public void DeleteAllContent()
-        {
-            List<MovableContent> copy = new List<MovableContent>();
-
-            foreach (MovableContent content in contentList)
-            {
-                copy.Add(content);
-            }
-
-            foreach (MovableContent content in copy)
-            {
-                content.RemoveContent();
-            }
-        }
-
-        public void SaveContents()
-        {
-            Debug.Log("Saving contents");
-            m_Positions.Clear();
-            m_Texts.Clear();
-            m_TextColors.Clear(); // Clear text colors
-            m_Fonts.Clear(); // Clear fonts
-
-            foreach (MovableContent content in contentList)
-            {
-                m_Positions.Add(content.transform.localPosition);
-                m_Texts.Add(content.GetComponent<TextMeshPro>().text);
-
-                // Extracting the text color
-                m_TextColors.Add(content.GetComponent<TextMeshPro>().color);
-
-                // Extracting the font name
-                m_Fonts.Add(content.GetComponent<TextMeshPro>().font);
-            }
-
-            m_Savefile.positions = m_Positions;
-            m_Savefile.texts = m_Texts;
-            m_Savefile.textColors = m_TextColors; // Save text colors
-            m_Savefile.fonts = m_Fonts; // Save fonts
-
-            string jsonstring = JsonUtility.ToJson(m_Savefile, true);
-            string dataPath = Path.Combine(Application.persistentDataPath, m_Filename);
-
-            
-
-            Debug.LogFormat("Saving contents: {0}", jsonstring);
-            File.WriteAllText(dataPath, jsonstring);
-        }
-
-
         public void LoadContents()
         {
             //fetch both functions in parrallel
-            Debug.Log("going babes");
             FetchAndDownloadImageContent();
             FetchAndInstantiateTextContent();
-            Debug.Log("coming babes");
+
+            //wait 10 seconds before setting all game objects to active
+            StartCoroutine(WaitAndSetActive());
             // Reference to your Firestore collection
             //for text content
+        }
+
+        IEnumerator WaitAndSetActive()
+        {
+            yield return new WaitForSeconds(10);
+            foreach (Transform child in m_ARSpace.transform)
+            {
+                child.gameObject.SetActive(true);
+            }
         }
 
         private void FetchAndInstantiateTextContent()
@@ -435,6 +373,7 @@ namespace Immersal.Samples.ContentPlacement
                             {
                                 Debug.LogWarning("TextMeshPro component is null");
                             }
+                            go.SetActive(false);
                         }
                     }
                 });
@@ -462,7 +401,6 @@ namespace Immersal.Samples.ContentPlacement
 
                     foreach (DocumentSnapshot document in snapshot.Documents)
                     {
-                        Debug.Log("heyyy babes");
                         // Assuming each document has a 'position' map and a 'text' field
                         if (document.Exists)
                         {
@@ -512,13 +450,35 @@ namespace Immersal.Samples.ContentPlacement
                             );
                             // Extracting the text
 
-                            if (documentData.ContainsKey("image_ref") == false)
+                            Debug.Log(
+                                "documentData:  key value pairs"
+                                    + documentData.ContainsKey("image_ref")
+                            );
+                            if (
+                                documentData.ContainsKey("image_ref") == false
+                                || documentData["image_ref"] == null
+                            )
                             {
                                 Debug.LogWarning("image_ref not found");
                                 continue;
                             }
                             string image_ref_path = documentData["image_ref"] as string;
 
+                            GameObject quadInstance = Instantiate(
+                                quadPrefab,
+                                pos, // Use the target position here
+                                rot, // Use the target rotation here
+                                m_ARSpace.transform // This sets the parent
+                            );
+
+                            quadInstance.transform.localScale = scale;
+
+                            quadInstance.GetComponent<MovableImageContent>().m_contentId =
+                                document.Id;
+                            quadInstance.GetComponent<MovableImageContent>().imageRef =
+                                image_ref_path;
+                            quadInstance.SetActive(false);
+                            //deactivate
                             //fetch image from storage
                             //create a function to fetch image from storage
                             //create lambda experssion
@@ -532,12 +492,7 @@ namespace Immersal.Samples.ContentPlacement
                                     return;
                                 }
 
-                                GameObject quadInstance = Instantiate(
-                                    quadPrefab,
-                                    pos, // Use the target position here
-                                    rot, // Use the target rotation here
-                                    m_ARSpace.transform // This sets the parent
-                                );
+                                //disable game object
 
                                 // quadInstance.transform.localScale = scale;
                                 // quadInstance.transform.localScale = new Vector3(
@@ -546,17 +501,12 @@ namespace Immersal.Samples.ContentPlacement
                                 //     1f
                                 // );
 
-                                quadInstance.transform.localScale = scale;
                                 // Debug.Log(image_ref_path);
 
                                 ApplyTextureToSecondChild(quadInstance, texture);
                                 // Instantiating the content prefab and setting its properties
                                 // GameObject go = Instantiate(m_TextContentPrefab, m_ARSpace.transform);
                                 //add id of document to the game object
-                                quadInstance.GetComponent<MovableImageContent>().m_contentId =
-                                    document.Id;
-                                quadInstance.GetComponent<MovableImageContent>().imageRef =
-                                    image_ref_path;
                             };
 
                             firebase_storage
@@ -711,5 +661,7 @@ namespace Immersal.Samples.ContentPlacement
                 Debug.LogWarning("The quad prefab does not have enough children");
             }
         }
+
+        //function to set all game objects to active
     }
 }
