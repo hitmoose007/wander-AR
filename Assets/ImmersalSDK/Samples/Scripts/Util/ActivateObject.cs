@@ -26,13 +26,13 @@ public class ActivateObject : MonoBehaviour
                         // Firebase is ready for use, enqueue any actions that need to run on the main thread
                         EnqueueActionOnMainThread(() =>
                         {
-                            if (activateForEditor)
-                            {
+                            // if (activateForEditor)
+                            // {
                                 ActivateContentUI();
                                 ActivateNavUI();
                                 ActivateWaypointUI();
                                 // Optionally activate other UI elements as needed
-                            }
+                            // }
                         });
                     }
                     else
