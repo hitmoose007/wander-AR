@@ -11,4 +11,4 @@ public class UniqueTextChanger : MonoBehaviour
         string newText = inputField.text;
         textMeshPro.text = newText;
     }
-}
+} 

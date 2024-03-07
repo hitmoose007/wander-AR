@@ -10,10 +10,13 @@ Contact sales@immersal.com for licensing requests.
 ===============================================================================*/
 
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using System;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
+using UnityEngine.UI;
+
 
 using System.IO;
 using TMPro;
@@ -25,6 +28,8 @@ using Firebase.Storage;
 using Immersal.Samples.Util;
 using Firebase.Extensions;
 using System.Collections;
+using TMPro; // Add this line to import the TextMesh Pro namespace
+
 using System.Linq;
 using UnityEngine.Assertions.Must;
 
@@ -46,6 +51,29 @@ namespace Immersal.Samples.ContentPlacement
         private FirebaseFirestore db;
 
         private FirebaseStorage firebase_storage;
+
+        [SerializeField]
+        private string m_Filename = "contentttt.json";
+        private Savefile m_Savefile;
+        private List<Vector3> m_Positions = new List<Vector3>();
+        private List<string> m_Texts = new List<string>(); // Create list for text
+
+        // create list for font style, color and font
+        private List<Color> m_TextColors = new List<Color>();
+        // private List<TMP_FontStyle> m_FontStyles = new List<TMP_FontStyle>();
+        private List<TMP_FontAsset> m_Fonts = new List<TMP_FontAsset>();
+
+
+        [System.Serializable]
+        public struct Savefile
+        {
+            public List<Vector3> positions;
+            public List<string> texts;
+            public List<Color> textColors; // List for text color
+            // public List<TMP_FontStyle> fontStyles; // List for font style
+            public List<TMP_FontAsset> fonts; // List for font
+
+        }
 
         public static ContentStorageManager Instance
         {
@@ -97,7 +125,6 @@ namespace Immersal.Samples.ContentPlacement
         {
             LoadContents();
         }
-
         public void AddContent()
         {
             Transform cameraTransform = Camera.main.transform;
@@ -107,12 +134,37 @@ namespace Immersal.Samples.ContentPlacement
                 cameraTransform.rotation,
                 m_ARSpace.transform
             );
-            // go.AddComponent<TextMeshPro>();
-            go.GetComponent<TextMeshPro>().text = m_TextContentPrefab
-                .GetComponent<TextMeshPro>()
-                .text;
-            //get the text and save it in a new variable
-            //  go.GetComponent<TextMeshPro>().text;
+
+            // Add TextMeshPro component if not already present
+            TextMeshPro textMeshPro = go.GetComponent<TextMeshPro>();
+            if (textMeshPro == null)
+            {
+                textMeshPro = go.AddComponent<TextMeshPro>();
+            }
+
+            // Set the text
+            TextMeshPro textPrefabTMPro = m_TextContentPrefab.GetComponent<TextMeshPro>();
+            if (textPrefabTMPro != null)
+            {
+                textMeshPro.text = textPrefabTMPro.text;
+
+                // Set the font
+                if (textPrefabTMPro.font != null)
+                {
+                    textMeshPro.font = textPrefabTMPro.font;
+                }
+                else
+                {
+                    Debug.LogWarning("Font not found in the prefab.");
+                }
+
+                // Set the color
+                textMeshPro.color = textPrefabTMPro.color;
+            }
+            else
+            {
+                Debug.LogError("TextMeshPro component not found in the prefab.");
+            }
         }
 
         public void LoadContents()
@@ -141,7 +193,6 @@ namespace Immersal.Samples.ContentPlacement
             CollectionReference textCollectionRef = db.Collection("text_content");
 
             // Fetch all documents from the collection
-
             textCollectionRef
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
@@ -156,48 +207,50 @@ namespace Immersal.Samples.ContentPlacement
 
                     foreach (DocumentSnapshot document in snapshot.Documents)
                     {
-                        Debug.Log("starting text");
                         // Assuming each document has a 'position' map and a 'text' field
                         if (document.Exists)
                         {
                             Dictionary<string, object> documentData = document.ToDictionary();
+                            foreach (string key in documentData.Keys)
+                            {
+                                Debug.Log("Key: " + key);
+                            }
+
+                            // Debug.Log("documentData: " + documentData.ContainsKey("position") + documentData.ContainsKey("text") + documentData.ContainsKey("text_color") + documentData.ContainsKey("font"));
 
                             // Extracting the position map
-                            if (documentData.ContainsKey("position") == false)
+                            if (!documentData.ContainsKey("position"))
                             {
-                                Debug.LogWarning("position not found");
+                                Debug.LogWarning("Position not found");
                                 continue;
                             }
-                            Dictionary<string, object> positionMap =
-                                documentData["position"] as Dictionary<string, object>;
-
+                            Dictionary<string, object> positionMap = documentData["position"] as Dictionary<string, object>;
                             Vector3 pos = new Vector3(
                                 Convert.ToSingle(positionMap["x"]),
                                 Convert.ToSingle(positionMap["y"]),
                                 Convert.ToSingle(positionMap["z"])
                             );
 
-                            if (documentData.ContainsKey("rotation") == false)
+                            if (!documentData.ContainsKey("rotation"))
                             {
-                                Debug.LogWarning("rotation not found");
+                                Debug.LogWarning("Rotation not found");
                                 continue;
                             }
-                            Debug.Log("positionMap: for text " + positionMap);
-                            Dictionary<string, object> rotationMap =
-                                documentData["rotation"] as Dictionary<string, object>;
+                            Dictionary<string, object> rotationMap = documentData["rotation"] as Dictionary<string, object>;
                             Quaternion rot = new Quaternion(
                                 Convert.ToSingle(rotationMap["x"]),
                                 Convert.ToSingle(rotationMap["y"]),
                                 Convert.ToSingle(rotationMap["z"]),
                                 Convert.ToSingle(rotationMap["w"])
                             );
-                            if (documentData.ContainsKey("scale") == false)
+
+                            if (!documentData.ContainsKey("scale"))
                             {
-                                Debug.LogWarning("scale not found");
+                                Debug.LogWarning("Scale not found");
                                 continue;
                             }
-                            Dictionary<string, object> scaleMap =
-                                documentData["scale"] as Dictionary<string, object>;
+
+                            Dictionary<string, object> scaleMap = documentData["scale"] as Dictionary<string, object>;
                             Vector3 scale = new Vector3(
                                 Convert.ToSingle(scaleMap["x"]),
                                 Convert.ToSingle(scaleMap["y"]),
@@ -205,12 +258,60 @@ namespace Immersal.Samples.ContentPlacement
                             );
 
                             // Extracting the text
-                            if (documentData.ContainsKey("text") == false)
+                            if (!documentData.ContainsKey("text"))
                             {
-                                Debug.LogWarning("text not found");
+                                Debug.LogWarning("Text not found");
                                 continue;
                             }
                             string text = documentData["text"] as string;
+
+                            // Extracting the text color
+                            Color textColor;
+                            if (!documentData.ContainsKey("color"))
+                            {
+                                Debug.LogWarning("Text color not found");
+                                textColor = new Color(1f, 1f, 1f, 1f);
+                            }
+                            else
+                            {
+                                Dictionary<string, object> textColorMap = documentData["color"] as Dictionary<string, object>;
+
+                                textColor = new Color(
+                                    Convert.ToSingle(textColorMap["r"]),
+                                    Convert.ToSingle(textColorMap["g"]),
+                                    Convert.ToSingle(textColorMap["b"]),
+                                    Convert.ToSingle(textColorMap["a"])
+                                );
+                                Debug.Log("Text color: " + textColor);
+                            }
+
+                            // extracting font
+                            string fontName;
+                            if (!documentData.ContainsKey("font"))
+                            {
+                                Debug.LogWarning("Font not found");
+                                fontName = "Anton SDF";
+                            }
+                            else
+                            {
+                                fontName = documentData["font"] as string;
+                                Debug.Log("Font name: " + fontName);
+                            }
+
+                            TMP_FontAsset fontAsset = Resources.Load<TMP_FontAsset>("Fonts & Materials/" + fontName);
+                            Debug.Log("Font asset: " + fontAsset);
+                            // extracting the font style
+                            string fontStyle;
+                            if (!documentData.ContainsKey("fontStyle"))
+                            {
+                                Debug.LogWarning("Font style not found");
+                                fontStyle = "Normal";
+                            }
+                            else
+                            {
+                                fontStyle = documentData["fontStyle"] as string;
+                                Debug.Log("Font style: " + fontStyle);
+                            }
 
                             // Instantiating the content prefab and setting its properties
                             GameObject go = Instantiate(
@@ -221,18 +322,63 @@ namespace Immersal.Samples.ContentPlacement
                             );
                             go.transform.localScale = scale;
 
-                            //add id of document to the game object
+                            // Add id of document to the game object
                             go.GetComponent<MovableContent>().m_contentId = document.Id;
                             TextMeshPro textComponent = go.GetComponent<TextMeshPro>();
+                            Debug.Log("TextMeshPro component found in the prefab:" + textComponent.text + " " + textComponent.font + " " + textComponent.color);
+
                             if (textComponent != null)
                             {
                                 textComponent.text = text;
+                                if (fontAsset != null)
+                                {
+                                    textComponent.font = fontAsset; // Set font
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("Font asset is null");
+                                }
+
+                                textComponent.color = textColor; // Set text color
+                                Debug.Log("Fontstyle: " + fontStyle);
+                                switch (fontStyle)
+                                {
+                                    case "Normal":
+                                        textComponent.fontStyle = FontStyles.Normal;
+                                        break;
+                                    case "Bold":
+                                        textComponent.fontStyle = FontStyles.Bold;
+                                        break;
+                                    case "Italic":
+                                        textComponent.fontStyle = FontStyles.Italic;
+                                        break;
+                                    case "BoldItalic":
+                                        textComponent.fontStyle = FontStyles.Bold | FontStyles.Italic;
+                                        break;
+                                    case "Underline":
+                                        textComponent.fontStyle = FontStyles.Underline;
+                                        break;
+                                    case "Strikethrough":
+                                        textComponent.fontStyle = FontStyles.Strikethrough;
+                                        break;
+                                    case "UpperCase":
+                                        textComponent.fontStyle = FontStyles.UpperCase;
+                                        break;
+                                    default:
+                                        textComponent.fontStyle = FontStyles.Normal;
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                Debug.LogWarning("TextMeshPro component is null");
                             }
                             go.SetActive(false);
                         }
                     }
                 });
         }
+
 
         private void FetchAndDownloadImageContent()
         {
