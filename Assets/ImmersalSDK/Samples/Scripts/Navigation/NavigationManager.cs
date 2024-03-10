@@ -129,6 +129,7 @@ namespace Immersal.Samples.Navigation
 
         private void Start()
         {
+            //wait for 10 second
             InitializeNavigationManager();
 
             if (m_managerInitialized)

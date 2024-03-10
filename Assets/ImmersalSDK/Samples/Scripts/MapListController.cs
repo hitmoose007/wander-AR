@@ -122,8 +122,13 @@ namespace Immersal.Samples
 
         public void LoadMap()
         {
-            JobLoadMapBinaryAsync j = new JobLoadMapBinaryAsync();
-            j.id = 91787; // job.id to be changed later
+            JobLoadMapBinaryAsync j = new JobLoadMapBinaryAsync
+            {
+                id = PlayerPrefs.GetInt("mapId") // job.id to be changed later
+            };
+            Debug.Log("Loading map " + j.id);
+
+            j.id = 95879;
             j.OnResult += async (SDKMapResult result) =>
             {
                 Debug.LogFormat("Load map {0} ({1} bytes)", j.id, result.mapData.Length);
@@ -134,7 +139,12 @@ namespace Immersal.Samples
                 ARMap.RenderMode renderMode = m_ARMap?.renderMode ?? ARMap.RenderMode.EditorOnly;
 
                 Debug.Log("Loading map...");
-                await ARSpace.LoadAndInstantiateARMap(ARSpace_transform, result, renderMode, pointCloudColor);
+                await ARSpace.LoadAndInstantiateARMap(
+                    ARSpace_transform,
+                    result,
+                    renderMode,
+                    pointCloudColor
+                );
                 Debug.Log("Map loaded");
             };
             j.OnError += (e) =>

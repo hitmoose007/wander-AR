@@ -164,6 +164,7 @@ namespace Immersal.Samples.Navigation
             InitializeMeshRenderer();
 
             m_ArSpace = FindObjectOfType<Immersal.AR.ARSpace>();
+
             LoadWaypoints();
         }
 
@@ -447,6 +448,8 @@ namespace Immersal.Samples.Navigation
                                 m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
                             );
 
+                            //set wp inactive
+                            wpObject.SetActive(false);
                             Waypoint wp = wpObject.GetComponent<Waypoint>();
 
                             wp.UniqueID = document.Id;

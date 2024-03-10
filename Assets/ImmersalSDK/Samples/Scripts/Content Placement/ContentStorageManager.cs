@@ -17,7 +17,6 @@ using System.Threading.Tasks;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
-
 using System.IO;
 using TMPro;
 using NativeGalleryNamespace;
@@ -53,16 +52,15 @@ namespace Immersal.Samples.ContentPlacement
         private FirebaseStorage firebase_storage;
 
         [SerializeField]
-        private string m_Filename = "contentttt.json";
         private Savefile m_Savefile;
         private List<Vector3> m_Positions = new List<Vector3>();
         private List<string> m_Texts = new List<string>(); // Create list for text
 
         // create list for font style, color and font
         private List<Color> m_TextColors = new List<Color>();
+
         // private List<TMP_FontStyle> m_FontStyles = new List<TMP_FontStyle>();
         private List<TMP_FontAsset> m_Fonts = new List<TMP_FontAsset>();
-
 
         [System.Serializable]
         public struct Savefile
@@ -70,9 +68,9 @@ namespace Immersal.Samples.ContentPlacement
             public List<Vector3> positions;
             public List<string> texts;
             public List<Color> textColors; // List for text color
+
             // public List<TMP_FontStyle> fontStyles; // List for font style
             public List<TMP_FontAsset> fonts; // List for font
-
         }
 
         public static ContentStorageManager Instance
@@ -125,6 +123,7 @@ namespace Immersal.Samples.ContentPlacement
         {
             LoadContents();
         }
+
         public void AddContent()
         {
             Transform cameraTransform = Camera.main.transform;
@@ -224,7 +223,8 @@ namespace Immersal.Samples.ContentPlacement
                                 Debug.LogWarning("Position not found");
                                 continue;
                             }
-                            Dictionary<string, object> positionMap = documentData["position"] as Dictionary<string, object>;
+                            Dictionary<string, object> positionMap =
+                                documentData["position"] as Dictionary<string, object>;
                             Vector3 pos = new Vector3(
                                 Convert.ToSingle(positionMap["x"]),
                                 Convert.ToSingle(positionMap["y"]),
@@ -236,7 +236,8 @@ namespace Immersal.Samples.ContentPlacement
                                 Debug.LogWarning("Rotation not found");
                                 continue;
                             }
-                            Dictionary<string, object> rotationMap = documentData["rotation"] as Dictionary<string, object>;
+                            Dictionary<string, object> rotationMap =
+                                documentData["rotation"] as Dictionary<string, object>;
                             Quaternion rot = new Quaternion(
                                 Convert.ToSingle(rotationMap["x"]),
                                 Convert.ToSingle(rotationMap["y"]),
@@ -250,7 +251,8 @@ namespace Immersal.Samples.ContentPlacement
                                 continue;
                             }
 
-                            Dictionary<string, object> scaleMap = documentData["scale"] as Dictionary<string, object>;
+                            Dictionary<string, object> scaleMap =
+                                documentData["scale"] as Dictionary<string, object>;
                             Vector3 scale = new Vector3(
                                 Convert.ToSingle(scaleMap["x"]),
                                 Convert.ToSingle(scaleMap["y"]),
@@ -274,7 +276,8 @@ namespace Immersal.Samples.ContentPlacement
                             }
                             else
                             {
-                                Dictionary<string, object> textColorMap = documentData["color"] as Dictionary<string, object>;
+                                Dictionary<string, object> textColorMap =
+                                    documentData["color"] as Dictionary<string, object>;
 
                                 textColor = new Color(
                                     Convert.ToSingle(textColorMap["r"]),
@@ -298,7 +301,9 @@ namespace Immersal.Samples.ContentPlacement
                                 Debug.Log("Font name: " + fontName);
                             }
 
-                            TMP_FontAsset fontAsset = Resources.Load<TMP_FontAsset>("Fonts & Materials/" + fontName);
+                            TMP_FontAsset fontAsset = Resources.Load<TMP_FontAsset>(
+                                "Fonts & Materials/" + fontName
+                            );
                             Debug.Log("Font asset: " + fontAsset);
                             // extracting the font style
                             string fontStyle;
@@ -325,7 +330,14 @@ namespace Immersal.Samples.ContentPlacement
                             // Add id of document to the game object
                             go.GetComponent<MovableContent>().m_contentId = document.Id;
                             TextMeshPro textComponent = go.GetComponent<TextMeshPro>();
-                            Debug.Log("TextMeshPro component found in the prefab:" + textComponent.text + " " + textComponent.font + " " + textComponent.color);
+                            Debug.Log(
+                                "TextMeshPro component found in the prefab:"
+                                    + textComponent.text
+                                    + " "
+                                    + textComponent.font
+                                    + " "
+                                    + textComponent.color
+                            );
 
                             if (textComponent != null)
                             {
@@ -353,7 +365,8 @@ namespace Immersal.Samples.ContentPlacement
                                         textComponent.fontStyle = FontStyles.Italic;
                                         break;
                                     case "BoldItalic":
-                                        textComponent.fontStyle = FontStyles.Bold | FontStyles.Italic;
+                                        textComponent.fontStyle =
+                                            FontStyles.Bold | FontStyles.Italic;
                                         break;
                                     case "Underline":
                                         textComponent.fontStyle = FontStyles.Underline;
@@ -378,7 +391,6 @@ namespace Immersal.Samples.ContentPlacement
                     }
                 });
         }
-
 
         private void FetchAndDownloadImageContent()
         {
@@ -450,10 +462,10 @@ namespace Immersal.Samples.ContentPlacement
                             );
                             // Extracting the text
 
-                            Debug.Log(
-                                "documentData:  key value pairs"
-                                    + documentData.ContainsKey("image_ref")
-                            );
+                            // Debug.Log(
+                            //     "documentData:  key value pairs"
+                            //         + documentData.ContainsKey("image_ref")
+                            // );
                             if (
                                 documentData.ContainsKey("image_ref") == false
                                 || documentData["image_ref"] == null
