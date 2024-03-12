@@ -24,7 +24,6 @@ public class MapDownload : MonoBehaviour
         db = FirebaseFirestore.DefaultInstance;
         firebase_storage = FirebaseStorage.DefaultInstance;
 
-        PlayerPrefs.SetString("email", "user@gmail.com");
         DownloadMaps();
     }
 
@@ -78,6 +77,7 @@ public class MapDownload : MonoBehaviour
                             "name"
                         ].ToString();
 
+                        item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
                         firebaseMapsId.Add(int.Parse(mapData["id"].ToString()));
                         foreach (SDKJob job in jobList)
                         {

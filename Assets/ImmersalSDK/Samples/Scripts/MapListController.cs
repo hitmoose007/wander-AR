@@ -16,11 +16,12 @@ using TMPro;
 using Immersal.AR;
 using Immersal.REST;
 
+using Immersal.Samples;
+
 namespace Immersal.Samples
 {
     public class MapListController : MonoBehaviour
     {
-        [SerializeField]
         private ARMap m_ARMap = null;
 
         public Transform ARSpace_transform;
@@ -122,13 +123,18 @@ namespace Immersal.Samples
 
         public void LoadMap()
         {
+
+            if(StaticData.MapIdContentPlacement == 0 )
+            {
+                Debug.LogError("Map id not set");
+                return;
+            }
             JobLoadMapBinaryAsync j = new JobLoadMapBinaryAsync
             {
-                id = PlayerPrefs.GetInt("mapId") // job.id to be changed later
+                id = StaticData.MapIdContentPlacement
             };
             Debug.Log("Loading map " + j.id);
 
-            j.id = 95879;
             j.OnResult += async (SDKMapResult result) =>
             {
                 Debug.LogFormat("Load map {0} ({1} bytes)", j.id, result.mapData.Length);

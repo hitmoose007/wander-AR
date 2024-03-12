@@ -4,7 +4,7 @@ using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+using Immersal.Samples;
 public class InputHandler : MonoBehaviour
 {
     [SerializeField] TMP_InputField inputField;
@@ -15,13 +15,14 @@ public class InputHandler : MonoBehaviour
         string input = inputField.text;
 
         if (input.Length > 0 && TakePhotos.instance.mapImage != null)
+
         {
             errorText.text = "";
             /* IMPORTANT */
-            StaticData.mapName = input;
+            StaticData.MapperSceneMapName = input;
+            
 
-            Debug.Log("Input: " + input);
-            Debug.Log("Map Name: " + StaticData.mapName);
+            // Debug.Log("Input: " + input);
         }
         else if (input.Length <= 0 && TakePhotos.instance.mapImage != null)
         {

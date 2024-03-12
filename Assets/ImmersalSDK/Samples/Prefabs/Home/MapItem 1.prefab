@@ -562,6 +562,7 @@ GameObject:
   - component: {fileID: 5035782212915833018}
   - component: {fileID: 2789859497396597267}
   - component: {fileID: 3110244641903375138}
+  - component: {fileID: 7028430581055455290}
   m_Layer: 5
   m_Name: MapItem 1
   m_TagString: Untagged
@@ -630,6 +631,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7028430581055455290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4990434217891050535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b96518ef4f9bc748b4f8f17e643fb8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapId: 0
 --- !u!1 &8606135630492057980
 GameObject:
   m_ObjectHideFlags: 0
@@ -750,7 +764,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8413875364058708244}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7028430581055455290}
+        m_TargetAssemblyTypeName: MapSelect, ImmersalSDK
+        m_MethodName: OnTouchDetected
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &9153752094789262992
 GameObject:
   m_ObjectHideFlags: 0
