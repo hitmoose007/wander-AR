@@ -45,10 +45,6 @@ public class FirebaseManager : MonoBehaviour
     private void InitializeFirebase()
     {
         //player preferences set map id
-        if (!PlayerPrefs.HasKey("mapId"))
-        {
-            PlayerPrefs.SetInt("mapId", 95879);
-        }
         FirebaseApp
             .CheckAndFixDependenciesAsync()
             .ContinueWith(task =>
