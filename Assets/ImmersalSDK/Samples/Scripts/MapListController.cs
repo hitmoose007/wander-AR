@@ -22,6 +22,11 @@ namespace Immersal.Samples
 {
     public class MapListController : MonoBehaviour
     {
+        //write serialized text on top that this is for development
+
+        [Header("for default id")]
+        public bool Let_map_id_set_itself = true;
+
         private ARMap m_ARMap = null;
 
         public Transform ARSpace_transform;
@@ -48,6 +53,10 @@ namespace Immersal.Samples
 
         void Start()
         {
+            if (Let_map_id_set_itself)
+            {
+                StaticData.MapIdContentPlacement = 91787;
+            }
             // Invoke("GetMaps", 0.5f);
             LoadMap();
         }
@@ -123,8 +132,7 @@ namespace Immersal.Samples
 
         public void LoadMap()
         {
-
-            if(StaticData.MapIdContentPlacement == 0 )
+            if (StaticData.MapIdContentPlacement == 0)
             {
                 Debug.LogError("Map id not set");
                 return;
