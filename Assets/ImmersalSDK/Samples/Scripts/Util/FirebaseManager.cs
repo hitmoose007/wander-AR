@@ -1,9 +1,12 @@
 using UnityEngine;
 using Firebase;
+using Firebase.Extensions;
 
 public class FirebaseManager : MonoBehaviour
 {
     private static FirebaseManager instance = null;
+
+    public GameObject DownloadMaps;
 
     // Public static property to access instance
     public static FirebaseManager Instance
@@ -47,13 +50,19 @@ public class FirebaseManager : MonoBehaviour
         //player preferences set map id
         FirebaseApp
             .CheckAndFixDependenciesAsync()
-            .ContinueWith(task =>
+            .ContinueWithOnMainThread(task =>
             {
                 var dependencyStatus = task.Result;
                 if (dependencyStatus == DependencyStatus.Available)
                 {
                     // Firebase is ready for use
-                    Debug.Log("Firebase is ready");
+                    //debug if home ui is active
+                    Debug.Log("heallo");
+                    DownloadMaps.SetActive(true);
+                    Debug.Log("heallo poop");
+                    //check the status
+                    Debug.Log(DownloadMaps.activeSelf);
+                    Debug.Log("Firebase is ready for use");
                     // Initialize other Firebase features here if necessary
                 }
                 else
