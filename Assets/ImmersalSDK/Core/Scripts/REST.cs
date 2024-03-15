@@ -23,16 +23,28 @@ namespace Immersal.REST
         public const string Pending = "pending";
     }
 
-    public enum SDKJobType { Map, Stitch, Alignment, Edit };
-    public enum SDKJobPrivacy { Private, Public };
+    public enum SDKJobType
+    {
+        Map,
+        Stitch,
+        Alignment,
+        Edit
+    };
+
+    public enum SDKJobPrivacy
+    {
+        Private,
+        Public
+    };
 
     public struct DeviceInfo
     {
-        public static string DeviceModel => SystemInfo.deviceModel != SystemInfo.unsupportedIdentifier
-            ? SystemInfo.deviceModel
-            : "unknown";
+        public static string DeviceModel =>
+            SystemInfo.deviceModel != SystemInfo.unsupportedIdentifier
+                ? SystemInfo.deviceModel
+                : "unknown";
     }
-    
+
     [Serializable]
     public struct SDKJob
     {
@@ -76,6 +88,23 @@ namespace Immersal.REST
         public int userId;
         public string token;
         public int level;
+    }
+
+    [Serializable]
+    public struct SDKRegisterRequest
+    {
+        public static string endpoint = "register";
+        public string login;
+        public string name;
+        public string password;
+    }
+
+    [Serializable]
+    public struct SDKRegisterResult
+    {
+        public string error;
+        public int userId;
+        public string token;
     }
 
     [Serializable]
@@ -194,7 +223,7 @@ namespace Immersal.REST
         public string error;
         public string path;
     }
-    
+
     [Serializable]
     public struct SDKGeoLocalizeRequest
     {
@@ -299,7 +328,7 @@ namespace Immersal.REST
         public string token;
         public int id;
     }
-    
+
     [Serializable]
     public struct SDKClearMapAccessTokenRequest
     {
@@ -307,7 +336,7 @@ namespace Immersal.REST
         public string token;
         public int id;
     }
-    
+
     [Serializable]
     public struct SDKMapAccessTokenResult
     {
@@ -315,7 +344,7 @@ namespace Immersal.REST
         public int mapId;
         public string accessToken;
     }
-    
+
     [Serializable]
     public struct SDKMapBinaryRequest
     {
@@ -323,7 +352,7 @@ namespace Immersal.REST
         public string token;
         public int id;
     }
-    
+
     [Serializable]
     public struct SDKMapRequest
     {
@@ -494,7 +523,7 @@ namespace Immersal.REST
     {
         public string error;
     }
-    
+
     [Serializable]
     public struct SDKCopyMapRequest
     {
@@ -503,26 +532,26 @@ namespace Immersal.REST
         public string login;
         public int id;
     }
-    
+
     [Serializable]
     public struct SDKCopyMapResult
     {
         public string error;
     }
-    
+
     [Serializable]
     public struct SDKVersionRequest
     {
         public static string endpoint = "version";
     }
-    
+
     [Serializable]
     public struct SDKVersionResult
     {
         public string error;
         public string version;
     }
-    
+
     [Serializable]
     public struct SDKAlignMapsRequest
     {
@@ -531,7 +560,7 @@ namespace Immersal.REST
         public string name;
         public SDKMapId[] mapIds;
     }
-    
+
     [Serializable]
     public struct SDKAlignMapsResult
     {
@@ -539,7 +568,7 @@ namespace Immersal.REST
         public int id;
         public int size;
     }
-    
+
     [Serializable]
     public struct SDKStitchMapsRequest
     {
@@ -548,7 +577,7 @@ namespace Immersal.REST
         public string name;
         public SDKMapId[] mapIds;
     }
-    
+
     [Serializable]
     public struct SDKStitchMapsResult
     {
@@ -556,7 +585,4 @@ namespace Immersal.REST
         public int id;
         public int size;
     }
-    
-    
-
 }

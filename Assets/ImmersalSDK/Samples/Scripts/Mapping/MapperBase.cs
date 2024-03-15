@@ -23,6 +23,7 @@ using UnityEngine.Events;
 
 using Firebase;
 using Firebase.Firestore;
+using Firebase.Storage;
 using System.Data.Common;
 using Firebase.Extensions;
 using System.Linq;
@@ -668,13 +669,47 @@ namespace Immersal.Samples.Mapping
                     result.size,
                     j.featureCount
                 );
+                FirebaseStorage firebase_storage = FirebaseStorage.DefaultInstance;
+                //make storage reference
+                Texture2D texture = StaticData.MapperSceneMapImage;
+                byte[] imageBytes = texture.EncodeToJPG(); // or EncodeToPNG() based on your preference
+
+                string image_path = "images/" + Guid.NewGuid().ToString() + ".jpg";
+                ;
+                StorageReference imageRef = firebase_storage.GetReference(image_path);
+
+                imageRef
+                    .PutBytesAsync(imageBytes)
+                    .ContinueWithOnMainThread(
+                        (task) =>
+                        {
+                            if (task.IsFaulted || task.IsCanceled)
+                            {
+                                Debug.LogError(task.Exception.ToString());
+                                // Handle the error
+                            }
+                            else
+                            {
+                                // Image uploaded successfully
+                                Debug.Log("Image uploaded: " + image_path);
+                            }
+                        }
+                    );
+                if (texture == null)
+                {
+                    Debug.Log("Couldn't load texture from ");
+                    return;
+                }
 
                 db = FirebaseFirestore.DefaultInstance;
                 DocumentReference docRef = db.Collection("map").Document();
                 Dictionary<string, object> map = new Dictionary<string, object>
                 {
                     { "id", result.id },
-                    { "email", PlayerPrefs.GetString("email") }
+                    { "email", StaticData.userEmail },
+                    { "name", StaticData.MapperSceneMapName },
+                    { "private", StaticData.MapperSceneIsMapPrivate },
+                    { "thumbnail_reference", image_path }
                 };
                 docRef.SetAsync(map);
             };
