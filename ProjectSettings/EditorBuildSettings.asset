@@ -32,6 +32,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/ImmersalSDK/Samples/Scenes/RealtimeMappingSample.unity
     guid: c4d541a67648244d6a20f52893bcf122
+  - enabled: 1
+    path: Assets/ImmersalSDK/Samples/Scenes/loginScene.unity
+    guid: f2322e12030844c45b1b3b9aa229b704
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 0eb36a35e1ef1cb4fae59380454bdd83, type: 2}
     UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: c7e362ba310afd24e8fde9976aac5180, type: 2}

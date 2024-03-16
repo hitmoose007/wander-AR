@@ -20,6 +20,9 @@ public class FirebaseGoogleLogin : MonoBehaviour
     private FirebaseUser user;
     public Text UsernameTxt, UserEmailTxt;
     public Image UserProfilePic;
+
+    private bool newUser;
+    public Text register;
     public string imageUrl;
     public GameObject LoginScreen, ProfileScreen;
 
@@ -52,41 +55,53 @@ public class FirebaseGoogleLogin : MonoBehaviour
         GoogleSignIn.DefaultInstance.SignIn().ContinueWith(OnGoogleAuthenticatedFinished);
     }
 
-    void OnGoogleAuthenticatedFinished(Task<GoogleSignInUser> task)
+void OnGoogleAuthenticatedFinished(Task<GoogleSignInUser> task)
+{
+    if (task.IsFaulted)
     {
-        if (task.IsFaulted)
-        {
-            Debug.LogError("Fault");
-        }
-        else if (task.IsCanceled)
-        {
-            Debug.LogError("Login Cancel");
-        }
-        else
-        {
-            Firebase.Auth.Credential credential = Firebase.Auth.GoogleAuthProvider.GetCredential(task.Result.IdToken, null);
-            auth.SignInWithCredentialAsync(credential).ContinueWithOnMainThread(authTask =>
-            {
-                if (authTask.IsCanceled)
-                {
-                    Debug.LogError("SignInWithCredentialAsync was canceled.");
-                    return;
-                }
-                if (authTask.IsFaulted)
-                {
-                    Debug.LogError("SignInWithCredentialAsync encountered an error: " + authTask.Exception);
-                    return;
-                }
-
-                user = auth.CurrentUser;
-                UsernameTxt.text = user.DisplayName;
-                UserEmailTxt.text = user.Email;
-                LoginScreen.SetActive(false);
-                ProfileScreen.SetActive(true);
-                StartCoroutine(LoadImage(CheckImageUrl(user.PhotoUrl.ToString())));
-            });
-        }
+        Debug.LogError("Fault");
     }
+    else if (task.IsCanceled)
+    {
+        Debug.LogError("Login Cancel");
+    }
+    else
+    {
+        Firebase.Auth.Credential credential = Firebase.Auth.GoogleAuthProvider.GetCredential(task.Result.IdToken, null);
+        auth.SignInWithCredentialAsync(credential).ContinueWithOnMainThread(authTask =>
+        {
+            if (authTask.IsCanceled)
+            {
+                Debug.LogError("SignInWithCredentialAsync was canceled.");
+                return;
+            }
+            if (authTask.IsFaulted)
+            {
+                Debug.LogError("SignInWithCredentialAsync encountered an error: " + authTask.Exception);
+                return;
+            }
+
+            user = auth.CurrentUser;
+            UsernameTxt.text = user.DisplayName;
+            UserEmailTxt.text = user.Email;
+            LoginScreen.SetActive(false);
+            ProfileScreen.SetActive(true);
+
+            newUser = auth.CurrentUser.Metadata.CreationTimestamp == auth.CurrentUser.Metadata.LastSignInTimestamp;
+            if (newUser)
+            {
+                register.text = "New User";
+            }
+            else
+            {
+                register.text = "Old User";
+            }            
+
+            StartCoroutine(LoadImage(CheckImageUrl(user.PhotoUrl.ToString())));
+        });
+    }
+}
+
 
     private string CheckImageUrl(string url)
     {
