@@ -654,7 +654,7 @@ namespace Immersal.Samples.Mapping
         public void Construct()
         {
             JobConstructAsync j = new JobConstructAsync();
-            j.name = workspaceManager.newMapName.text;
+            j.name = StaticData.MapperSceneMapName;
             j.featureCount = mapperSettings.mapDetailLevel;
             j.preservePoses = mapperSettings.preservePoses;
             j.windowSize = mapperSettings.windowSize;
@@ -712,6 +712,10 @@ namespace Immersal.Samples.Mapping
                     { "thumbnail_reference", image_path }
                 };
                 docRef.SetAsync(map);
+
+                //wait for 1 second
+
+                StaticData.LoadScene(StaticData.GameScene.HomeScene);
             };
 
             // db.Collection("map")
