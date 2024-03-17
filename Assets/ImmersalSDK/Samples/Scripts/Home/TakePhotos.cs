@@ -16,14 +16,22 @@ public class TakePhotos : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
-        DontDestroyOnLoad(this.gameObject);
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void TakePhoto()
     {
         StartCoroutine(TakeAPhoto());
     }
+
     IEnumerator TakeAPhoto()
     {
         yield return new WaitForEndOfFrame();
@@ -55,6 +63,7 @@ public class TakePhotos : MonoBehaviour
 
         mapImage = Instantiate(itemPrefab, itemHolder);
         RawImage ri = mapImage.transform.GetComponent<RawImage>();
-        ri.texture = image;  
+        ri.texture = image;
+        StaticData.MapperSceneMapImage = image;
     }
 }

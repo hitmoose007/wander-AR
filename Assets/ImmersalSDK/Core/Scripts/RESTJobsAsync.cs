@@ -23,26 +23,51 @@ namespace Immersal.REST
     public class ImmersalHttp
     {
         public static readonly string URL_FORMAT = "{0}/{1}";
-        
+
         public static async Task<U> Request<T, U>(T request, IProgress<float> progress)
         {
             U result = default(U);
             string jsonString = JsonUtility.ToJson(request);
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Post, string.Format(URL_FORMAT, ImmersalSDK.Instance.localizationServer, (string)typeof(T).GetField("endpoint").GetValue(null)));
+            HttpRequestMessage r = new HttpRequestMessage(
+                HttpMethod.Post,
+                string.Format(
+                    URL_FORMAT,
+                    ImmersalSDK.Instance.localizationServer,
+                    (string)typeof(T).GetField("endpoint").GetValue(null)
+                )
+            );
             r.Content = new StringContent(jsonString);
 
             try
             {
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    using (var response = await ImmersalSDK.client.DownloadAsync(r, stream, progress, CancellationToken.None))
+                    using (
+                        var response = await ImmersalSDK.client.DownloadAsync(
+                            r,
+                            stream,
+                            progress,
+                            CancellationToken.None
+                        )
+                    )
                     {
-                        string responseBody = Encoding.ASCII.GetString(stream.GetBuffer(), 0, (int)stream.Length);
-                        
+                        string responseBody = Encoding.ASCII.GetString(
+                            stream.GetBuffer(),
+                            0,
+                            (int)stream.Length
+                        );
+
                         result = JsonUtility.FromJson<U>(responseBody);
                         if (!response.IsSuccessStatusCode)
                         {
-                            Debug.LogWarningFormat("ImmersalHttp error: {0} ({1}), {2}\nrequest JSON: {3}\nresponse JSON: {4}", (int)response.StatusCode, response.ReasonPhrase, response.RequestMessage, jsonString, responseBody);
+                            Debug.LogWarningFormat(
+                                "ImmersalHttp error: {0} ({1}), {2}\nrequest JSON: {3}\nresponse JSON: {4}",
+                                (int)response.StatusCode,
+                                response.ReasonPhrase,
+                                response.RequestMessage,
+                                jsonString,
+                                responseBody
+                            );
                         }
                     }
                 }
@@ -59,19 +84,31 @@ namespace Immersal.REST
         {
             byte[] result = null;
             HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, uri);
-    
+
             try
             {
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    using (var response = await ImmersalSDK.client.DownloadAsync(r, stream, progress, CancellationToken.None))
+                    using (
+                        var response = await ImmersalSDK.client.DownloadAsync(
+                            r,
+                            stream,
+                            progress,
+                            CancellationToken.None
+                        )
+                    )
                     {
                         result = stream.GetBuffer();
                         Array.Resize(ref result, (int)stream.Length);
 
                         if (!response.IsSuccessStatusCode)
                         {
-                            Debug.LogWarningFormat("ImmersalHttp error: {0} ({1}), {2}", (int)response.StatusCode, response.ReasonPhrase, response.RequestMessage);
+                            Debug.LogWarningFormat(
+                                "ImmersalHttp error: {0} ({1}), {2}",
+                                (int)response.StatusCode,
+                                response.ReasonPhrase,
+                                response.RequestMessage
+                            );
                         }
                     }
                 }
@@ -84,7 +121,11 @@ namespace Immersal.REST
             return result;
         }
 
-        public static async Task<U> RequestUpload<T, U>(T request, byte[] data, IProgress<float> progress)
+        public static async Task<U> RequestUpload<T, U>(
+            T request,
+            byte[] data,
+            IProgress<float> progress
+        )
         {
             U result = default(U);
             string jsonString = JsonUtility.ToJson(request);
@@ -93,22 +134,45 @@ namespace Immersal.REST
             Array.Copy(jsonBytes, 0, body, 0, jsonBytes.Length);
             body[jsonBytes.Length] = 0;
             Array.Copy(data, 0, body, jsonBytes.Length + 1, data.Length);
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Post, string.Format(URL_FORMAT, ImmersalSDK.Instance.localizationServer, (string)typeof(T).GetField("endpoint").GetValue(null)));
+            HttpRequestMessage r = new HttpRequestMessage(
+                HttpMethod.Post,
+                string.Format(
+                    URL_FORMAT,
+                    ImmersalSDK.Instance.localizationServer,
+                    (string)typeof(T).GetField("endpoint").GetValue(null)
+                )
+            );
             var byteStream = new ProgressMemoryStream(body, progress);
             r.Content = new StreamContent(byteStream);
-   
+
             try
             {
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    using (var response = await ImmersalSDK.client.DownloadAsync(r, stream, null, CancellationToken.None))
+                    using (
+                        var response = await ImmersalSDK.client.DownloadAsync(
+                            r,
+                            stream,
+                            null,
+                            CancellationToken.None
+                        )
+                    )
                     {
-                        string responseBody = Encoding.ASCII.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+                        string responseBody = Encoding.ASCII.GetString(
+                            stream.GetBuffer(),
+                            0,
+                            (int)stream.Length
+                        );
                         //Debug.Log(responseBody);
                         result = JsonUtility.FromJson<U>(responseBody);
                         if (!response.IsSuccessStatusCode)
                         {
-                            Debug.LogWarningFormat("ImmersalHttp error: {0} ({1}), {2}", (int)response.StatusCode, response.ReasonPhrase, response.RequestMessage);
+                            Debug.LogWarningFormat(
+                                "ImmersalHttp error: {0} ({1}), {2}",
+                                (int)response.StatusCode,
+                                response.ReasonPhrase,
+                                response.RequestMessage
+                            );
                         }
                     }
                 }
@@ -124,11 +188,23 @@ namespace Immersal.REST
 
     public static class HttpClientExtensions
     {
-        public static async Task<HttpResponseMessage> DownloadAsync(this HttpClient client, HttpRequestMessage request, Stream destination, IProgress<float> progress = null, CancellationToken cancellationToken = default) {
-            using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+        public static async Task<HttpResponseMessage> DownloadAsync(
+            this HttpClient client,
+            HttpRequestMessage request,
+            Stream destination,
+            IProgress<float> progress = null,
+            CancellationToken cancellationToken = default
+        )
+        {
+            using (
+                var response = await client.SendAsync(
+                    request,
+                    HttpCompletionOption.ResponseHeadersRead
+                )
+            )
             {
                 request.Dispose();
-                
+
                 var contentLength = response.Content.Headers.ContentLength;
 
                 using (var download = await response.Content.ReadAsStreamAsync())
@@ -139,10 +215,17 @@ namespace Immersal.REST
                         return response;
                     }
 
-                    var relativeProgress = new Progress<long>(totalBytes => progress.Report((float)totalBytes / contentLength.Value));
-                    await download.CopyToAsync(destination, 81920, relativeProgress, cancellationToken);
+                    var relativeProgress = new Progress<long>(
+                        totalBytes => progress.Report((float)totalBytes / contentLength.Value)
+                    );
+                    await download.CopyToAsync(
+                        destination,
+                        81920,
+                        relativeProgress,
+                        cancellationToken
+                    );
                 }
-                
+
                 return response;
             }
         }
@@ -154,13 +237,14 @@ namespace Immersal.REST
         private int length;
 
         public ProgressMemoryStream(byte[] buffer, IProgress<float> progress = null)
-            : base(buffer, true) {
-            
+            : base(buffer, true)
+        {
             this.length = buffer.Length;
             this.progress = progress;
         }
 
-        public override int Read([In, Out] byte[] buffer, int offset, int count) {
+        public override int Read([In, Out] byte[] buffer, int offset, int count)
+        {
             int n = base.Read(buffer, offset, count);
             progress?.Report((float)this.Position / this.length);
             return n;
@@ -169,7 +253,14 @@ namespace Immersal.REST
 
     public static class StreamExtensions
     {
-        public static async Task CopyToAsync(this Stream source, Stream destination, int bufferSize, IProgress<long> progress = null, CancellationToken cancellationToken = default) {
+        public static async Task CopyToAsync(
+            this Stream source,
+            Stream destination,
+            int bufferSize,
+            IProgress<long> progress = null,
+            CancellationToken cancellationToken = default
+        )
+        {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!source.CanRead)
@@ -184,8 +275,17 @@ namespace Immersal.REST
             var buffer = new byte[bufferSize];
             long totalBytesRead = 0;
             int bytesRead;
-            while ((bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) != 0) {
-                await destination.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+            while (
+                (
+                    bytesRead = await source
+                        .ReadAsync(buffer, 0, buffer.Length, cancellationToken)
+                        .ConfigureAwait(false)
+                ) != 0
+            )
+            {
+                await destination
+                    .WriteAsync(buffer, 0, bytesRead, cancellationToken)
+                    .ConfigureAwait(false);
                 totalBytesRead += bytesRead;
                 progress?.Report(totalBytesRead);
             }
@@ -217,13 +317,18 @@ namespace Immersal.REST
 
         public override async Task RunJobAsync()
         {
-            Debug.Log("*************************** JobSetMapAccessTokenAsync ***************************");
+            Debug.Log(
+                "*************************** JobSetMapAccessTokenAsync ***************************"
+            );
             this.OnStart?.Invoke();
 
             SDKSetMapAccessTokenRequest r = new SDKSetMapAccessTokenRequest();
             r.token = this.token;
             r.id = this.id;
-            SDKMapAccessTokenResult result = await ImmersalHttp.Request<SDKSetMapAccessTokenRequest, SDKMapAccessTokenResult>(r, this.Progress);
+            SDKMapAccessTokenResult result = await ImmersalHttp.Request<
+                SDKSetMapAccessTokenRequest,
+                SDKMapAccessTokenResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -234,7 +339,7 @@ namespace Immersal.REST
             }
         }
     }
-    
+
     public class JobClearMapAccessTokenAsync : JobAsync
     {
         public int id;
@@ -242,14 +347,19 @@ namespace Immersal.REST
 
         public override async Task RunJobAsync()
         {
-            Debug.Log("*************************** JobClearMapAccessTokenAsync ***************************");
+            Debug.Log(
+                "*************************** JobClearMapAccessTokenAsync ***************************"
+            );
             this.OnStart?.Invoke();
 
             SDKClearMapAccessTokenRequest r = new SDKClearMapAccessTokenRequest();
             r.token = this.token;
             r.id = this.id;
-            SDKMapAccessTokenResult result = await ImmersalHttp.Request<SDKClearMapAccessTokenRequest, SDKMapAccessTokenResult>(r, this.Progress);
-            
+            SDKMapAccessTokenResult result = await ImmersalHttp.Request<
+                SDKClearMapAccessTokenRequest,
+                SDKMapAccessTokenResult
+            >(r, this.Progress);
+
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -260,7 +370,7 @@ namespace Immersal.REST
             }
         }
     }
-    
+
     public class JobClearAsync : JobAsync
     {
         public bool anchor;
@@ -273,7 +383,10 @@ namespace Immersal.REST
             SDKClearRequest r = new SDKClearRequest();
             r.token = this.token;
             r.anchor = this.anchor;
-            SDKClearResult result = await ImmersalHttp.Request<SDKClearRequest, SDKClearResult>(r, this.Progress);
+            SDKClearResult result = await ImmersalHttp.Request<SDKClearRequest, SDKClearResult>(
+                r,
+                this.Progress
+            );
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -311,7 +424,10 @@ namespace Immersal.REST
             r.mapTrim = this.mapTrim;
             r.featureFilter = this.featureFilter;
             r.compressionLevel = this.compressionLevel;
-            SDKConstructResult result = await ImmersalHttp.Request<SDKConstructRequest, SDKConstructResult>(r, this.Progress);
+            SDKConstructResult result = await ImmersalHttp.Request<
+                SDKConstructRequest,
+                SDKConstructResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -320,6 +436,11 @@ namespace Immersal.REST
             {
                 HandleError(result.error);
             }
+        }
+
+        public static implicit operator JobConstructAsync(JobCopyMapAsync v)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -337,8 +458,11 @@ namespace Immersal.REST
             r.token = this.token;
             r.id = this.id;
             r.clear = this.clear;
-            
-            SDKRestoreMapImagesResult result = await ImmersalHttp.Request<SDKRestoreMapImagesRequest, SDKRestoreMapImagesResult>(r, this.Progress);
+
+            SDKRestoreMapImagesResult result = await ImmersalHttp.Request<
+                SDKRestoreMapImagesRequest,
+                SDKRestoreMapImagesResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -362,7 +486,10 @@ namespace Immersal.REST
             SDKDeleteMapRequest r = new SDKDeleteMapRequest();
             r.token = this.token;
             r.id = this.id;
-            SDKDeleteMapResult result = await ImmersalHttp.Request<SDKDeleteMapRequest, SDKDeleteMapResult>(r, this.Progress);
+            SDKDeleteMapResult result = await ImmersalHttp.Request<
+                SDKDeleteMapRequest,
+                SDKDeleteMapResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -384,7 +511,10 @@ namespace Immersal.REST
 
             SDKStatusRequest r = new SDKStatusRequest();
             r.token = this.token;
-            SDKStatusResult result = await ImmersalHttp.Request<SDKStatusRequest, SDKStatusResult>(r, this.Progress);
+            SDKStatusResult result = await ImmersalHttp.Request<SDKStatusRequest, SDKStatusResult>(
+                r,
+                this.Progress
+            );
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -417,7 +547,10 @@ namespace Immersal.REST
             r.altitude = this.altitude;
             Debug.LogFormat("Uploading map {0} with token {1}", r.name, r.token);
 
-            SDKMapUploadResult result = await ImmersalHttp.RequestUpload<SDKMapUploadRequest, SDKMapUploadResult>(r, mapData, this.Progress);
+            SDKMapUploadResult result = await ImmersalHttp.RequestUpload<
+                SDKMapUploadRequest,
+                SDKMapUploadResult
+            >(r, mapData, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -476,7 +609,10 @@ namespace Immersal.REST
 
             byte[] image = File.ReadAllBytes(imagePath);
 
-            SDKImageResult result = await ImmersalHttp.RequestUpload<SDKImageRequest, SDKImageResult>(r, image, this.Progress);
+            SDKImageResult result = await ImmersalHttp.RequestUpload<
+                SDKImageRequest,
+                SDKImageResult
+            >(r, image, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -525,8 +661,12 @@ namespace Immersal.REST
                 r.qz = camRot[2];
                 r.qw = camRot[3];
                 r.solverType = this.solverType;
-                
-                result = await ImmersalHttp.RequestUpload<SDKGeoLocalizeRequest, SDKLocalizeResult>(r, this.image, this.Progress);
+
+                result = await ImmersalHttp.RequestUpload<SDKGeoLocalizeRequest, SDKLocalizeResult>(
+                    r,
+                    this.image,
+                    this.Progress
+                );
             }
             else
             {
@@ -543,8 +683,12 @@ namespace Immersal.REST
                 r.qz = camRot[2];
                 r.qw = camRot[3];
                 r.solverType = this.solverType;
-                
-                result = await ImmersalHttp.RequestUpload<SDKLocalizeRequest, SDKLocalizeResult>(r, this.image, this.Progress);
+
+                result = await ImmersalHttp.RequestUpload<SDKLocalizeRequest, SDKLocalizeResult>(
+                    r,
+                    this.image,
+                    this.Progress
+                );
             }
 
             if (result.error == "none")
@@ -581,7 +725,10 @@ namespace Immersal.REST
             r.oy = intrinsics.w;
             r.mapIds = this.mapIds;
 
-            SDKGeoPoseResult result = await ImmersalHttp.RequestUpload<SDKGeoPoseRequest, SDKGeoPoseResult>(r, this.image, this.Progress);
+            SDKGeoPoseResult result = await ImmersalHttp.RequestUpload<
+                SDKGeoPoseRequest,
+                SDKGeoPoseResult
+            >(r, this.image, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -606,7 +753,10 @@ namespace Immersal.REST
             SDKEcefRequest r = new SDKEcefRequest();
             r.token = useToken ? this.token : "";
             r.id = this.id;
-            SDKEcefResult result = await ImmersalHttp.Request<SDKEcefRequest, SDKEcefResult>(r, this.Progress);
+            SDKEcefResult result = await ImmersalHttp.Request<SDKEcefRequest, SDKEcefResult>(
+                r,
+                this.Progress
+            );
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -640,13 +790,19 @@ namespace Immersal.REST
                 r.latitude = this.latitude;
                 r.longitude = this.longitude;
                 r.radius = this.radius;
-                result = await ImmersalHttp.Request<SDKGeoJobsRequest, SDKJobsResult>(r, this.Progress);
+                result = await ImmersalHttp.Request<SDKGeoJobsRequest, SDKJobsResult>(
+                    r,
+                    this.Progress
+                );
             }
             else
             {
                 SDKJobsRequest r = new SDKJobsRequest();
                 r.token = this.useToken ? this.token : "";
-                result = await ImmersalHttp.Request<SDKJobsRequest, SDKJobsResult>(r, this.Progress);
+                result = await ImmersalHttp.Request<SDKJobsRequest, SDKJobsResult>(
+                    r,
+                    this.Progress
+                );
             }
 
             if (result.error == "none")
@@ -672,11 +828,18 @@ namespace Immersal.REST
             this.OnStart?.Invoke();
 
             SDKMapBinaryRequest r = new SDKMapBinaryRequest();
-            r.token = this.useToken ?  this.token : "";
+            r.token = this.useToken ? this.token : "";
             r.id = this.id;
 
-            string uri = string.Format(ImmersalHttp.URL_FORMAT, ImmersalSDK.Instance.localizationServer, SDKMapBinaryRequest.endpoint);
-            uri += (r.token != "") ? string.Format("?token={0}&id={1}", r.token, r.id) : string.Format("?id={0}", r.id);
+            string uri = string.Format(
+                ImmersalHttp.URL_FORMAT,
+                ImmersalSDK.Instance.localizationServer,
+                SDKMapBinaryRequest.endpoint
+            );
+            uri +=
+                (r.token != "")
+                    ? string.Format("?token={0}&id={1}", r.token, r.id)
+                    : string.Format("?id={0}", r.id);
 
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
             SDKMapResult result = default;
@@ -708,7 +871,7 @@ namespace Immersal.REST
                     this.OnResult?.Invoke(result);
                 };
 
-                j.OnResult += (SDKMapMetadataGetResult metadata) => 
+                j.OnResult += (SDKMapMetadataGetResult metadata) =>
                 {
                     if (metadata.error == "none")
                     {
@@ -743,7 +906,10 @@ namespace Immersal.REST
             SDKMapRequest r = new SDKMapRequest();
             r.token = this.useToken ? this.token : "";
             r.id = this.id;
-            SDKMapResult result = await ImmersalHttp.Request<SDKMapRequest, SDKMapResult>(r, this.Progress);
+            SDKMapResult result = await ImmersalHttp.Request<SDKMapRequest, SDKMapResult>(
+                r,
+                this.Progress
+            );
             if (result.error == "none")
             {
                 JobMapMetadataGetAsync j = new JobMapMetadataGetAsync();
@@ -754,7 +920,7 @@ namespace Immersal.REST
                     this.OnResult?.Invoke(result);
                 };
 
-                j.OnResult += (SDKMapMetadataGetResult metadata) => 
+                j.OnResult += (SDKMapMetadataGetResult metadata) =>
                 {
                     if (metadata.error == "none")
                     {
@@ -790,7 +956,10 @@ namespace Immersal.REST
             r.token = this.token;
             r.id = this.id;
             r.privacy = this.privacy;
-            SDKMapPrivacyResult result = await ImmersalHttp.Request<SDKMapPrivacyRequest, SDKMapPrivacyResult>(r, this.Progress);
+            SDKMapPrivacyResult result = await ImmersalHttp.Request<
+                SDKMapPrivacyRequest,
+                SDKMapPrivacyResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -815,7 +984,40 @@ namespace Immersal.REST
             SDKLoginRequest r = new SDKLoginRequest();
             r.login = this.username;
             r.password = this.password;
-            SDKLoginResult result = await ImmersalHttp.Request<SDKLoginRequest, SDKLoginResult>(r, this.Progress);
+            SDKLoginResult result = await ImmersalHttp.Request<SDKLoginRequest, SDKLoginResult>(
+                r,
+                this.Progress
+            );
+            if (result.error == "none")
+            {
+                this.OnResult?.Invoke(result);
+            }
+            else
+            {
+                HandleError(result.error);
+            }
+        }
+    }
+
+    public class JobRegisterAsync : JobAsync
+    {
+        public string username;
+        public string password;
+        public string email;
+        public Action<SDKRegisterResult> OnResult;
+
+        public override async Task RunJobAsync()
+        {
+            this.OnStart?.Invoke();
+
+            SDKRegisterRequest r = new SDKRegisterRequest();
+            r.name = this.username;
+            r.password = this.password;
+            r.login = this.email;
+            SDKRegisterResult result = await ImmersalHttp.Request<
+                SDKRegisterRequest,
+                SDKRegisterResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -839,7 +1041,10 @@ namespace Immersal.REST
             SDKMapDownloadRequest r = new SDKMapDownloadRequest();
             r.token = this.token;
             r.id = this.id;
-            SDKMapDownloadResult result = await ImmersalHttp.Request<SDKMapDownloadRequest, SDKMapDownloadResult>(r, this.Progress);
+            SDKMapDownloadResult result = await ImmersalHttp.Request<
+                SDKMapDownloadRequest,
+                SDKMapDownloadResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -863,7 +1068,10 @@ namespace Immersal.REST
             SDKMapMetadataGetRequest r = new SDKMapMetadataGetRequest();
             r.token = this.token;
             r.id = this.id;
-            SDKMapMetadataGetResult result = await ImmersalHttp.Request<SDKMapMetadataGetRequest, SDKMapMetadataGetResult>(r, this.Progress);
+            SDKMapMetadataGetResult result = await ImmersalHttp.Request<
+                SDKMapMetadataGetRequest,
+                SDKMapMetadataGetResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -903,7 +1111,10 @@ namespace Immersal.REST
             r.qy = this.qy;
             r.qz = this.qz;
             r.scale = this.scale;
-            SDKMapAlignmentSetResult result = await ImmersalHttp.Request<SDKMapAlignmentSetRequest, SDKMapAlignmentSetResult>(r, this.Progress);
+            SDKMapAlignmentSetResult result = await ImmersalHttp.Request<
+                SDKMapAlignmentSetRequest,
+                SDKMapAlignmentSetResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -914,7 +1125,7 @@ namespace Immersal.REST
             }
         }
     }
-    
+
     public class JobCopyMapAsync : JobAsync
     {
         public string login;
@@ -929,7 +1140,10 @@ namespace Immersal.REST
             r.token = this.token;
             r.login = this.login;
             r.id = this.id;
-            SDKCopyMapResult result = await ImmersalHttp.Request<SDKCopyMapRequest, SDKCopyMapResult>(r, this.Progress);
+            SDKCopyMapResult result = await ImmersalHttp.Request<
+                SDKCopyMapRequest,
+                SDKCopyMapResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -940,7 +1154,7 @@ namespace Immersal.REST
             }
         }
     }
-    
+
     public class JobVersionAsync : JobAsync
     {
         public Action<SDKVersionResult> OnResult;
@@ -949,7 +1163,10 @@ namespace Immersal.REST
         {
             this.OnStart?.Invoke();
             SDKVersionRequest r = new SDKVersionRequest();
-            SDKVersionResult result = await ImmersalHttp.Request<SDKVersionRequest, SDKVersionResult>(r, this.Progress);
+            SDKVersionResult result = await ImmersalHttp.Request<
+                SDKVersionRequest,
+                SDKVersionResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -960,7 +1177,7 @@ namespace Immersal.REST
             }
         }
     }
-    
+
     public class JobAlignMapsAsync : JobAsync
     {
         public string name;
@@ -975,7 +1192,10 @@ namespace Immersal.REST
             r.token = this.token;
             r.name = this.name;
             r.mapIds = this.mapIds;
-            SDKAlignMapsResult result = await ImmersalHttp.Request<SDKAlignMapsRequest, SDKAlignMapsResult>(r, this.Progress);
+            SDKAlignMapsResult result = await ImmersalHttp.Request<
+                SDKAlignMapsRequest,
+                SDKAlignMapsResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);
@@ -1001,7 +1221,10 @@ namespace Immersal.REST
             r.token = this.token;
             r.name = this.name;
             r.mapIds = this.mapIds;
-            SDKStitchMapsResult result = await ImmersalHttp.Request<SDKStitchMapsRequest, SDKStitchMapsResult>(r, this.Progress);
+            SDKStitchMapsResult result = await ImmersalHttp.Request<
+                SDKStitchMapsRequest,
+                SDKStitchMapsResult
+            >(r, this.Progress);
             if (result.error == "none")
             {
                 this.OnResult?.Invoke(result);

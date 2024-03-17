@@ -6,7 +6,7 @@ public class FirebaseManager : MonoBehaviour
 {
     private static FirebaseManager instance = null;
 
-    public GameObject DownloadMaps;
+    public GameObject GameObjectToActivate = null;
 
     // Public static property to access instance
     public static FirebaseManager Instance
@@ -57,12 +57,9 @@ public class FirebaseManager : MonoBehaviour
                 {
                     // Firebase is ready for use
                     //debug if home ui is active
-                    Debug.Log("heallo");
-                    DownloadMaps.SetActive(true);
-                    Debug.Log("heallo poop");
+                    if (GameObjectToActivate != null)
+                        GameObjectToActivate.SetActive(true);
                     //check the status
-                    Debug.Log(DownloadMaps.activeSelf);
-                    Debug.Log("Firebase is ready for use");
                     // Initialize other Firebase features here if necessary
                 }
                 else

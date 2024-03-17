@@ -26,6 +26,7 @@ public class ChangeScreen : MonoBehaviour
     public void BackButtonClicked()
     {
         Destroy(TakePhotos.instance.mapImage);
+        
         errorText.text = "";
         panelB.SetActive(false);
         panelA.SetActive(true);
