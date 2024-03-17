@@ -99,7 +99,7 @@ public class MapDownload : MonoBehaviour
                                     }
                                 };
 
-                                await firebase_storage
+                                _ = firebase_storage
                                     .GetReference(image_ref_path)
                                     .GetDownloadUrlAsync()
                                     .ContinueWithOnMainThread(task =>
@@ -125,6 +125,7 @@ public class MapDownload : MonoBehaviour
 
                                 if (bool.Parse(mapData["copied"].ToString()) == false)
                                 {
+                                    Debug.Log("yeah babes");
                                     if (job.status == SDKJobState.Done)
                                     {
                                         Debug.Log("teri tutti");
@@ -176,7 +177,17 @@ public class MapDownload : MonoBehaviour
 
                                             Debug.Log("Map copied: " + mapRef.Id);
                                         };
-                                        await copyJob.RunJobAsync();
+                                        _ = copyJob
+                                            .RunJobAsync()
+                                            .ContinueWithOnMainThread(task =>
+                                            {
+                                                if (task.IsFaulted)
+                                                {
+                                                    Debug.LogError(
+                                                        "Error copying map: " + task.Exception
+                                                    );
+                                                }
+                                            });
                                         //wait for 1 second
                                     }
                                 }
@@ -227,71 +238,71 @@ public class MapDownload : MonoBehaviour
         }
     }
 
-    public async void Jobs()
-    {
-        JobListJobsAsync j = new JobListJobsAsync();
+    // public async void Jobs()
+    // {
+    //     JobListJobsAsync j = new JobListJobsAsync();
 
-        // if (mapperSettings.listOnlyNearbyMaps)
-        // {
-        //     j.useGPS = true;
-        //     j.latitude = m_Latitude;
-        //     j.longitude = m_Longitude;
-        //     j.radius = DefaultRadius;
-        // }
+    //     // if (mapperSettings.listOnlyNearbyMaps)
+    //     // {
+    //     //     j.useGPS = true;
+    //     //     j.latitude = m_Latitude;
+    //     //     j.longitude = m_Longitude;
+    //     //     j.radius = DefaultRadius;
+    //     // }
 
-        // foreach (int id in ARSpace.mapIdToMap.Keys)
-        // {
-        //     activeMaps.Add(id);
-        // }
+    //     // foreach (int id in ARSpace.mapIdToMap.Keys)
+    //     // {
+    //     //     activeMaps.Add(id);
+    //     // }
 
-        j.OnResult += (SDKJobsResult result) =>
-        {
-            List<SDKJob> jobList = new List<SDKJob>();
-            foreach (SDKJob job in result.jobs)
-            {
-                if (job.type != (int)SDKJobType.Alignment)
-                {
-                    jobList.Add(job);
-                }
-            }
+    //     j.OnResult += (SDKJobsResult result) =>
+    //     {
+    //         List<SDKJob> jobList = new List<SDKJob>();
+    //         foreach (SDKJob job in result.jobs)
+    //         {
+    //             if (job.type != (int)SDKJobType.Alignment)
+    //             {
+    //                 jobList.Add(job);
+    //             }
+    //         }
 
-            //make int array
-            List<SDKJob> filteredJobs = new List<SDKJob>();
-            List<int> firebaseMapsId = new List<int>();
-            //use firestore document fetch dont check dependency
-            db = FirebaseFirestore.DefaultInstance;
-            db.Collection("map")
-                .WhereEqualTo("email", StaticData.userEmail)
-                .GetSnapshotAsync()
-                .ContinueWithOnMainThread(task =>
-                {
-                    QuerySnapshot snapshot = task.Result;
-                    foreach (DocumentSnapshot document in snapshot.Documents)
-                    {
-                        Dictionary<string, object> map = document.ToDictionary();
-                        Debug.Log(map["id"]);
-                        if (map["email"].ToString() == PlayerPrefs.GetString("email"))
-                        {
-                            firebaseMapsId.Add(int.Parse(map["id"].ToString()));
-                        }
-                        foreach (SDKJob job in jobList)
-                        {
-                            foreach (int firebaseMapId in firebaseMapsId)
-                            {
-                                if (job.id == firebaseMapId)
-                                {
-                                    filteredJobs.Add(job);
-                                }
-                            }
-                        }
+    //         //make int array
+    //         List<SDKJob> filteredJobs = new List<SDKJob>();
+    //         List<int> firebaseMapsId = new List<int>();
+    //         //use firestore document fetch dont check dependency
+    //         db = FirebaseFirestore.DefaultInstance;
+    //         db.Collection("map")
+    //             .WhereEqualTo("email", StaticData.userEmail)
+    //             .GetSnapshotAsync()
+    //             .ContinueWithOnMainThread(task =>
+    //             {
+    //                 QuerySnapshot snapshot = task.Result;
+    //                 foreach (DocumentSnapshot document in snapshot.Documents)
+    //                 {
+    //                     Dictionary<string, object> map = document.ToDictionary();
+    //                     Debug.Log(map["id"]);
+    //                     if (map["email"].ToString() == PlayerPrefs.GetString("email"))
+    //                     {
+    //                         firebaseMapsId.Add(int.Parse(map["id"].ToString()));
+    //                     }
+    //                     foreach (SDKJob job in jobList)
+    //                     {
+    //                         foreach (int firebaseMapId in firebaseMapsId)
+    //                         {
+    //                             if (job.id == firebaseMapId)
+    //                             {
+    //                                 filteredJobs.Add(job);
+    //                             }
+    //                         }
+    //                     }
 
-                        // this.visualizeManager.SetMapListData(filteredJobs.ToArray(), activeMaps);
-                    }
-                });
+    //                     // this.visualizeManager.SetMapListData(filteredJobs.ToArray(), activeMaps);
+    //                 }
+    //             });
 
-            //only extract the job list data with matching ids with
-        };
+    //         //only extract the job list data with matching ids with
+    //     };
 
-        await j.RunJobAsync();
-    }
+    //     await j.RunJobAsync();
+    // }
 }
