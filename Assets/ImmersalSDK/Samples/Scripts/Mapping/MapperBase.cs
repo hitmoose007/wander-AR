@@ -659,16 +659,11 @@ namespace Immersal.Samples.Mapping
             j.preservePoses = mapperSettings.preservePoses;
             j.windowSize = mapperSettings.windowSize;
             j.mapTrim = mapperSettings.mapTrim;
+
             j.featureFilter = mapperSettings.featureFilter;
             j.compressionLevel = mapperSettings.compressionLevel;
             j.OnResult += (SDKConstructResult result) =>
             {
-                Debug.LogFormat(
-                    "Started constructing a map width ID {0}, containing {1} images and detail level of {2}",
-                    result.id,
-                    result.size,
-                    j.featureCount
-                );
                 FirebaseStorage firebase_storage = FirebaseStorage.DefaultInstance;
                 //make storage reference
                 Texture2D texture = StaticData.MapperSceneMapImage;
@@ -709,13 +704,32 @@ namespace Immersal.Samples.Mapping
                     { "email", StaticData.userEmail },
                     { "name", StaticData.MapperSceneMapName },
                     { "private", StaticData.MapperSceneIsMapPrivate },
+                    { "copied", false },
                     { "thumbnail_reference", image_path }
                 };
+
                 docRef.SetAsync(map);
 
-                //wait for 1 second
+                // JobCopyMapAsync copyJob = new JobCopyMapAsync();
+                // Debug.Log("Map fafdsfafda successfully, id: " + result.id);
+                // if (StaticData.MainAccountDeveloperToken == null)
+                // {
+                //     Debug.Log("main account token is null");
+                // }
 
-                StaticData.LoadScene(StaticData.GameScene.HomeScene);
+                // Debug.Log("main account token: " + StaticData.MainAccountDeveloperToken);
+                // Debug.Log("developer token: " + StaticData.developerToken);
+                // copyJob.id = result.id;
+                // copyJob.login = StaticData.MainAccountDeveloperToken; //where you send to the main account
+                // copyJob.token = StaticData.developerToken; //from where you send
+
+                // copyJob.OnResult += (SDKCopyMapResult copyResult) =>
+                // {
+                //     Debug.LogFormat("Map {0} copied successfully.", result.id);
+                //     StaticData.LoadScene(StaticData.GameScene.HomeScene);
+                // };
+                // //wait for 1 second
+                // m_Jobs.Add(copyJob);
             };
 
             // db.Collection("map")

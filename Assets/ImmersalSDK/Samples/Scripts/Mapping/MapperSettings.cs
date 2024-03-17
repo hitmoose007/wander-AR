@@ -29,7 +29,7 @@ namespace Immersal.Samples.Mapping
         public bool renderPointsAs3D { get; private set; } = true;
         public float pointSize { get; private set; } = 0.33f;
         public bool useServerLocalizer { get; private set; } = false;
-        public bool listOnlyNearbyMaps { get; private set; } = false;
+        public bool listOnlyNearbyMaps { get; private set; } = false; 
         public bool transformRootToOrigin { get; private set; } = true;
         public bool downsampleWhenLocalizing { get; private set; } = false;
         public int resolution { get; private set; } = 0;

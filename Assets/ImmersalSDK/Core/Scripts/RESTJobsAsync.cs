@@ -437,6 +437,11 @@ namespace Immersal.REST
                 HandleError(result.error);
             }
         }
+
+        public static implicit operator JobConstructAsync(JobCopyMapAsync v)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class JobRestoreMapImagesAsync : JobAsync
