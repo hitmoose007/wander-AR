@@ -23,6 +23,7 @@ using UnityEngine.Events;
 
 using Firebase;
 using Firebase.Firestore;
+using Firebase.Storage;
 using System.Data.Common;
 using Firebase.Extensions;
 using System.Linq;
@@ -653,30 +654,82 @@ namespace Immersal.Samples.Mapping
         public void Construct()
         {
             JobConstructAsync j = new JobConstructAsync();
-            j.name = workspaceManager.newMapName.text;
+            j.name = StaticData.MapperSceneMapName;
             j.featureCount = mapperSettings.mapDetailLevel;
             j.preservePoses = mapperSettings.preservePoses;
             j.windowSize = mapperSettings.windowSize;
             j.mapTrim = mapperSettings.mapTrim;
+
             j.featureFilter = mapperSettings.featureFilter;
             j.compressionLevel = mapperSettings.compressionLevel;
             j.OnResult += (SDKConstructResult result) =>
             {
-                Debug.LogFormat(
-                    "Started constructing a map width ID {0}, containing {1} images and detail level of {2}",
-                    result.id,
-                    result.size,
-                    j.featureCount
-                );
+                FirebaseStorage firebase_storage = FirebaseStorage.DefaultInstance;
+                //make storage reference
+                Texture2D texture = StaticData.MapperSceneMapImage;
+                byte[] imageBytes = texture.EncodeToJPG(); // or EncodeToPNG() based on your preference
+
+                string image_path = "images/" + Guid.NewGuid().ToString() + ".jpg";
+                ;
+                StorageReference imageRef = firebase_storage.GetReference(image_path);
+
+                imageRef
+                    .PutBytesAsync(imageBytes)
+                    .ContinueWithOnMainThread(
+                        (task) =>
+                        {
+                            if (task.IsFaulted || task.IsCanceled)
+                            {
+                                Debug.LogError(task.Exception.ToString());
+                                // Handle the error
+                            }
+                            else
+                            {
+                                // Image uploaded successfully
+                                Debug.Log("Image uploaded: " + image_path);
+                            }
+                        }
+                    );
+                if (texture == null)
+                {
+                    Debug.Log("Couldn't load texture from ");
+                    return;
+                }
 
                 db = FirebaseFirestore.DefaultInstance;
                 DocumentReference docRef = db.Collection("map").Document();
                 Dictionary<string, object> map = new Dictionary<string, object>
                 {
                     { "id", result.id },
-                    { "email", PlayerPrefs.GetString("email") }
+                    { "email", StaticData.userEmail },
+                    { "name", StaticData.MapperSceneMapName },
+                    { "private", StaticData.MapperSceneIsMapPrivate },
+                    { "copied", false },
+                    { "thumbnail_reference", image_path }
                 };
+
                 docRef.SetAsync(map);
+
+                // JobCopyMapAsync copyJob = new JobCopyMapAsync();
+                // Debug.Log("Map fafdsfafda successfully, id: " + result.id);
+                // if (StaticData.MainAccountDeveloperToken == null)
+                // {
+                //     Debug.Log("main account token is null");
+                // }
+
+                // Debug.Log("main account token: " + StaticData.MainAccountDeveloperToken);
+                // Debug.Log("developer token: " + StaticData.developerToken);
+                // copyJob.id = result.id;
+                // copyJob.login = StaticData.MainAccountDeveloperToken; //where you send to the main account
+                // copyJob.token = StaticData.developerToken; //from where you send
+
+                // copyJob.OnResult += (SDKCopyMapResult copyResult) =>
+                // {
+                //     Debug.LogFormat("Map {0} copied successfully.", result.id);
+                //     StaticData.LoadScene(StaticData.GameScene.HomeScene);
+                // };
+                // //wait for 1 second
+                // m_Jobs.Add(copyJob);
             };
 
             // db.Collection("map")

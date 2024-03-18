@@ -64,8 +64,6 @@ namespace Immersal.Samples.Mapping
 
         public void SetMapListData(SDKJob[] data, List<int> activeMaps)
         {
-            Debug.Log("SetMapListData");
-            Debug.Log(data.Length);
             m_MapDownloadList.GetComponent<ScrollListControl>().SetData(data, activeMaps);
         }
 
