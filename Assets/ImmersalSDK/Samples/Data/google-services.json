@@ -13,7 +13,20 @@
           "package_name": "com.WanderInc.Wander"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "335058442868-bsf50cnemgsqevbbttqao6sl8p2p1m0t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.WanderInc.Wander",
+            "certificate_hash": "23fcf0d1093f793449d96e4b948cb61b58a896a4"
+          }
+        },
+        {
+          "client_id": "335058442868-dd3a18s18mcd23d0hpeml2gvsi0ksr6s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBiicqM3nVs6F4NR0XERHHRYjVpMEZiXs8"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "335058442868-dd3a18s18mcd23d0hpeml2gvsi0ksr6s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
