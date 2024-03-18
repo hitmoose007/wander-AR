@@ -38,7 +38,18 @@ public class FirebaseGoogleLogin : MonoBehaviour
 
     void Start()
     {
-        InitFirebase();
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        {
+            dependencyStatus = task.Result;
+            if (dependencyStatus == Firebase.DependencyStatus.Available)
+            {
+                InitFirebase();
+            }
+            else
+            {
+                Debug.LogError("Could not resolve all Firebase dependencies: " + dependencyStatus);
+            }
+        });
     }
 
     void InitFirebase()
@@ -59,7 +70,7 @@ void OnGoogleAuthenticatedFinished(Task<GoogleSignInUser> task)
 {
     if (task.IsFaulted)
     {
-        Debug.LogError("Fault");
+        Debug.LogError("Fault" + task.Exception);
     }
     else if (task.IsCanceled)
     {
