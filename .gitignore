@@ -83,6 +83,8 @@ crashlytics-build.properties
 
 Assets/GeneratedLocalRepo.meta
 Assets/Plugins/Android
+Assets/Plugins/iOS
+Assets/GoogleSignIn
 Assets/StreamingAssets.meta
 Assets/StreamingAssets
 Asset/TextMesh Pro
