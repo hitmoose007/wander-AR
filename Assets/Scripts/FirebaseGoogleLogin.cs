@@ -145,15 +145,7 @@ public class FirebaseGoogleLogin : MonoBehaviour
                         {
                             if (task.IsFaulted || !task.Result.Exists)
                             {
-                                Debug.Log("User is signing in for the first time.");
                                 // User does not exist, create a new record
-                                var newUserRecord = new Dictionary<string, object>
-                                {
-                                    { "name", user.DisplayName },
-                                    { "email", user.Email },
-                                    // Any other user info you wish to store
-                                };
-                                userRef.SetAsync(newUserRecord);
                                 newUser = true;
                             }
                             else
@@ -195,6 +187,8 @@ public class FirebaseGoogleLogin : MonoBehaviour
                                         }
                                     ); // Add user to database
                                 StaticData.developerToken = result.token;
+                                Debug.Log("result token" + result.token);
+                                Debug.Log("static token" + StaticData.developerToken);
                                 StaticData.userEmail = user.Email;
                             };
                             await j.RunJobAsync();
@@ -206,7 +200,22 @@ public class FirebaseGoogleLogin : MonoBehaviour
                     }
                     else
                     {
-                        register.text = "Old User";
+                        await db.Collection("user")
+                            .Document(user.UserId)
+                            .GetSnapshotAsync()
+                            .ContinueWithOnMainThread(task =>
+                            {
+                                if (task.IsFaulted || !task.Result.Exists)
+                                {
+                                    Debug.LogError("Error getting user data: " + task.Exception);
+                                }
+                                else
+                                {
+                                    DocumentSnapshot document = task.Result;
+                                    StaticData.developerToken = document.GetValue<string>("token");
+                                    StaticData.userEmail = document.GetValue<string>("email");
+                                }
+                            });
                     }
 
                     GoogleSignIn.DefaultInstance.SignOut();
