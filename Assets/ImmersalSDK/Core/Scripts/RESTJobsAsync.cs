@@ -1013,6 +1013,7 @@ namespace Immersal.REST
             SDKRegisterRequest r = new SDKRegisterRequest();
             r.name = this.username;
             r.password = this.password;
+            Debug.Log("password: " + this.password);
             r.login = this.email;
             SDKRegisterResult result = await ImmersalHttp.Request<
                 SDKRegisterRequest,
