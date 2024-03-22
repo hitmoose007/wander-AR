@@ -93,158 +93,85 @@ public class FirebaseGoogleLogin : MonoBehaviour
         auth = FirebaseAuth.DefaultInstance;
     }
 
-    public void GoogleSignInClick()
+    public async void GoogleSignInClickAsync()
     {
         GoogleSignIn.Configuration = configuration;
         GoogleSignIn.Configuration.UseGameSignIn = false;
         GoogleSignIn.Configuration.RequestIdToken = true;
         GoogleSignIn.Configuration.RequestEmail = true;
-        GoogleSignIn.DefaultInstance.SignIn().ContinueWith(OnGoogleAuthenticatedFinished);
+
+        GoogleSignInUser signedInUser = await GoogleSignIn.DefaultInstance.SignIn();
+
+        await OnGoogleAuthenticatedFinished(signedInUser);
     }
 
-    void OnGoogleAuthenticatedFinished(Task<GoogleSignInUser> task)
+    async Task OnGoogleAuthenticatedFinished(GoogleSignInUser signInUser)
     {
         FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
-        if (task.IsFaulted)
+        Firebase.Auth.Credential credential = Firebase.Auth.GoogleAuthProvider.GetCredential(
+            signInUser.IdToken,
+            null
+        );
+        user = await auth.SignInWithCredentialAsync(credential);
+        try
         {
-            Debug.LogError("Fault" + task.Exception);
-        }
-        else if (task.IsCanceled)
-        {
-            Debug.LogError("Login Cancel");
-        }
-        else
-        {
-            Firebase.Auth.Credential credential = Firebase.Auth.GoogleAuthProvider.GetCredential(
-                task.Result.IdToken,
-                null
-            );
-            auth.SignInWithCredentialAsync(credential)
-                .ContinueWithOnMainThread(async authTask =>
+            DocumentReference userRef = db.Collection("user").Document(user.UserId);
+            DocumentSnapshot ExistingUserDoc = await userRef.GetSnapshotAsync();
+            newUser = !ExistingUserDoc.Exists;
+
+            Debug.Log("new users" + newUser);
+            // Proceed with updating the UI
+            UsernameTxt.text = user.DisplayName;
+            UserEmailTxt.text = user.Email;
+            LoginScreen.SetActive(false);
+            ProfileScreen.SetActive(true);
+
+            if (newUser)
+            {
+                GoogleSignIn.DefaultInstance.SignOut();
+                string randomPassword = StrongPasswordGenerator.Generate(8);
+                register.text = "New User";
+                JobRegisterAsync j = new JobRegisterAsync();
+                j.email = user.Email;
+                j.password = randomPassword;
+                j.username = user.DisplayName;
+
+                j.OnResult += async (result) =>
                 {
-                    if (authTask.IsCanceled)
-                    {
-                        Debug.LogError("SignInWithCredentialAsync was canceled.");
-                        return;
-                    }
-                    if (authTask.IsFaulted)
-                    {
-                        Debug.LogError(
-                            "SignInWithCredentialAsync encountered an error: " + authTask.Exception
-                        );
-                        return;
-                    }
-
-                    user = auth.CurrentUser;
-
-                    // Check Firestore for an existing user record
-                    DocumentReference userRef = db.Collection("user").Document(user.UserId);
-                    await userRef
-                        .GetSnapshotAsync()
-                        .ContinueWithOnMainThread(task =>
-                        {
-                            if (task.IsFaulted || !task.Result.Exists)
+                    
+                    await db.Collection("user")
+                        .Document(user.UserId)
+                        .SetAsync(
+                            new
                             {
-                                // User does not exist, create a new record
-                                newUser = true;
+                                name = user.DisplayName,
+                                email = user.Email,
+                                token = result.token,
+                                password = randomPassword
                             }
-                            else
-                            {
-                                Debug.Log("User has signed in before.");
-                                newUser = false;
-                            }
+                        ); // Add user to database
+                    StaticData.developerToken = result.token;
+                    StaticData.userEmail = user.Email;
+                };
+                await j.RunJobAsync();
+            }
+            else
+            {
+                DocumentSnapshot userDoc = await db.Collection("user")
+                    .Document(user.UserId)
+                    .GetSnapshotAsync();
+                StaticData.developerToken = userDoc.GetValue<string>("token");
+                StaticData.userEmail = userDoc.GetValue<string>("email");
+            }
 
-                            // Proceed with updating the UI
-                            UsernameTxt.text = user.DisplayName;
-                            UserEmailTxt.text = user.Email;
-                            LoginScreen.SetActive(false);
-                            ProfileScreen.SetActive(true);
-                        });
-
-                    if (newUser)
-                    {
-                        GoogleSignIn.DefaultInstance.SignOut();
-                        string randomPassword = StrongPasswordGenerator.Generate(8);
-                        register.text = "New User";
-                        try
-                        {
-                            JobRegisterAsync j = new JobRegisterAsync();
-                            j.email = user.Email;
-                            j.password = randomPassword;
-                            j.username = user.DisplayName;
-
-                            j.OnResult += async (result) =>
-                            {
-                                await db.Collection("user")
-                                    .Document(user.UserId)
-                                    .SetAsync(
-                                        new
-                                        {
-                                            name = user.DisplayName,
-                                            email = user.Email,
-                                            token = result.token,
-                                            password = randomPassword
-                                        }
-                                    ); // Add user to database
-                                StaticData.developerToken = result.token;
-                                Debug.Log("result token" + result.token);
-                                Debug.Log("static token" + StaticData.developerToken);
-                                StaticData.userEmail = user.Email;
-                            };
-                            await j.RunJobAsync();
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError("Error writing to database: " + e);
-                        }
-                    }
-                    else
-                    {
-                        await db.Collection("user")
-                            .Document(user.UserId)
-                            .GetSnapshotAsync()
-                            .ContinueWithOnMainThread(task =>
-                            {
-                                if (task.IsFaulted || !task.Result.Exists)
-                                {
-                                    Debug.LogError("Error getting user data: " + task.Exception);
-                                }
-                                else
-                                {
-                                    DocumentSnapshot document = task.Result;
-                                    StaticData.developerToken = document.GetValue<string>("token");
-                                    StaticData.userEmail = document.GetValue<string>("email");
-                                }
-                            });
-                    }
-
-                    GoogleSignIn.DefaultInstance.SignOut();
-                    StaticData.LoadScene(StaticData.GameScene.HomeScene);
-                    // StartCoroutine(LoadImage(CheckImageUrl(user.PhotoUrl.ToString())));
-                });
+            GoogleSignIn.DefaultInstance.SignOut();
+            StaticData.LoadScene(StaticData.GameScene.HomeScene);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
         }
     }
-
-    //     private string CheckImageUrl(string url)
-    //     {
-    //         if (!string.IsNullOrEmpty(url))
-    //         {
-    //             return url;
-    //         }
-    //         return imageUrl;
-    //     }
-
-    //     IEnumerator LoadImage(string imageUri)
-    //     {
-    //         WWW www = new WWW(imageUri);
-    //         yield return www;
-    //         UserProfilePic.sprite = Sprite.Create(
-    //             www.texture,
-    //             new Rect(0, 0, www.texture.width, www.texture.height),
-    //             new Vector2(0, 0)
-    //         );
-    //     }
-    // }
 
     public class StrongPasswordGenerator
     {
