@@ -117,11 +117,34 @@ public class MapDownload : MonoBehaviour
                                             Debug.LogError("Failed to get download URL.");
                                         }
                                     });
-                                //add status of job here
-                                // filteredJobs.Add(job);
 
 
 
+
+                                //save job state to item 
+                                item.GetComponent<MapSelect>().jobState = job.status;
+
+                                if (job.status == SDKJobState.Done)
+                                {
+                                    item.transform
+                                        .GetChild(4)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Done";
+                                }
+                                else if (job.status == SDKJobState.Failed)
+                                {
+                                    item.transform
+                                        .GetChild(4)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Failed";
+                                }
+                                else
+                                {
+                                    item.transform
+                                        .GetChild(4)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Processing";
+                                }
 
                                 if (bool.Parse(mapData["copied"].ToString()) == false)
                                 {
@@ -177,17 +200,8 @@ public class MapDownload : MonoBehaviour
 
                                             Debug.Log("Map copied: " + mapRef.Id);
                                         };
-                                        _ = copyJob
-                                            .RunJobAsync()
-                                            .ContinueWithOnMainThread(task =>
-                                            {
-                                                if (task.IsFaulted)
-                                                {
-                                                    Debug.LogError(
-                                                        "Error copying map: " + task.Exception
-                                                    );
-                                                }
-                                            });
+
+                                        await copyJob.RunJobAsync();
                                         //wait for 1 second
                                     }
                                 }
