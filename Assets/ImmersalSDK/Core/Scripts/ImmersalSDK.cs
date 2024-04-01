@@ -207,7 +207,15 @@ namespace Immersal
                 return;
             }
 
-            developerToken = StaticData.developerToken;
+            if (StaticData.developerToken != null || StaticData.developerToken.Length > 0)
+            {
+                //for login maybe if needed
+                developerToken = StaticData.developerToken;
+            }
+            else
+            {
+                developerToken = StaticData.MainAccountDeveloperToken;
+            }
             LogCallback callback_delegate = new LogCallback(Log);
             IntPtr intptr_delegate = Marshal.GetFunctionPointerForDelegate(callback_delegate);
             Native.PP_RegisterLogCallback(intptr_delegate);
