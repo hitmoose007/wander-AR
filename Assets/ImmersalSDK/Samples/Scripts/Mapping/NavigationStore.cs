@@ -1,8 +1,9 @@
 using UnityEngine;
 using Firebase.Firestore;
 using System.Collections.Generic;
+using Immersal.Samples.ContentPlacement;
 
-public class NavigationTargetContent : MovableTextContent
+public class NavigationTargetContent : MovableContent
 {
     public override void StoreContent()
     {

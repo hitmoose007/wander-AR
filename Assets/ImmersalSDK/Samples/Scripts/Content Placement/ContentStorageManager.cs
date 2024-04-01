@@ -38,6 +38,7 @@ namespace Immersal.Samples.ContentPlacement
     {
         [SerializeField]
         private GameObject m_TextContentPrefab = null;
+        public GameObject NavPrefab;
 
         [SerializeField]
         private GameObject quadPrefab;
@@ -171,6 +172,7 @@ namespace Immersal.Samples.ContentPlacement
             //fetch both functions in parrallel
             FetchAndDownloadImageContent();
             FetchAndInstantiateTextContent();
+            FetchAndInstantiateNavPoint();
 
             //wait 10 seconds before setting all game objects to active
             StartCoroutine(WaitAndSetActive());
@@ -391,6 +393,93 @@ namespace Immersal.Samples.ContentPlacement
                     }
                 });
         }
+
+        private void FetchAndInstantiateNavPoint()
+        {
+            CollectionReference navPointCollectionRef = db.Collection("navigation_targets");
+
+            // if empty, return
+            if (navPointCollectionRef == null)
+            {
+                Debug.LogWarning("Navigation target collection not found");
+                return;
+            }
+
+            // Fetch all documents from the collection
+            navPointCollectionRef
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
+                {
+                    if (task.IsFaulted)
+                    {
+                        Debug.LogError("Error fetching collection documents: " + task.Exception);
+                        return;
+                    }
+
+                    QuerySnapshot snapshot = task.Result;
+
+                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    {
+                        // Assuming each document has a 'position' map and a 'text' field
+                        if (document.Exists)
+                        {
+                            Dictionary<string, object> documentData = document.ToDictionary();
+
+                            // Extracting the position map
+                            if (!documentData.ContainsKey("position"))
+                            {
+                                Debug.LogWarning("Position not found");
+                                continue;
+                            }
+                            Dictionary<string, object> positionMap =
+                                documentData["position"] as Dictionary<string, object>;
+                            Vector3 pos = new Vector3(
+                                Convert.ToSingle(positionMap["x"]),
+                                Convert.ToSingle(positionMap["y"]),
+                                Convert.ToSingle(positionMap["z"])
+                            );
+
+                            if (!documentData.ContainsKey("rotation"))
+                            {
+                                Debug.LogWarning("Rotation not found");
+                                continue;
+                            }
+                            Dictionary<string, object> rotationMap =
+                                documentData["rotation"] as Dictionary<string, object>;
+                            Quaternion rot = new Quaternion(
+                                Convert.ToSingle(rotationMap["x"]),
+                                Convert.ToSingle(rotationMap["y"]),
+                                Convert.ToSingle(rotationMap["z"]),
+                                Convert.ToSingle(rotationMap["w"])
+                            );
+                            
+                            Debug.Log("rot: " + rot + "pos: " + pos);
+                            // Instantiating the content prefab and setting its properties
+                            // if no properties, return
+                            
+
+                            GameObject go = Instantiate(
+                                NavPrefab,
+                                pos,
+                                rot,
+                                m_ARSpace.transform
+                            );
+
+                            // go.transform.localScale = scale;
+
+                            
+                            go.GetComponent<MovableContent>().m_contentId = document.Id;
+                            
+                            go.SetActive(false);
+
+
+                        }
+                    }
+                });
+        }
+
+
+                            
 
         private void FetchAndDownloadImageContent()
         {
