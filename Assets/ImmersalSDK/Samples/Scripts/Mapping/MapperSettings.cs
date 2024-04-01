@@ -29,7 +29,7 @@ namespace Immersal.Samples.Mapping
         public bool renderPointsAs3D { get; private set; } = true;
         public float pointSize { get; private set; } = 0.33f;
         public bool useServerLocalizer { get; private set; } = false;
-        public bool listOnlyNearbyMaps { get; private set; } = false; 
+        public bool listOnlyNearbyMaps { get; private set; } = false;
         public bool transformRootToOrigin { get; private set; } = true;
         public bool downsampleWhenLocalizing { get; private set; } = false;
         public int resolution { get; private set; } = 0;
@@ -50,75 +50,103 @@ namespace Immersal.Samples.Mapping
         // workspace mode settings
         [SerializeField]
         private Toggle m_GpsCaptureToggle = null;
+
         [SerializeField]
         private Toggle m_RgbCaptureToggle = null;
+
         [SerializeField]
         private Toggle m_CheckConnectivityToggle = null;
 
         // visualize mode settings
         [SerializeField]
         private Toggle m_ShowPointCloudsToggle = null;
+
         [SerializeField]
         private Toggle m_OnServerLocalizationToggle = null;
+
         [SerializeField]
         private Toggle m_RenderPointsAs3DToggle = null;
+
         [SerializeField]
         private Slider m_PointSizeSlider = null;
+
         [SerializeField]
         private Toggle m_ListOnlyNearbyMapsToggle = null;
+
         [SerializeField]
         private Toggle m_DownsampleWhenLocalizingToggle = null;
+
         [SerializeField]
         private Toggle m_TransformRootToOrigin = null;
 
         // developer settings
         [SerializeField]
         private TMP_Dropdown m_ResolutionDropdown = null;
+
         /*[SerializeField]
         private TMP_Dropdown m_LocalizerDropdown = null;*/
         [SerializeField]
         private TMP_InputField m_MapDetailLevelInput = null;
+
         [SerializeField]
         private Toggle m_GeoPoseLocalizerToggle = null;
+
         [SerializeField]
         private Toggle m_UseDifferentARSpacesToggle = null;
+
         [SerializeField]
         private Toggle m_PreservePosesToggle = null;
+
         [SerializeField]
         private Toggle m_AutomaticCaptureToggle = null;
+
         [SerializeField]
         private GameObject m_AutomaticCaptureMaxImages = null;
+
         [SerializeField]
         private Slider m_AutomaticCaptureMaxImagesSlider = null;
+
         [SerializeField]
         private TMP_Text m_AutomaticCaptureMaxImagesText = null;
-        [SerializeField] 
+
+        [SerializeField]
         private GameObject m_AutomaticCaptureInterval = null;
-        [SerializeField] 
+
+        [SerializeField]
         private Slider m_AutomaticCaptureIntervalSlider = null;
+
         [SerializeField]
         private TMP_Text m_AutomaticCaptureIntervalText = null;
+
         [SerializeField]
         private GameObject m_ManualCaptureButton = null;
+
         [SerializeField]
         private GameObject m_AutomaticCaptureButton = null;
+
         [SerializeField]
         private TMP_InputField m_WindowSizeInput = null;
+
         [SerializeField]
         private string m_Filename = "settings.json";
+
         [SerializeField]
         private TMP_InputField m_FeatureFilterInput = null;
+
         [SerializeField]
         private Toggle m_MapTrimToggle = null;
+
         [SerializeField]
         private TMP_InputField m_CompressionLevelInput = null;
+
         [SerializeField]
         private GameObject m_LevelRestrictedParent = null;
+
         [SerializeField]
         private int m_LevelRequired = 99;
 
         private int m_UserLevel = 0;
-        
+
         [System.Serializable]
         public struct MapperSettingsFile
         {
@@ -150,7 +178,7 @@ namespace Immersal.Samples.Mapping
             public int windowSize;
             public SolverType solverType;
         }
-        
+
         void Awake()
         {
             /*
@@ -176,6 +204,12 @@ namespace Immersal.Samples.Mapping
         {
             checkConnectivity = value;
             SaveSettingsToPrefs();
+        }
+
+        public void SetMapPrivate(bool value)
+        {
+            Debug.Log(value + " yeh ur value");
+            StaticData.MapperSceneIsMapPrivate = value;
         }
 
         public void SetShowPointClouds(bool value)
@@ -207,6 +241,7 @@ namespace Immersal.Samples.Mapping
             listOnlyNearbyMaps = value;
             SaveSettingsToPrefs();
         }
+
         public void SetTransformRootToOrigin(bool value)
         {
             transformRootToOrigin = value;
@@ -218,7 +253,7 @@ namespace Immersal.Samples.Mapping
             downsampleWhenLocalizing = value;
             if (value)
             {
-                Immersal.Core.SetInteger("LocalizationMaxPixels", 960*720);
+                Immersal.Core.SetInteger("LocalizationMaxPixels", 960 * 720);
             }
             else
             {
@@ -266,20 +301,20 @@ namespace Immersal.Samples.Mapping
             preservePoses = value;
             SaveSettingsToPrefs();
         }
-        
+
         public void SetMapTrim(bool value)
         {
             mapTrim = value;
             SaveSettingsToPrefs();
         }
-        
+
         public void SetFeatureFilter(string value)
         {
             int.TryParse(value, out int a);
             featureFilter = a;
             SaveSettingsToPrefs();
         }
-        
+
         public void SetCompressionLevel(string value)
         {
             int.TryParse(value, out int a);
@@ -293,14 +328,14 @@ namespace Immersal.Samples.Mapping
             EnableAutomaticCaptureUI(automaticCapture);
             SaveSettingsToPrefs();
         }
-		
-		public void SetAutomaticCaptureMaxImageValue(float maxImages)
+
+        public void SetAutomaticCaptureMaxImageValue(float maxImages)
         {
             automaticCaptureMaxImages = Mathf.RoundToInt(maxImages);
             m_AutomaticCaptureMaxImagesText.text = automaticCaptureMaxImages.ToString();
             SaveSettingsToPrefs();
         }
-        
+
         public void SetAutomaticCaptureIntervalValue(float interval)
         {
             automaticCaptureInterval = interval;
@@ -355,7 +390,9 @@ namespace Immersal.Samples.Mapping
 
             try
             {
-                MapperSettingsFile loadFile = JsonUtility.FromJson<MapperSettingsFile>(File.ReadAllText(dataPath));
+                MapperSettingsFile loadFile = JsonUtility.FromJson<MapperSettingsFile>(
+                    File.ReadAllText(dataPath)
+                );
 
                 // set defaults for old file versions
                 if (loadFile.version < VERSION)
@@ -386,7 +423,9 @@ namespace Immersal.Samples.Mapping
                 m_TransformRootToOrigin.SetIsOnWithoutNotify(loadFile.transformRootToOrigin);
                 transformRootToOrigin = loadFile.transformRootToOrigin;
 
-                m_DownsampleWhenLocalizingToggle.SetIsOnWithoutNotify(loadFile.downsampleWhenLocalizing);
+                m_DownsampleWhenLocalizingToggle.SetIsOnWithoutNotify(
+                    loadFile.downsampleWhenLocalizing
+                );
                 downsampleWhenLocalizing = loadFile.downsampleWhenLocalizing;
 
                 m_MapDetailLevelInput.SetTextWithoutNotify(loadFile.mapDetailLevel.ToString());
@@ -400,12 +439,18 @@ namespace Immersal.Samples.Mapping
                 m_AutomaticCaptureToggle.SetIsOnWithoutNotify(loadFile.automaticCapture);
                 automaticCapture = loadFile.automaticCapture;
                 EnableAutomaticCaptureUI(automaticCapture);
-                
-                automaticCaptureMaxImages = Mathf.Max(loadFile.automaticCaptureMaxImages, Mathf.RoundToInt(m_AutomaticCaptureMaxImagesSlider.minValue));
+
+                automaticCaptureMaxImages = Mathf.Max(
+                    loadFile.automaticCaptureMaxImages,
+                    Mathf.RoundToInt(m_AutomaticCaptureMaxImagesSlider.minValue)
+                );
                 m_AutomaticCaptureMaxImagesSlider.value = loadFile.automaticCaptureMaxImages;
                 m_AutomaticCaptureMaxImagesText.text = automaticCaptureMaxImages.ToString();
 
-                automaticCaptureInterval = Mathf.Max(loadFile.automaticCaptureInterval, m_AutomaticCaptureIntervalSlider.minValue);
+                automaticCaptureInterval = Mathf.Max(
+                    loadFile.automaticCaptureInterval,
+                    m_AutomaticCaptureIntervalSlider.minValue
+                );
                 m_AutomaticCaptureIntervalSlider.value = loadFile.automaticCaptureInterval;
                 m_AutomaticCaptureIntervalText.text = automaticCaptureInterval.ToString("F2");
 
@@ -420,7 +465,9 @@ namespace Immersal.Samples.Mapping
                     mapTrim = loadFile.mapTrim;
                     m_FeatureFilterInput.SetTextWithoutNotify(loadFile.featureFilter.ToString());
                     featureFilter = loadFile.featureFilter;
-                    m_CompressionLevelInput.SetTextWithoutNotify(loadFile.compressionLevel.ToString());
+                    m_CompressionLevelInput.SetTextWithoutNotify(
+                        loadFile.compressionLevel.ToString()
+                    );
                     compressionLevel = loadFile.compressionLevel;
                 }
             }
@@ -470,7 +517,7 @@ namespace Immersal.Samples.Mapping
                 saveFile.featureFilter = featureFilter;
                 saveFile.compressionLevel = compressionLevel;
             }
-            
+
             string jsonstring = JsonUtility.ToJson(saveFile, true);
             string dataPath = Path.Combine(Application.persistentDataPath, m_Filename);
             //Debug.Log(dataPath);
@@ -506,7 +553,7 @@ namespace Immersal.Samples.Mapping
             EnableAutomaticCaptureUI(automaticCapture);
 
             solverType = 0;
-            
+
             automaticCaptureMaxImages = Mathf.RoundToInt(40);
             m_AutomaticCaptureMaxImagesSlider.value = automaticCaptureMaxImages;
 

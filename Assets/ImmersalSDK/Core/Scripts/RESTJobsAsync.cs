@@ -424,6 +424,8 @@ namespace Immersal.REST
             r.mapTrim = this.mapTrim;
             r.featureFilter = this.featureFilter;
             r.compressionLevel = this.compressionLevel;
+            
+            
             SDKConstructResult result = await ImmersalHttp.Request<
                 SDKConstructRequest,
                 SDKConstructResult

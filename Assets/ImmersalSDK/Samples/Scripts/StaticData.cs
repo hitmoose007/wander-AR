@@ -14,7 +14,7 @@ public class StaticData : MonoBehaviour
         "e1cf39dfc0d5fb5cc3c8878a9b5666c5723f9f25156b39683d9edbd041a7f179";
     public static string MapperSceneMapName;
     public static Texture2D MapperSceneMapImage;
-    public static bool MapperSceneIsMapPrivate;
+    public static bool MapperSceneIsMapPrivate = false;
     public static int MapIdContentPlacement;
 
     public enum GameScene

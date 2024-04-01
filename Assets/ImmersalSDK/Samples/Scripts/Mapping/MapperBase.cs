@@ -651,7 +651,7 @@ namespace Immersal.Samples.Mapping
             m_SessionFirstImage = true;
         }
 
-        public void Construct()
+        public async void Construct()
         {
             JobConstructAsync j = new JobConstructAsync();
             j.name = StaticData.MapperSceneMapName;
@@ -662,7 +662,7 @@ namespace Immersal.Samples.Mapping
 
             j.featureFilter = mapperSettings.featureFilter;
             j.compressionLevel = mapperSettings.compressionLevel;
-            j.OnResult += (SDKConstructResult result) =>
+            j.OnResult += async (SDKConstructResult result) =>
             {
                 FirebaseStorage firebase_storage = FirebaseStorage.DefaultInstance;
                 //make storage reference
@@ -673,23 +673,6 @@ namespace Immersal.Samples.Mapping
                 ;
                 StorageReference imageRef = firebase_storage.GetReference(image_path);
 
-                imageRef
-                    .PutBytesAsync(imageBytes)
-                    .ContinueWithOnMainThread(
-                        (task) =>
-                        {
-                            if (task.IsFaulted || task.IsCanceled)
-                            {
-                                Debug.LogError(task.Exception.ToString());
-                                // Handle the error
-                            }
-                            else
-                            {
-                                // Image uploaded successfully
-                                Debug.Log("Image uploaded: " + image_path);
-                            }
-                        }
-                    );
                 if (texture == null)
                 {
                     Debug.Log("Couldn't load texture from ");
@@ -708,49 +691,49 @@ namespace Immersal.Samples.Mapping
                     { "thumbnail_reference", image_path }
                 };
 
-                docRef.SetAsync(map);
+                await docRef.SetAsync(map);
+                Debug.Log("Document added with ID: " + docRef.Id);
+                JobSetPrivacyAsync privacyJob = new JobSetPrivacyAsync();
 
-                // JobCopyMapAsync copyJob = new JobCopyMapAsync();
-                // Debug.Log("Map fafdsfafda successfully, id: " + result.id);
-                // if (StaticData.MainAccountDeveloperToken == null)
-                // {
-                //     Debug.Log("main account token is null");
-                // }
+                privacyJob.id = result.id;
 
-                // Debug.Log("main account token: " + StaticData.MainAccountDeveloperToken);
-                // Debug.Log("developer token: " + StaticData.developerToken);
-                // copyJob.id = result.id;
-                // copyJob.login = StaticData.MainAccountDeveloperToken; //where you send to the main account
-                // copyJob.token = StaticData.developerToken; //from where you send
+                if (StaticData.MapperSceneIsMapPrivate)
+                {
+                    privacyJob.privacy = 0;
+                    Debug.Log("Map is private");
+                }
+                else
+                {
+                    privacyJob.privacy = 1;
+                    Debug.Log("Map is public");
+                }
 
-                // copyJob.OnResult += (SDKCopyMapResult copyResult) =>
-                // {
-                //     Debug.LogFormat("Map {0} copied successfully.", result.id);
-                //     StaticData.LoadScene(StaticData.GameScene.HomeScene);
-                // };
-                // //wait for 1 second
-                // m_Jobs.Add(copyJob);
+                privacyJob.OnResult += (SDKMapPrivacyResult privacyResult) =>
+                {
+                    Debug.LogFormat("Map {0} privacy set to {1}", result.id, privacyJob.privacy);
+                };
+
+                await privacyJob.RunJobAsync();
+                await imageRef
+                    .PutBytesAsync(imageBytes)
+                    .ContinueWithOnMainThread(
+                        (task) =>
+                        {
+                            if (task.IsFaulted || task.IsCanceled)
+                            {
+                                Debug.LogError(task.Exception.ToString());
+                                // Handle the error
+                            }
+                            else
+                            {
+                                // Image uploaded successfully
+                                Debug.Log("Image uploaded: " + image_path);
+                            }
+                        }
+                    );
             };
 
-            // db.Collection("map")
-            //     .WhereEqualTo("email", PlayerPrefs.GetString("email"))
-            //     .GetSnapshotAsync()
-            //     .ContinueWithOnMainThread(task =>
-            //     {
-            //         QuerySnapshot snapshot = task.Result;
-            //         foreach (DocumentSnapshot document in snapshot.Documents)
-            //         {
-            //             Dictionary<string, object> map = document.ToDictionary();
-            //             Debug.Log(map["id"]);
-            //             if (map["email"].ToString() == PlayerPrefs.GetString("email"))
-            //             {
-            //                 j.id = int.Parse(map["id"].ToString());
-            //             }
-            //         }
-            //     });
-
-
-            m_Jobs.Add(j);
+            await j.RunJobAsync();
         }
 
         public void NotifyIfConnected(CaptureInfo info)
