@@ -50,7 +50,7 @@ public class MapDownload : MonoBehaviour
             allMapsQuery
                 .WhereEqualTo("email", StaticData.userEmail)
                 .GetSnapshotAsync()
-                .ContinueWithOnMainThread(async task =>
+                .ContinueWithOnMainThread(task =>
                 {
                     if (task.IsFaulted)
                     {
@@ -143,68 +143,6 @@ public class MapDownload : MonoBehaviour
                                         .GetComponent<TextMeshProUGUI>()
                                         .text = "Processing";
                                 }
-
-                                if (
-                                    bool.Parse(mapData["private"].ToString()) == false
-                                    && bool.Parse(mapData["copied"].ToString()) == false
-                                )
-                                {
-                                    if (job.status == SDKJobState.Done)
-                                    {
-                                        Debug.Log("teri tutti");
-
-                                        JobCopyMapAsync copyJob = new JobCopyMapAsync();
-                                        if (StaticData.MainAccountDeveloperToken == null)
-                                        {
-                                            Debug.Log("main account token is null");
-                                        }
-
-                                        Debug.Log(
-                                            "main account token: "
-                                                + StaticData.MainAccountDeveloperToken
-                                        );
-                                        Debug.Log("developer token: " + StaticData.developerToken);
-                                        copyJob.id = job.id;
-                                        copyJob.login = StaticData.MainAccountDeveloperToken; //where you send to the main account
-                                        copyJob.token = StaticData.developerToken; //from where you send
-
-                                        copyJob.OnResult += (SDKCopyMapResult copyResult) =>
-                                        {
-                                            Debug.LogFormat("Map {0} copied successfully.", job.id);
-
-                                            DocumentReference mapRef = db.Collection("map")
-                                                .Document(documentSnapshot.Id);
-                                            Dictionary<string, object> updates = new Dictionary<
-                                                string,
-                                                object
-                                            >
-                                            {
-                                                { "copied", true }
-                                            };
-                                            mapRef
-                                                .UpdateAsync(updates)
-                                                .ContinueWithOnMainThread(task =>
-                                                {
-                                                    if (task.IsFaulted)
-                                                    {
-                                                        Debug.LogError(
-                                                            "Error updating document: "
-                                                                + task.Exception
-                                                        );
-                                                    }
-                                                    else
-                                                    {
-                                                        Debug.Log("Map copied: " + mapRef.Id);
-                                                    }
-                                                });
-
-                                            Debug.Log("Map copied: " + mapRef.Id);
-                                        };
-
-                                        await copyJob.RunJobAsync();
-                                        //wait for 1 second
-                                    }
-                                }
                             }
                         }
 
@@ -227,31 +165,10 @@ public class MapDownload : MonoBehaviour
 
     private async void FetchPublicMaps()
     {
-        // JobListJobsAsync j = new JobListJobsAsync();
-        // j.token = StaticData.MainAccountDeveloperToken;
-
-        // j.OnResult += (SDKJobsResult result) =>
-        // {
-        //     List<SDKJob> jobList = new List<SDKJob>();
-        //     foreach (SDKJob job in result.jobs)
-        //     {
-        //         if (job.type != (int)SDKJobType.Alignment)
-        //         {
-        //             jobList.Add(job);
-        //         }
-        //     }
-
-        //make int array
         List<SDKJob> filteredJobs = new List<SDKJob>();
         List<int> firebaseMapsId = new List<int>();
 
-        //delete all maps where emails are null and there is no copied field do it
-
-
-
-        Debug.Log("Fetching public maps");
         await db.Collection("map")
-            .WhereEqualTo("copied", true)
             .WhereEqualTo("private", false)
             .GetSnapshotAsync()
             .ContinueWithOnMainThread(task =>
@@ -262,16 +179,11 @@ public class MapDownload : MonoBehaviour
                     return;
                 }
 
-            Debug.Log("yo you my name is nibbakhjhk");
                 QuerySnapshot allMapsQuerySnapshot = task.Result;
 
                 foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
                 {
-                    Debug.Log("kanjar");
                     Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
-                    // if (job.id == Int32.Parse(mapData["id"].ToString()))
-                    // {
-                    // Maps map = documentSnapshot.ConvertTo<Maps>();
                     GameObject item = Instantiate(listItemPrefab, listItemHolder);
 
                     if (mapData.ContainsKey("name") == false)
@@ -303,7 +215,7 @@ public class MapDownload : MonoBehaviour
                         }
                     };
 
-                    _ = firebase_storage
+                    firebase_storage
                         .GetReference(image_ref_path)
                         .GetDownloadUrlAsync()
                         .ContinueWithOnMainThread(task =>

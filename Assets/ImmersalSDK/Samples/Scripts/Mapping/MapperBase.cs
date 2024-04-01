@@ -687,12 +687,10 @@ namespace Immersal.Samples.Mapping
                     { "email", StaticData.userEmail },
                     { "name", StaticData.MapperSceneMapName },
                     { "private", StaticData.MapperSceneIsMapPrivate },
-                    { "copied", false },
                     { "thumbnail_reference", image_path }
                 };
 
                 await docRef.SetAsync(map);
-                Debug.Log("Document added with ID: " + docRef.Id);
                 JobSetPrivacyAsync privacyJob = new JobSetPrivacyAsync();
 
                 privacyJob.id = result.id;

@@ -208,7 +208,6 @@ namespace Immersal.Samples.Mapping
 
         public void SetMapPrivate(bool value)
         {
-            Debug.Log(value + " yeh ur value");
             StaticData.MapperSceneIsMapPrivate = value;
         }
 
