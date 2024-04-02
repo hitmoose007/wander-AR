@@ -83,6 +83,9 @@ namespace Immersal.Samples.ContentPlacement
             else if (this is MovableTextContent)
                 db.Collection("text_content").Document(m_contentId).DeleteAsync();
 
+            else if (this is NavigationTargetContent)
+                db.Collection("navigation_targets").Document(m_contentId).DeleteAsync();
+
             Destroy(gameObject);
         }
 

@@ -24,6 +24,9 @@ namespace Immersal.Samples
     {
         //write serialized text on top that this is for development
 
+        // print the developer token in the console
+
+
         [Header("for default id")]
         public bool Let_map_id_set_itself = true;
 
@@ -53,6 +56,16 @@ namespace Immersal.Samples
 
         void Start()
         {
+
+            if (string.IsNullOrEmpty(ImmersalSDK.Instance.developerToken))
+            {
+                Debug.LogError("Developer token not set");
+                return;
+            }
+            else
+            {
+                Debug.Log("Developer token: " + ImmersalSDK.Instance.developerToken);
+            }
             if (Let_map_id_set_itself)
             {
                 StaticData.MapIdContentPlacement = 91787;
