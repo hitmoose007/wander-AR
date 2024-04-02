@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Immersal.REST;
 using UnityEngine;
 
 public class MapSelect : MonoBehaviour
 {
     public int mapId;
+    public string jobState;
 
     // Start is called before the first frame update
     // void Update()
@@ -15,13 +17,14 @@ public class MapSelect : MonoBehaviour
     public void OnTouchDetected()
     {
         // Add your logic here for what happens when the object is touched
-        Debug.Log("Square was touched.");
         //debug map id
 
         // Set the map id in the PlayerPrefs
-        StaticData.MapIdContentPlacement = mapId;
-        Debug.Log("da real Map id: " + mapId);
-        StaticData.LoadScene(StaticData.GameScene.ContentPlacementScene);
+        if (jobState == SDKJobState.Done)
+        {
+            StaticData.MapIdContentPlacement = mapId;
+            StaticData.LoadScene(StaticData.GameScene.ContentPlacementScene);
+        }
         // Load the scene
     }
 }

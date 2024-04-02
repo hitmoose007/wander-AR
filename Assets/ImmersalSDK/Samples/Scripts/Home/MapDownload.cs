@@ -23,7 +23,8 @@ public class MapDownload : MonoBehaviour
         db = FirebaseFirestore.DefaultInstance;
         firebase_storage = FirebaseStorage.DefaultInstance;
 
-        DownloadMaps();
+        // DownloadMaps();
+        FetchPublicMaps();
     }
 
     private async void DownloadMaps()
@@ -49,7 +50,7 @@ public class MapDownload : MonoBehaviour
             allMapsQuery
                 .WhereEqualTo("email", StaticData.userEmail)
                 .GetSnapshotAsync()
-                .ContinueWithOnMainThread(async task =>
+                .ContinueWithOnMainThread(task =>
                 {
                     if (task.IsFaulted)
                     {
@@ -117,79 +118,30 @@ public class MapDownload : MonoBehaviour
                                             Debug.LogError("Failed to get download URL.");
                                         }
                                     });
-                                //add status of job here
-                                // filteredJobs.Add(job);
 
+                                //save job state to item
+                                item.GetComponent<MapSelect>().jobState = job.status;
 
-
-
-                                if (bool.Parse(mapData["copied"].ToString()) == false)
+                                if (job.status == SDKJobState.Done)
                                 {
-                                    Debug.Log("yeah babes");
-                                    if (job.status == SDKJobState.Done)
-                                    {
-                                        Debug.Log("teri tutti");
-
-                                        JobCopyMapAsync copyJob = new JobCopyMapAsync();
-                                        if (StaticData.MainAccountDeveloperToken == null)
-                                        {
-                                            Debug.Log("main account token is null");
-                                        }
-
-                                        Debug.Log(
-                                            "main account token: "
-                                                + StaticData.MainAccountDeveloperToken
-                                        );
-                                        Debug.Log("developer token: " + StaticData.developerToken);
-                                        copyJob.id = job.id;
-                                        copyJob.login = StaticData.MainAccountDeveloperToken; //where you send to the main account
-                                        copyJob.token = StaticData.developerToken; //from where you send
-
-                                        copyJob.OnResult += (SDKCopyMapResult copyResult) =>
-                                        {
-                                            Debug.LogFormat("Map {0} copied successfully.", job.id);
-
-                                            DocumentReference mapRef = db.Collection("map")
-                                                .Document(documentSnapshot.Id);
-                                            Dictionary<string, object> updates = new Dictionary<
-                                                string,
-                                                object
-                                            >
-                                            {
-                                                { "copied", true }
-                                            };
-                                            mapRef
-                                                .UpdateAsync(updates)
-                                                .ContinueWithOnMainThread(task =>
-                                                {
-                                                    if (task.IsFaulted)
-                                                    {
-                                                        Debug.LogError(
-                                                            "Error updating document: "
-                                                                + task.Exception
-                                                        );
-                                                    }
-                                                    else
-                                                    {
-                                                        Debug.Log("Map copied: " + mapRef.Id);
-                                                    }
-                                                });
-
-                                            Debug.Log("Map copied: " + mapRef.Id);
-                                        };
-                                        _ = copyJob
-                                            .RunJobAsync()
-                                            .ContinueWithOnMainThread(task =>
-                                            {
-                                                if (task.IsFaulted)
-                                                {
-                                                    Debug.LogError(
-                                                        "Error copying map: " + task.Exception
-                                                    );
-                                                }
-                                            });
-                                        //wait for 1 second
-                                    }
+                                    item.transform
+                                        .GetChild(4)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Done";
+                                }
+                                else if (job.status == SDKJobState.Failed)
+                                {
+                                    item.transform
+                                        .GetChild(4)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Failed";
+                                }
+                                else
+                                {
+                                    item.transform
+                                        .GetChild(4)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Processing";
                                 }
                             }
                         }
@@ -209,6 +161,86 @@ public class MapDownload : MonoBehaviour
         };
 
         await j.RunJobAsync();
+    }
+
+    private async void FetchPublicMaps()
+    {
+        List<SDKJob> filteredJobs = new List<SDKJob>();
+        List<int> firebaseMapsId = new List<int>();
+
+        await db.Collection("map")
+            .WhereEqualTo("private", false)
+            .GetSnapshotAsync()
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Error fetching collection documents: " + task.Exception);
+                    return;
+                }
+
+                QuerySnapshot allMapsQuerySnapshot = task.Result;
+
+                foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
+                {
+                    Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
+                    GameObject item = Instantiate(listItemPrefab, listItemHolder);
+
+                    if (mapData.ContainsKey("name") == false)
+                    {
+                        Debug.LogWarning("Map name");
+                        continue;
+                    }
+                    item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
+                        "name"
+                    ].ToString();
+
+                    item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
+
+                    if (mapData.ContainsKey("thumbnail_reference") == false)
+                    {
+                        Debug.LogWarning("Map thumbnail not found");
+                        continue;
+                    }
+
+                    string image_ref_path = mapData["thumbnail_reference"] as string;
+                    Texture2D texture = null;
+                    Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
+                    {
+                        texture = newTexture; // Assign the new texture to your original texture variable
+                        if (texture == null)
+                        {
+                            Debug.Log("Couldn't load texture from " + image_ref_path);
+                            return;
+                        }
+                    };
+
+                    firebase_storage
+                        .GetReference(image_ref_path)
+                        .GetDownloadUrlAsync()
+                        .ContinueWithOnMainThread(task =>
+                        {
+                            if (!task.IsFaulted && !task.IsCanceled)
+                            {
+                                string downloadUrl = task.Result.ToString();
+                                // Proceed to download the image and convert it into a Texture2D
+                                StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+                            }
+                            else
+                            {
+                                Debug.LogError("Failed to get download URL.");
+                            }
+                        });
+
+                    //save job state to item
+
+                    Debug.Log("Successfully loaded Firestore Image documents.");
+                }
+                // }
+                ;
+            });
+        // };
+        // await j.RunJobAsync();
     }
 
     private IEnumerator DownloadImage(

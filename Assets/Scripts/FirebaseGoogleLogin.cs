@@ -119,7 +119,6 @@ public class FirebaseGoogleLogin : MonoBehaviour
             DocumentSnapshot ExistingUserDoc = await userRef.GetSnapshotAsync();
             newUser = !ExistingUserDoc.Exists;
 
-            Debug.Log("new users" + newUser);
             // Proceed with updating the UI
             UsernameTxt.text = user.DisplayName;
             UserEmailTxt.text = user.Email;
@@ -138,7 +137,6 @@ public class FirebaseGoogleLogin : MonoBehaviour
 
                 j.OnResult += async (result) =>
                 {
-                    
                     await db.Collection("user")
                         .Document(user.UserId)
                         .SetAsync(
