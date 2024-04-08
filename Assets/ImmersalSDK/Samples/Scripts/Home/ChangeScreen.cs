@@ -10,13 +10,6 @@ public class ChangeScreen : MonoBehaviour
     public GameObject panelB;
     public TextMeshProUGUI errorText;
 
-    //Start is called before the first frame update
-    void Start()
-    {
-        panelA.SetActive(true);
-        panelB.SetActive(false);
-    }
-
     public void AddButtonClicked()
     {
         panelA.SetActive(false);

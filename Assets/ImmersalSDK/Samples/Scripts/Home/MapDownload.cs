@@ -23,11 +23,11 @@ public class MapDownload : MonoBehaviour
         db = FirebaseFirestore.DefaultInstance;
         firebase_storage = FirebaseStorage.DefaultInstance;
 
-        // DownloadMaps();
-        FetchPublicMaps();
+        //DownloadMaps(); /* Always commented */
+        //FetchPublicMaps(); /* Not commented originally */
     }
 
-    private async void DownloadMaps()
+    public async void DownloadMaps()
     {
         JobListJobsAsync j = new JobListJobsAsync();
 
@@ -163,13 +163,93 @@ public class MapDownload : MonoBehaviour
         await j.RunJobAsync();
     }
 
-    private async void FetchPublicMaps()
+    public async void FetchPublicMaps()
     {
         List<SDKJob> filteredJobs = new List<SDKJob>();
         List<int> firebaseMapsId = new List<int>();
 
         await db.Collection("map")
             .WhereEqualTo("private", false)
+            .GetSnapshotAsync()
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Error fetching collection documents: " + task.Exception);
+                    return;
+                }
+
+                QuerySnapshot allMapsQuerySnapshot = task.Result;
+
+                foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
+                {
+                    Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
+                    GameObject item = Instantiate(listItemPrefab, listItemHolder);
+
+                    if (mapData.ContainsKey("name") == false)
+                    {
+                        Debug.LogWarning("Map name");
+                        continue;
+                    }
+                    item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
+                        "name"
+                    ].ToString();
+
+                    item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
+
+                    if (mapData.ContainsKey("thumbnail_reference") == false)
+                    {
+                        Debug.LogWarning("Map thumbnail not found");
+                        continue;
+                    }
+
+                    string image_ref_path = mapData["thumbnail_reference"] as string;
+                    Texture2D texture = null;
+                    Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
+                    {
+                        texture = newTexture; // Assign the new texture to your original texture variable
+                        if (texture == null)
+                        {
+                            Debug.Log("Couldn't load texture from " + image_ref_path);
+                            return;
+                        }
+                    };
+
+                    firebase_storage
+                        .GetReference(image_ref_path)
+                        .GetDownloadUrlAsync()
+                        .ContinueWithOnMainThread(task =>
+                        {
+                            if (!task.IsFaulted && !task.IsCanceled)
+                            {
+                                string downloadUrl = task.Result.ToString();
+                                // Proceed to download the image and convert it into a Texture2D
+                                StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+                            }
+                            else
+                            {
+                                Debug.LogError("Failed to get download URL.");
+                            }
+                        });
+
+                    //save job state to item
+
+                    Debug.Log("Successfully loaded Firestore Image documents.");
+                }
+                // }
+                ;
+            });
+        // };
+        // await j.RunJobAsync();
+    }
+
+    public async void FetchPrivateMaps()
+    {
+        List<SDKJob> filteredJobs = new List<SDKJob>();
+        List<int> firebaseMapsId = new List<int>();
+
+        await db.Collection("map")
+            .WhereEqualTo("private", true)
             .GetSnapshotAsync()
             .ContinueWithOnMainThread(task =>
             {
