@@ -23,10 +23,4 @@ public class LoadUIElements : MonoBehaviour
         cameraPanel.SetActive(false);
         headerTabButton.Select();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
