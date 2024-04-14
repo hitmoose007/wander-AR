@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Immersal.AR;
+using TMPro;
 
 namespace Immersal.Samples.Navigation
 {
@@ -16,6 +17,8 @@ namespace Immersal.Samples.Navigation
         private GameObject targetObject = null;
         [SerializeField]
         private Material overrideMaterial = null;
+        
+        
 
         private enum NodeToAdd
         {

@@ -38,6 +38,7 @@ namespace Immersal.Samples.ContentPlacement
     {
         [SerializeField]
         private GameObject m_TextContentPrefab = null;
+        
         public GameObject NavPrefab;
 
         [SerializeField]
@@ -144,6 +145,7 @@ namespace Immersal.Samples.ContentPlacement
 
             // Set the text
             TextMeshPro textPrefabTMPro = m_TextContentPrefab.GetComponent<TextMeshPro>();
+            Debug.Log("Adding content: " + textPrefabTMPro.text);
             if (textPrefabTMPro != null)
             {
                 textMeshPro.text = textPrefabTMPro.text;
