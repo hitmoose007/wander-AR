@@ -2,11 +2,16 @@ using UnityEngine;
 using Firebase.Firestore;
 using System.Collections.Generic;
 using Immersal.Samples.ContentPlacement;
+using Immersal.Samples.Navigation;
+
 
 public class NavigationTargetContent : MovableContent
 {
+    // name of the navigation target
     public override void StoreContent()
     {
+        string targetName = this.GetComponent<IsNavigationTarget>().targetName;
+
         // Serialize the position to a format suitable for Firestore
         Vector3 position = transform.position;
         Dictionary<string, object> positionData = new Dictionary<string, object>
@@ -26,12 +31,19 @@ public class NavigationTargetContent : MovableContent
             { "w", rotation.w }
         };
 
+        Dictionary<string, object> targetNameData = new Dictionary<string, object>
+        {
+            { "targetName", targetName }
+        };
         // Prepare the document data
         Dictionary<string, object> documentData = new Dictionary<string, object>
         {
             { "position", positionData },
-            { "rotation", rotationData }
+            { "rotation", rotationData },
+            { "targetName", targetNameData }
         };
+
+        // target name
 
         // Generate a unique document ID or use a specific identifier
         if (m_contentId == null || m_contentId == "")
@@ -39,7 +51,10 @@ public class NavigationTargetContent : MovableContent
             m_contentId = System.Guid.NewGuid().ToString();
         }
 
+
         // Add or update the document in the "navigation_targets" collection
+        // print the document data
+        Debug.Log("Document data: " + documentData);
         DocumentReference docRef = db.Collection("navigation_targets").Document(m_contentId);
         docRef
             .SetAsync(documentData)

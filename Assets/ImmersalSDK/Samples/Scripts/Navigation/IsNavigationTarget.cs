@@ -17,6 +17,7 @@ namespace Immersal.Samples.Navigation
     public class IsNavigationTarget : MonoBehaviour
     {
         public NavigationTargets.NavigationCategory navigationCategory = NavigationTargets.NavigationCategory.Locations;
+        // 
         public string targetName;
         public Sprite icon;
         public Vector3 position
@@ -52,7 +53,7 @@ namespace Immersal.Samples.Navigation
                 NavigationTargets.NavigationTargetsDict[navigationCategory] = new List<GameObject>();
 
             NavigationTargets.NavigationTargetsDict[navigationCategory].Add(gameObject);
-
+            Debug.Log("JAJAJA" + targetName);
             if (targetName.Equals(""))
             {
                 targetName = gameObject.name;
