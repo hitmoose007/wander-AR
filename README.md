@@ -29,17 +29,13 @@ Wander is a mobile application designed for indoor navigation  through the use o
 
 - AR Navigation:
   - Placing Virtual Waypoints: Real-time virtual pointers for precise guidance.
-
-<p align="center">
-  <img src="Assets/ImmersalSDK/Samples/Images/navigation1.png" height="400" hspace="20"/>
-  <img src="Assets/ImmersalSDK/Samples/Images/navigation2.png" height="400" /> 
-</p>
-
   - Navigation Pathfinding: Navigational Graph is created and shortest path is calculated using A* algorithm.
 
 <p align="center">
-  <img src="Assets/ImmersalSDK/Samples/Images/navigation3.png" height="400" hspace="20"/>
-  <img src="Assets/ImmersalSDK/Samples/Images/navigation4.png" height="400" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/navigation1.png" height="400" hspace="10" />
+  <img src="Assets/ImmersalSDK/Samples/Images/navigation2.png" height="400" hspace="10" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/navigation3.png" height="400" hspace="10"/>
+  <img src="Assets/ImmersalSDK/Samples/Images/navigation4.png" height="400" />
 </p>
 
 - Home Screen: Retrieves all private and public map information from the firestore database and allows users to add new maps to the collection.
