@@ -12,7 +12,10 @@ Wander is a mobile application designed for indoor navigation  through the use o
 
 - Environment Mapping: Surrounding area is scanned using pictures taken by a phone's camera to build a 3D point cloud model.
 
-![environment mapping](Assets/ImmersalSDK/Samples/Images/mapping1.png) ![environment mapping](Assets/ImmersalSDK/Samples/Images/mapping2.png)
+<p float="middle">
+  <img src="Assets/ImmersalSDK/Samples/Images/mapping1.png" width="100" />
+  <img src="Assets/ImmersalSDK/Samples/Images/mapping2.png" width="100" /> 
+</p>
 
 - Content Placement: Involves positioning virtual elements, like text and images, within the real environment through spatial anchoring and localization techniques. 
 
@@ -37,8 +40,6 @@ Wander is a mobile application designed for indoor navigation  through the use o
 - Immersal SDK: It is a spatial mapping & visual positioning system. It allows merging digital content with the real world by precise localization of devices in the physical world. 
 - GoogleSignIn API: Provides users easy and secure sign-in and sign-up, in an easy-to-implement package for developers.
 - Firebase Auth: Provides backend services UI libraries to authenticate users to our app.
-
-## Additional Information
 
 ## Technology
 
