@@ -13,38 +13,38 @@ Wander is a mobile application designed for indoor navigation  through the use o
 - Environment Mapping: Surrounding area is scanned using pictures taken by a phone's camera to build a 3D point cloud model.
 
 <p align="middle">
-  <img src="Assets/ImmersalSDK/Samples/Images/mapping1.png" width="500" />
-  <img src="Assets/ImmersalSDK/Samples/Images/mapping2.png" width="500" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/mapping1.png" width="300" />
+  <img src="Assets/ImmersalSDK/Samples/Images/mapping2.png" width="300" /> 
 </p>
 
 - Content Placement: Involves positioning virtual elements, like text and images, within the real environment through spatial anchoring and localization techniques. 
 
 <p align="center">
-  <img src="Assets/ImmersalSDK/Samples/Images/contentplace1.png" width="500" />
-  <img src="Assets/ImmersalSDK/Samples/Images/contentplace2.png" width="500" /> 
-  <img src="Assets/ImmersalSDK/Samples/Images/contentplace3.png" width="500" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/contentplace1.png" width="300" />
+  <img src="Assets/ImmersalSDK/Samples/Images/contentplace2.png" width="300" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/contentplace3.png" width="300" /> 
 </p>
 
 - AR Navigation:
   - Placing Virtual Waypoints: Real-time virtual pointers for precise guidance.
 
 <p align="center">
-  <img src="Assets/ImmersalSDK/Samples/Images/navigation1.png" width="500" />
-  <img src="Assets/ImmersalSDK/Samples/Images/navigation2.png" width="500" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/navigation1.png" width="300" />
+  <img src="Assets/ImmersalSDK/Samples/Images/navigation2.png" width="300" /> 
 </p>
 
   - Navigation Pathfinding: Navigational Graph is created and shortest path is calculated using A* algorithim.
 
 <p align="center">
-  <img src="Assets/ImmersalSDK/Samples/Images/navigation3.png" width="500" />
-  <img src="Assets/ImmersalSDK/Samples/Images/navigation4.png" width="500" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/navigation3.png" width="300" />
+  <img src="Assets/ImmersalSDK/Samples/Images/navigation4.png" width="300" /> 
 </p>
 
 - Home Screen: Retrieves all private and public map information from the firestore database and allows users to add new maps to the collection.
 
 <p align="center">
-  <img src="Assets/ImmersalSDK/Samples/Images/homescreen1.png" width="500" />
-  <img src="Assets/ImmersalSDK/Samples/Images/homescreen2.png" width="500" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/homescreen1.png" width="300" />
+  <img src="Assets/ImmersalSDK/Samples/Images/homescreen2.png" width="300" /> 
 </p>
 
  
