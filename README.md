@@ -8,11 +8,13 @@ Wander is a mobile application designed for indoor navigation  through the use o
 
 - Login/Signup via Email: Default form for user authentication using Google sign-in.
 
-<img src="Assets/ImmersalSDK/Samples/Images/loginscreen.png" height="400" hspace="20" align="center" />
+<p align="center">
+  <img src="Assets/ImmersalSDK/Samples/Images/loginscreen.png" height="400" hspace="20" />
+</p>
 
 - Environment Mapping: Surrounding area is scanned using pictures taken by a phone's camera to build a 3D point cloud model.
 
-<p align="middle">
+<p align="center">
   <img src="Assets/ImmersalSDK/Samples/Images/mapping1.png" height="400" hspace="20"/>
   <img src="Assets/ImmersalSDK/Samples/Images/mapping2.png" height="400" /> 
 </p>
@@ -21,7 +23,7 @@ Wander is a mobile application designed for indoor navigation  through the use o
 
 <p align="center">
   <img src="Assets/ImmersalSDK/Samples/Images/contentplace1.png" height="400" hspace="20" />
-  <img src="Assets/ImmersalSDK/Samples/Images/contentplace2.png" height="400" /> 
+  <img src="Assets/ImmersalSDK/Samples/Images/contentplace2.png" height="400" hspace="20" /> 
   <img src="Assets/ImmersalSDK/Samples/Images/contentplace3.png" height="400" /> 
 </p>
 
