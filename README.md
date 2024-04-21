@@ -9,7 +9,7 @@ Wander is a mobile application designed for indoor navigation  through the use o
 - Login/Signup via Email: Default form for user authentication using Google sign-in.
 
 <p align="center">
-  <img src="Assets/ImmersalSDK/Samples/Images/loginscreen.png" height="400" hspace="20" />
+  <img src="Assets/ImmersalSDK/Samples/Images/loginscreen.png" height="450" hspace="20" />
 </p>
 
 - Environment Mapping: Surrounding area is scanned using pictures taken by a phone's camera to build a 3D point cloud model.
@@ -29,12 +29,10 @@ Wander is a mobile application designed for indoor navigation  through the use o
 
 - AR Navigation:
   - Placing Virtual Waypoints: Real-time virtual pointers for precise guidance.
-
 <p align="center">
   <img src="Assets/ImmersalSDK/Samples/Images/navigation1.png" height="400" hspace="20"/>
   <img src="Assets/ImmersalSDK/Samples/Images/navigation2.png" height="400" /> 
 </p>
-
   - Navigation Pathfinding: Navigational Graph is created and shortest path is calculated using A* algorithim.
 
 <p align="center">
