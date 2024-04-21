@@ -1,6 +1,7 @@
 using UnityEngine;
 using Firebase;
 using Firebase.Extensions;
+using UnityEngine.UI;
 
 public class FirebaseManager : MonoBehaviour
 {
@@ -58,7 +59,10 @@ public class FirebaseManager : MonoBehaviour
                     // Firebase is ready for use
                     //debug if home ui is active
                     if (GameObjectToActivate != null)
-                        GameObjectToActivate.SetActive(true);
+                    {
+                        //GameObjectToActivate.SetActive(true);
+                        GameObjectToActivate.GetComponent<Button>().onClick.Invoke();
+                    }
                     //check the status
                     // Initialize other Firebase features here if necessary
                 }
