@@ -22,9 +22,6 @@ public class MapDownload : MonoBehaviour
     {
         db = FirebaseFirestore.DefaultInstance;
         firebase_storage = FirebaseStorage.DefaultInstance;
-
-        //DownloadMaps(); /* Always commented */
-        //FetchPublicMaps(); /* Not commented originally */
     }
 
     public async void DownloadMaps()
@@ -344,8 +341,11 @@ public class MapDownload : MonoBehaviour
 
                 // Here you can use the texture, for example, apply it to a GameObject to display the image
                 // Example: yourGameObject.GetComponent<Renderer>().material.mainTexture = texture;
-                RawImage rawImage = obj.transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
-                rawImage.texture = downloadedTexture;
+                if (obj != null) 
+                {
+                    RawImage rawImage = obj.transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
+                    rawImage.texture = downloadedTexture;
+                }
             }
         }
     }
