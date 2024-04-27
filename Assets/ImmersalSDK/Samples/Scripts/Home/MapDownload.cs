@@ -9,6 +9,7 @@ using System;
 using TMPro;
 using UnityEngine.UI;
 using Immersal.REST;
+using Codice.Client.GameUI.Checkin;
 
 public class MapDownload : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class MapDownload : MonoBehaviour
     {
         JobListJobsAsync j = new JobListJobsAsync();
 
-        j.OnResult += (SDKJobsResult result) =>
+        j.OnResult += async (SDKJobsResult result) =>
         {
             List<SDKJob> jobList = new List<SDKJob>();
             foreach (SDKJob job in result.jobs)
@@ -43,8 +44,7 @@ public class MapDownload : MonoBehaviour
             List<SDKJob> filteredJobs = new List<SDKJob>();
             List<int> firebaseMapsId = new List<int>();
 
-            Query allMapsQuery = db.Collection("map");
-            allMapsQuery
+            await db.Collection("map")
                 .WhereEqualTo("email", StaticData.userEmail)
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
@@ -60,9 +60,15 @@ public class MapDownload : MonoBehaviour
                     foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
                     {
                         Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
+
+                        Debug.Log("mapData[id]: " + int.Parse(mapData["id"].ToString()));
+                        
                         foreach (SDKJob job in jobList)
                         {
-                            if (job.id == Int32.Parse(mapData["id"].ToString()))
+                            Debug.Log("job.id: " + job.id);
+
+                            //if (job.id == Int32.Parse(mapData["id"].ToString()))
+                            if (Int32.Parse(mapData["id"].ToString()) == 96408)
                             {
                                 // Maps map = documentSnapshot.ConvertTo<Maps>();
                                 GameObject item = Instantiate(listItemPrefab, listItemHolder);
@@ -116,30 +122,27 @@ public class MapDownload : MonoBehaviour
                                         }
                                     });
 
-                                //save job state to item
+                                // Save job state to item
                                 item.GetComponent<MapSelect>().jobState = job.status;
 
                                 if (job.status == SDKJobState.Done)
                                 {
-                                    item.transform
-                                        .GetChild(4)
-                                        .GetComponent<TextMeshProUGUI>()
-                                        .text = "Done";
+                                    Debug.Log("DONE HERE");
+                                    item.transform.GetChild(4).transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Done";
+                                    item.transform.GetChild(4).GetComponent<Image>().color = new Color32(61,150,56,161);
                                 }
                                 else if (job.status == SDKJobState.Failed)
                                 {
-                                    item.transform
-                                        .GetChild(4)
-                                        .GetComponent<TextMeshProUGUI>()
-                                        .text = "Failed";
+                                    item.transform.GetChild(4).transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Failed";
+                                    item.transform.GetChild(4).GetComponent<Image>().color = new Color32(161,34,34,161);
+                                   
                                 }
                                 else
                                 {
-                                    item.transform
-                                        .GetChild(4)
-                                        .GetComponent<TextMeshProUGUI>()
-                                        .text = "Processing";
+                                    item.transform.GetChild(4).transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Processing";
+                                    item.transform.GetChild(4).GetComponent<Image>().color = new Color32(212,194,59,161);
                                 }
+                                Debug.Log("Successfully loaded Firestore Image documents.");
                             }
                         }
 
@@ -153,13 +156,130 @@ public class MapDownload : MonoBehaviour
                         // create a function to fetch image from storage
                         // create lambda expression
                     }
-                    Debug.Log("Successfully loaded Firestore Image documents.");
                 });
         };
 
         await j.RunJobAsync();
     }
 
+    // public async void FetchPrivateMapsTest()
+    // {
+    //     JobListJobsAsync j = new JobListJobsAsync();
+
+    //     j.OnResult += async (SDKJobsResult result) =>
+    //     {
+    //         List<SDKJob> jobList = new List<SDKJob>();
+    //         foreach (SDKJob job in result.jobs)
+    //         {
+    //             if (job.type != (int)SDKJobType.Alignment)
+    //             {
+    //                 jobList.Add(job);
+    //             }
+    //         }
+
+    //         //make int array
+    //         List<SDKJob> filteredJobs = new List<SDKJob>();
+    //         List<int> firebaseMapsId = new List<int>();
+
+    //         await db.Collection("map")
+    //             .WhereEqualTo("email", StaticData.userEmail)  
+    //             .GetSnapshotAsync()
+    //             .ContinueWithOnMainThread(task =>
+    //             {
+    //                 if (task.IsFaulted)
+    //                 {
+    //                     Debug.LogError("Error fetching collection documents: " + task.Exception);
+    //                     return;
+    //                 }
+
+    //                 QuerySnapshot allMapsQuerySnapshot = task.Result;
+
+    //                 foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
+    //                 {
+    //                     Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
+
+    //                     foreach (SDKJob job in jobList)
+    //                     {
+    //                         Debug.Log("HEREEE:");
+    //                         Debug.Log("job.id: " + job.id);
+    //                         Debug.Log("mapData[id]: " + int.Parse(mapData["id"].ToString()));
+
+    //                         if (job.id == int.Parse(mapData["id"].ToString()))
+    //                         {
+    //                             GameObject item = Instantiate(listItemPrefab, listItemHolder);
+
+    //                             if (mapData.ContainsKey("name") == false)
+    //                             {
+    //                                 Debug.LogWarning("Map name");
+    //                                 continue;
+    //                             }
+    //                             item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData["name"].ToString();
+
+    //                             item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
+
+    //                             if (mapData.ContainsKey("thumbnail_reference") == false)
+    //                             {
+    //                                 Debug.LogWarning("Map thumbnail not found");
+    //                                 continue;
+    //                             }
+
+    //                             string image_ref_path = mapData["thumbnail_reference"] as string;
+    //                             Texture2D texture = null;
+    //                             Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
+    //                             {
+    //                                 texture = newTexture; // Assign the new texture to your original texture variable
+    //                                 if (texture == null)
+    //                                 {
+    //                                     Debug.Log("Couldn't load texture from " + image_ref_path);
+    //                                     return;
+    //                                 }
+    //                             };
+
+    //                             firebase_storage
+    //                                 .GetReference(image_ref_path)
+    //                                 .GetDownloadUrlAsync()
+    //                                 .ContinueWithOnMainThread(task =>
+    //                                 {
+    //                                     if (!task.IsFaulted && !task.IsCanceled)
+    //                                     {
+    //                                         string downloadUrl = task.Result.ToString();
+    //                                         // Proceed to download the image and convert it into a Texture2D
+    //                                         StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+    //                                     }
+    //                                     else
+    //                                     {
+    //                                         Debug.LogError("Failed to get download URL.");
+    //                                     }
+    //                                 });
+
+    //                             //save job state to item
+    //                             item.GetComponent<MapSelect>().jobState = job.status;
+
+    //                             if (job.status == SDKJobState.Done)
+    //                             {
+    //                                 item.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = "Done";
+    //                             }
+    //                             else if (job.status == SDKJobState.Failed)
+    //                             {
+    //                                 item.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = "Failed";
+    //                             }
+    //                             else
+    //                             {
+    //                                 item.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = "Processing";
+    //                             }
+    //                             Debug.Log("Successfully loaded Firestore Image documents.");
+    //                         }
+    //                         else 
+    //                         {
+    //                             Debug.Log("Ids do not match.");
+    //                         }
+    //                     }
+    //                 }
+    //             });
+    //     };   
+
+    //     await j.RunJobAsync();
+    // }    
     public async void FetchPublicMaps()
     {
         List<SDKJob> filteredJobs = new List<SDKJob>();
@@ -182,6 +302,9 @@ public class MapDownload : MonoBehaviour
                 {
                     Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
                     GameObject item = Instantiate(listItemPrefab, listItemHolder);
+                    
+                    GameObject statusPanel = item.transform.GetChild(4).gameObject;
+                    statusPanel.SetActive(false);
 
                     if (mapData.ContainsKey("name") == false)
                     {
@@ -232,94 +355,93 @@ public class MapDownload : MonoBehaviour
                     //save job state to item
 
                     Debug.Log("Successfully loaded Firestore Image documents.");
-                }
-                // }
-                ;
+                };
             });
         // };
         // await j.RunJobAsync();
     }
 
-    public async void FetchPrivateMaps()
-    {
-        List<SDKJob> filteredJobs = new List<SDKJob>();
-        List<int> firebaseMapsId = new List<int>();
+    // public async void FetchPrivateMaps()
+    // {
+    //     List<SDKJob> filteredJobs = new List<SDKJob>();
+    //     List<int> firebaseMapsId = new List<int>();
 
-        await db.Collection("map")
-            .WhereEqualTo("private", true)
-            .GetSnapshotAsync()
-            .ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("Error fetching collection documents: " + task.Exception);
-                    return;
-                }
+    //     await db.Collection("map")
+    //         .WhereEqualTo("private", true)
+    //         .GetSnapshotAsync()
+    //         .ContinueWithOnMainThread(task =>
+    //         {
+    //             if (task.IsFaulted)
+    //             {
+    //                 Debug.LogError("Error fetching collection documents: " + task.Exception);
+    //                 return;
+    //             }
 
-                QuerySnapshot allMapsQuerySnapshot = task.Result;
+    //             QuerySnapshot allMapsQuerySnapshot = task.Result;
 
-                foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
-                {
-                    Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
-                    GameObject item = Instantiate(listItemPrefab, listItemHolder);
+    //             foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
+    //             {
+    //                 Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
+    //                 GameObject item = Instantiate(listItemPrefab, listItemHolder);
 
-                    if (mapData.ContainsKey("name") == false)
-                    {
-                        Debug.LogWarning("Map name");
-                        continue;
-                    }
-                    item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
-                        "name"
-                    ].ToString();
+    //                 if (mapData.ContainsKey("name") == false)
+    //                 {
+    //                     Debug.LogWarning("Map name");
+    //                     continue;
+    //                 }
+    //                 item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
+    //                     "name"
+    //                 ].ToString();
 
-                    item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
+    //                 item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
 
-                    if (mapData.ContainsKey("thumbnail_reference") == false)
-                    {
-                        Debug.LogWarning("Map thumbnail not found");
-                        continue;
-                    }
+    //                 if (mapData.ContainsKey("thumbnail_reference") == false)
+    //                 {
+    //                     Debug.LogWarning("Map thumbnail not found");
+    //                     continue;
+    //                 }
 
-                    string image_ref_path = mapData["thumbnail_reference"] as string;
-                    Texture2D texture = null;
-                    Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
-                    {
-                        texture = newTexture; // Assign the new texture to your original texture variable
-                        if (texture == null)
-                        {
-                            Debug.Log("Couldn't load texture from " + image_ref_path);
-                            return;
-                        }
-                    };
+    //                 string image_ref_path = mapData["thumbnail_reference"] as string;
+    //                 Texture2D texture = null;
+    //                 Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
+    //                 {
+    //                     texture = newTexture; // Assign the new texture to your original texture variable
+    //                     if (texture == null)
+    //                     {
+    //                         Debug.Log("Couldn't load texture from " + image_ref_path);
+    //                         return;
+    //                     }
+    //                 };
 
-                    firebase_storage
-                        .GetReference(image_ref_path)
-                        .GetDownloadUrlAsync()
-                        .ContinueWithOnMainThread(task =>
-                        {
-                            if (!task.IsFaulted && !task.IsCanceled)
-                            {
-                                string downloadUrl = task.Result.ToString();
-                                // Proceed to download the image and convert it into a Texture2D
-                                StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
-                            }
-                            else
-                            {
-                                Debug.LogError("Failed to get download URL.");
-                            }
-                        });
+    //                 firebase_storage
+    //                     .GetReference(image_ref_path)
+    //                     .GetDownloadUrlAsync()
+    //                     .ContinueWithOnMainThread(task =>
+    //                     {
+    //                         if (!task.IsFaulted && !task.IsCanceled)
+    //                         {
+    //                             string downloadUrl = task.Result.ToString();
+    //                             // Proceed to download the image and convert it into a Texture2D
+    //                             StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+    //                         }
+    //                         else
+    //                         {
+    //                             Debug.LogError("Failed to get download URL.");
+    //                         }
+    //                     });
 
-                    //save job state to item
+    //                 //save job state to item
 
-                    Debug.Log("Successfully loaded Firestore Image documents.");
-                }
-                // }
-                ;
-            });
-        // };
-        // await j.RunJobAsync();
-    }
+    //                 Debug.Log("Successfully loaded Firestore Image documents.");
+    //             }
+    //             // }
+    //             ;
+    //         });
+    //     // };
+    //     // await j.RunJobAsync();
+    // }
 
+    
     private IEnumerator DownloadImage(
         string imageUrl,
         Action<Texture2D> onTextureLoaded,

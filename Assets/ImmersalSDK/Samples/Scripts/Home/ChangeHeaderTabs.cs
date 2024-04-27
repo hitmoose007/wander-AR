@@ -67,8 +67,11 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
             GameObject content = publicPanel.transform.GetChild(0).gameObject;
 
             for (var i = content.transform.childCount - 1; i >= 0; i--)
-            {
-                Destroy(content.transform.GetChild(i).gameObject);
+            {   
+                if (content.transform.GetChild(i).gameObject != null)
+                {
+                    Destroy(content.transform.GetChild(i).gameObject);
+                }
             }
         }
 
@@ -99,7 +102,9 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
             for (var i = content.transform.childCount - 1; i >= 0; i--)
             {
                 if (content.transform.GetChild(i).gameObject != null)
+                {
                     Destroy(content.transform.GetChild(i).gameObject);
+                }
             }
         }
 
