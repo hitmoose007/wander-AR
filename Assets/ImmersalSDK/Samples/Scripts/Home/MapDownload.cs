@@ -73,6 +73,9 @@ public class MapDownload : MonoBehaviour
                                 // Maps map = documentSnapshot.ConvertTo<Maps>();
                                 GameObject item = Instantiate(listItemPrefab, listItemHolder);
 
+                                // Setting name of map item to id of Firestore document
+                                item.name = documentSnapshot.Id;
+
                                 if (mapData.ContainsKey("name") == false)
                                 {
                                     Debug.LogWarning("Map name");
@@ -127,7 +130,6 @@ public class MapDownload : MonoBehaviour
 
                                 if (job.status == SDKJobState.Done)
                                 {
-                                    Debug.Log("DONE HERE");
                                     item.transform.GetChild(4).transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Done";
                                     item.transform.GetChild(4).GetComponent<Image>().color = new Color32(61,150,56,161);
                                 }
@@ -142,7 +144,7 @@ public class MapDownload : MonoBehaviour
                                     item.transform.GetChild(4).transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Processing";
                                     item.transform.GetChild(4).GetComponent<Image>().color = new Color32(212,194,59,161);
                                 }
-                                Debug.Log("Successfully loaded Firestore Image documents.");
+                                Debug.Log("Successfully loaded Firestore Image document.");
                             }
                         }
 
@@ -162,124 +164,6 @@ public class MapDownload : MonoBehaviour
         await j.RunJobAsync();
     }
 
-    // public async void FetchPrivateMapsTest()
-    // {
-    //     JobListJobsAsync j = new JobListJobsAsync();
-
-    //     j.OnResult += async (SDKJobsResult result) =>
-    //     {
-    //         List<SDKJob> jobList = new List<SDKJob>();
-    //         foreach (SDKJob job in result.jobs)
-    //         {
-    //             if (job.type != (int)SDKJobType.Alignment)
-    //             {
-    //                 jobList.Add(job);
-    //             }
-    //         }
-
-    //         //make int array
-    //         List<SDKJob> filteredJobs = new List<SDKJob>();
-    //         List<int> firebaseMapsId = new List<int>();
-
-    //         await db.Collection("map")
-    //             .WhereEqualTo("email", StaticData.userEmail)  
-    //             .GetSnapshotAsync()
-    //             .ContinueWithOnMainThread(task =>
-    //             {
-    //                 if (task.IsFaulted)
-    //                 {
-    //                     Debug.LogError("Error fetching collection documents: " + task.Exception);
-    //                     return;
-    //                 }
-
-    //                 QuerySnapshot allMapsQuerySnapshot = task.Result;
-
-    //                 foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
-    //                 {
-    //                     Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
-
-    //                     foreach (SDKJob job in jobList)
-    //                     {
-    //                         Debug.Log("HEREEE:");
-    //                         Debug.Log("job.id: " + job.id);
-    //                         Debug.Log("mapData[id]: " + int.Parse(mapData["id"].ToString()));
-
-    //                         if (job.id == int.Parse(mapData["id"].ToString()))
-    //                         {
-    //                             GameObject item = Instantiate(listItemPrefab, listItemHolder);
-
-    //                             if (mapData.ContainsKey("name") == false)
-    //                             {
-    //                                 Debug.LogWarning("Map name");
-    //                                 continue;
-    //                             }
-    //                             item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData["name"].ToString();
-
-    //                             item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
-
-    //                             if (mapData.ContainsKey("thumbnail_reference") == false)
-    //                             {
-    //                                 Debug.LogWarning("Map thumbnail not found");
-    //                                 continue;
-    //                             }
-
-    //                             string image_ref_path = mapData["thumbnail_reference"] as string;
-    //                             Texture2D texture = null;
-    //                             Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
-    //                             {
-    //                                 texture = newTexture; // Assign the new texture to your original texture variable
-    //                                 if (texture == null)
-    //                                 {
-    //                                     Debug.Log("Couldn't load texture from " + image_ref_path);
-    //                                     return;
-    //                                 }
-    //                             };
-
-    //                             firebase_storage
-    //                                 .GetReference(image_ref_path)
-    //                                 .GetDownloadUrlAsync()
-    //                                 .ContinueWithOnMainThread(task =>
-    //                                 {
-    //                                     if (!task.IsFaulted && !task.IsCanceled)
-    //                                     {
-    //                                         string downloadUrl = task.Result.ToString();
-    //                                         // Proceed to download the image and convert it into a Texture2D
-    //                                         StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
-    //                                     }
-    //                                     else
-    //                                     {
-    //                                         Debug.LogError("Failed to get download URL.");
-    //                                     }
-    //                                 });
-
-    //                             //save job state to item
-    //                             item.GetComponent<MapSelect>().jobState = job.status;
-
-    //                             if (job.status == SDKJobState.Done)
-    //                             {
-    //                                 item.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = "Done";
-    //                             }
-    //                             else if (job.status == SDKJobState.Failed)
-    //                             {
-    //                                 item.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = "Failed";
-    //                             }
-    //                             else
-    //                             {
-    //                                 item.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = "Processing";
-    //                             }
-    //                             Debug.Log("Successfully loaded Firestore Image documents.");
-    //                         }
-    //                         else 
-    //                         {
-    //                             Debug.Log("Ids do not match.");
-    //                         }
-    //                     }
-    //                 }
-    //             });
-    //     };   
-
-    //     await j.RunJobAsync();
-    // }    
     public async void FetchPublicMaps()
     {
         List<SDKJob> filteredJobs = new List<SDKJob>();
@@ -302,7 +186,12 @@ public class MapDownload : MonoBehaviour
                 {
                     Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
                     GameObject item = Instantiate(listItemPrefab, listItemHolder);
+
+                    // Setting name of map item to id of Firestore document
+                    item.name = documentSnapshot.Id;
                     
+                    // Setting status panel inactive for public maps 
+                    // as they are always loaded
                     GameObject statusPanel = item.transform.GetChild(4).gameObject;
                     statusPanel.SetActive(false);
 
@@ -354,7 +243,7 @@ public class MapDownload : MonoBehaviour
 
                     //save job state to item
 
-                    Debug.Log("Successfully loaded Firestore Image documents.");
+                    Debug.Log("Successfully loaded Firestore Image document.");
                 };
             });
         // };
@@ -441,7 +330,16 @@ public class MapDownload : MonoBehaviour
     //     // await j.RunJobAsync();
     // }
 
-    
+    public void DeleteMap()
+    {
+        Debug.Log( GetType() + "-" + this.transform.parent.name + "-OnDelete();");
+
+        DocumentReference mapRef = db.Collection("map").Document(this.transform.parent.name);
+        mapRef.DeleteAsync();
+        
+        Destroy(this.transform.parent.gameObject);
+    }
+
     private IEnumerator DownloadImage(
         string imageUrl,
         Action<Texture2D> onTextureLoaded,

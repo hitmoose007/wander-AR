@@ -17,9 +17,6 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
     {
         Debug.Log( GetType() + "-" + name + "-OnSelect();");
 
-        // Changing color of button text for visibility
-        //this.gameObject.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(23,26,31,255);
-
         if (name == "Private Maps Button")
         {
             privatePanel.SetActive(true);
@@ -36,9 +33,6 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
     public void OnDeselect (BaseEventData eventData)
     {
         Debug.Log( GetType() + "-" + name + "-OnDeselect();");
-
-        // Changing color of button's text for visibility
-        //this.gameObject.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(251,229,186,255);
     }
 
     public void TaskOnButtonClick()

@@ -7,8 +7,7 @@ public class MapSelect : MonoBehaviour
 {
     public int mapId;
     public string jobState;
-
-    // Start is called before the first frame update
+    
     // void Update()
     // {
     //     // Check if there is at least one touch currently
