@@ -40,7 +40,7 @@ public class MapDownload : MonoBehaviour
                 }
             }
 
-            //make int array
+            // Make int array
             List<SDKJob> filteredJobs = new List<SDKJob>();
             List<int> firebaseMapsId = new List<int>();
 
@@ -190,8 +190,6 @@ public class MapDownload : MonoBehaviour
                     // Setting name of map item to id of Firestore document
                     item.name = documentSnapshot.Id;
                     
-                    // Setting status panel inactive for public maps 
-                    // as they are always loaded
                     GameObject statusPanel = item.transform.GetChild(4).gameObject;
                     statusPanel.SetActive(false);
 
@@ -242,6 +240,7 @@ public class MapDownload : MonoBehaviour
                         });
 
                     //save job state to item
+                    item.GetComponent<MapSelect>().jobState = SDKJobState.Done;
 
                     Debug.Log("Successfully loaded Firestore Image document.");
                 };
