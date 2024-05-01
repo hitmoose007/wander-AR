@@ -43,19 +43,19 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
 
             // Changing button color on un-click
             var colors2 = publicButton.GetComponent<Button>().colors;
-            colors2.normalColor = new Color32(34,36,41,255);
+            colors2.normalColor = new Color32(23,28,33,255);
             publicButton.GetComponent<Button>().colors = colors2;
 
             // Changing button text color on un-click
-            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(251,229,186,255);
+            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(0,170,250,255);
             
             // Changing button color on click
             var colors = privateButton.GetComponent<Button>().colors;
-            colors.normalColor = new Color32(251,229,186,255);
+            colors.normalColor = new Color32(31,57,241,255);
             privateButton.GetComponent<Button>().colors = colors;
 
             // Changing button text color on click
-            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(23,26,31,255);
+            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(255,255,255,255);
 
             // Deleting un-clicked button's map list content items to prevent clones
             GameObject content = publicPanel.transform.GetChild(0).gameObject;
@@ -75,20 +75,19 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
 
             // Changing button color on un-click
             var colors2 = privateButton.GetComponent<Button>().colors;
-            colors2.normalColor = new Color32(34,36,41,255);
+            colors2.normalColor = new Color32(23,28,33,255);
             privateButton.GetComponent<Button>().colors = colors2;
             
             // Changing button text color on un-click
-            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(251,229,186,255);
+            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(0,170,250,255);
 
             // Changing button color on click
             var colors = publicButton.GetComponent<Button>().colors;
-            colors.normalColor = new Color32(251,229,186,255);
+            colors.normalColor = new Color32(31,57,241,255);
             publicButton.GetComponent<Button>().colors = colors;
 
             // Changing button text color on click
-            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(23,26,31,255);
-
+            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(255,255,255,255);
 
             // Deleting un-clicked button's map list content items to prevent clones
             GameObject content = privatePanel.transform.GetChild(0).gameObject;
