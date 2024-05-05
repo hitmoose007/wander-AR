@@ -19,10 +19,6 @@ namespace Immersal.Samples.Navigation
     public class WaypointsUI : MonoBehaviour
     {
         [SerializeField]
-        private GameObject m_EditModePanel = null;
-        [SerializeField]
-        private GameObject m_EditModeButton = null;
-        [SerializeField]
         private GameObject m_SettingsButton = null;
         [SerializeField]
         private GameObject m_SettingsPanel = null;
@@ -74,23 +70,23 @@ namespace Immersal.Samples.Navigation
                 case UIState.Navigation:
                     Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode = false;
                     m_SettingsPanel.SetActive(false);
-                    m_EditModePanel.SetActive(false);
+                    //m_EditModePanel.SetActive(false);
                     m_SettingsButton.SetActive(true);
-                    m_EditModeButton.SetActive(true);
+                    //m_EditModeButton.SetActive(true);
                     break;
                 case UIState.EditMode:
                     Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode = true;
                     m_SettingsPanel.SetActive(false);
-                    m_EditModePanel.SetActive(true);
+                    //m_EditModePanel.SetActive(true);
                     m_SettingsButton.SetActive(true);
-                    m_EditModeButton.SetActive(true);
+                    //m_EditModeButton.SetActive(true);
                     break;
                 case UIState.Settings:
                     Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode = false;
                     m_SettingsPanel.SetActive(true);
-                    m_EditModePanel.SetActive(false);
+                    //m_EditModePanel.SetActive(false);
                     m_SettingsButton.SetActive(true);
-                    m_EditModeButton.SetActive(true);
+                    //m_EditModeButton.SetActive(true);
                     break;
                 default:
                     break;

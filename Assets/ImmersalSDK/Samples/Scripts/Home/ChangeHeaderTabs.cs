@@ -43,15 +43,15 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
 
             // Changing button color on un-click
             var colors2 = publicButton.GetComponent<Button>().colors;
-            colors2.normalColor = new Color32(23,28,33,255);
+            colors2.normalColor = new Color32(38,40,45,255);
             publicButton.GetComponent<Button>().colors = colors2;
 
             // Changing button text color on un-click
-            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(0,170,250,255);
+            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(162,172,188,255);
             
             // Changing button color on click
             var colors = privateButton.GetComponent<Button>().colors;
-            colors.normalColor = new Color32(31,57,241,255);
+            colors.normalColor = new Color32(0,69,224,255);
             privateButton.GetComponent<Button>().colors = colors;
 
             // Changing button text color on click
@@ -75,15 +75,15 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
 
             // Changing button color on un-click
             var colors2 = privateButton.GetComponent<Button>().colors;
-            colors2.normalColor = new Color32(23,28,33,255);
+            colors2.normalColor = new Color32(38,40,45,255);
             privateButton.GetComponent<Button>().colors = colors2;
             
             // Changing button text color on un-click
-            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(0,170,250,255);
+            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(162,172,188,255);
 
             // Changing button color on click
             var colors = publicButton.GetComponent<Button>().colors;
-            colors.normalColor = new Color32(31,57,241,255);
+            colors.normalColor = new Color32(0,69,224,255);
             publicButton.GetComponent<Button>().colors = colors;
 
             // Changing button text color on click
