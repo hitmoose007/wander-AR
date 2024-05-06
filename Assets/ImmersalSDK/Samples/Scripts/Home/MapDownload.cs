@@ -115,9 +115,12 @@ public class MapDownload : MonoBehaviour
                                         {
                                             string downloadUrl = task.Result.ToString();
                                             // Proceed to download the image and convert it into a Texture2D
-                                            StartCoroutine(
-                                                DownloadImage(downloadUrl, OnTextureLoaded, item)
-                                            );
+                                            if(gameObject.activeInHierarchy)
+                                            {
+                                                StartCoroutine(
+                                                    DownloadImage(downloadUrl, OnTextureLoaded, item)
+                                                );
+                                            }
                                         }
                                         else
                                         {
@@ -231,7 +234,10 @@ public class MapDownload : MonoBehaviour
                             {
                                 string downloadUrl = task.Result.ToString();
                                 // Proceed to download the image and convert it into a Texture2D
-                                StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+                                if(gameObject.activeInHierarchy)
+                                {
+                                    StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+                                }
                             }
                             else
                             {
@@ -310,7 +316,10 @@ public class MapDownload : MonoBehaviour
     //                         {
     //                             string downloadUrl = task.Result.ToString();
     //                             // Proceed to download the image and convert it into a Texture2D
-    //                             StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+    //                             if(gameObject.activeInHierarchy)
+    //                             {
+    //                                   StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+    //                             }
     //                         }
     //                         else
     //                         {
