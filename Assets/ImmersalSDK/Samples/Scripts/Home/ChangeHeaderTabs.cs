@@ -17,9 +17,6 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
     {
         Debug.Log( GetType() + "-" + name + "-OnSelect();");
 
-        // Changing color of button text for visibility
-        //this.gameObject.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(23,26,31,255);
-
         if (name == "Private Maps Button")
         {
             privatePanel.SetActive(true);
@@ -36,9 +33,6 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
     public void OnDeselect (BaseEventData eventData)
     {
         Debug.Log( GetType() + "-" + name + "-OnDeselect();");
-
-        // Changing color of button's text for visibility
-        //this.gameObject.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(251,229,186,255);
     }
 
     public void TaskOnButtonClick()
@@ -49,26 +43,29 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
 
             // Changing button color on un-click
             var colors2 = publicButton.GetComponent<Button>().colors;
-            colors2.normalColor = new Color32(34,36,41,255);
+            colors2.normalColor = new Color32(38,40,45,255);
             publicButton.GetComponent<Button>().colors = colors2;
 
             // Changing button text color on un-click
-            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(251,229,186,255);
+            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(162,172,188,255);
             
             // Changing button color on click
             var colors = privateButton.GetComponent<Button>().colors;
-            colors.normalColor = new Color32(251,229,186,255);
+            colors.normalColor = new Color32(0,69,224,255);
             privateButton.GetComponent<Button>().colors = colors;
 
             // Changing button text color on click
-            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(23,26,31,255);
+            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(255,255,255,255);
 
             // Deleting un-clicked button's map list content items to prevent clones
             GameObject content = publicPanel.transform.GetChild(0).gameObject;
 
             for (var i = content.transform.childCount - 1; i >= 0; i--)
-            {
-                Destroy(content.transform.GetChild(i).gameObject);
+            {   
+                if (content.transform.GetChild(i).gameObject != null)
+                {
+                    Destroy(content.transform.GetChild(i).gameObject);
+                }
             }
         }
 
@@ -78,20 +75,19 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
 
             // Changing button color on un-click
             var colors2 = privateButton.GetComponent<Button>().colors;
-            colors2.normalColor = new Color32(34,36,41,255);
+            colors2.normalColor = new Color32(38,40,45,255);
             privateButton.GetComponent<Button>().colors = colors2;
             
             // Changing button text color on un-click
-            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(251,229,186,255);
+            privateButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(162,172,188,255);
 
             // Changing button color on click
             var colors = publicButton.GetComponent<Button>().colors;
-            colors.normalColor = new Color32(251,229,186,255);
+            colors.normalColor = new Color32(0,69,224,255);
             publicButton.GetComponent<Button>().colors = colors;
 
             // Changing button text color on click
-            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(23,26,31,255);
-
+            publicButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(255,255,255,255);
 
             // Deleting un-clicked button's map list content items to prevent clones
             GameObject content = privatePanel.transform.GetChild(0).gameObject;
@@ -99,7 +95,9 @@ public class ChangeHeaderTabs : MonoBehaviour, ISelectHandler, IDeselectHandler
             for (var i = content.transform.childCount - 1; i >= 0; i--)
             {
                 if (content.transform.GetChild(i).gameObject != null)
+                {
                     Destroy(content.transform.GetChild(i).gameObject);
+                }
             }
         }
 
