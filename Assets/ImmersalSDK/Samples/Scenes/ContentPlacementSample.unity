@@ -8703,6 +8703,7 @@ GameObject:
   - component: {fileID: 566599606}
   - component: {fileID: 566599605}
   - component: {fileID: 566599604}
+  - component: {fileID: 566599607}
   m_Layer: 0
   m_Name: Back Button
   m_TagString: Untagged
@@ -8773,7 +8774,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 566599605}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 566599607}
+        m_TargetAssemblyTypeName: ChangingScene, ImmersalSDK
+        m_MethodName: OnBackButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &566599605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8812,6 +8825,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 566599602}
   m_CullTransparentMesh: 1
+--- !u!114 &566599607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 566599602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbcdb5c7e762847e49de57b1ccae0da9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &567743388
 GameObject:
   m_ObjectHideFlags: 0
@@ -15177,7 +15202,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 1
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 61.050842, y: 0, z: 59.200813, w: 0}
+  m_margin: {x: 61.050842, y: 0, z: 61.015472, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
