@@ -14,6 +14,8 @@ public class ChangeScreen : MonoBehaviour
     {
         panelA.SetActive(false);
         panelB.SetActive(true);
+        // panelA.transform.localScale = new Vector3(0,0,0);
+        // panelB.transform.localScale = new Vector3(1,1,1);
     }
 
     public void BackButtonClicked()
@@ -21,7 +23,9 @@ public class ChangeScreen : MonoBehaviour
         Destroy(TakePhotos.instance.mapImage);
         
         errorText.text = "";
-        panelB.SetActive(false);
         panelA.SetActive(true);
+        panelB.SetActive(false);
+        // panelA.transform.localScale = new Vector3(1,1,1);
+        // panelB.transform.localScale = new Vector3(0,0,0);
     }
 }
