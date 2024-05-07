@@ -70,7 +70,6 @@ public class ClickModePanel : MonoBehaviour, ISelectHandler, IDeselectHandler
             navigationButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(255,255,255,255);
             contentButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color32(0,0,0,255);
 
-
             //Show panel
             navigationButtonsPanel.transform.localScale = new Vector3(1,1,1);
             navigationListButton.transform.localScale = new Vector3(1,1,1);
