@@ -30,7 +30,8 @@ public class NavigationTargetContent : MovableContent
         Dictionary<string, object> documentData = new Dictionary<string, object>
         {
             { "position", positionData },
-            { "rotation", rotationData }
+            { "rotation", rotationData },
+            {"mapID", StaticData.MapIdContentPlacement}
         };
 
         // Generate a unique document ID or use a specific identifier

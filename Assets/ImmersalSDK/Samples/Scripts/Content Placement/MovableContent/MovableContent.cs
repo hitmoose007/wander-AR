@@ -78,8 +78,8 @@ namespace Immersal.Samples.ContentPlacement
         public void RemoveContent()
         {
             if (this is MovableImageContent)
-            
                 db.Collection("image_content").Document(m_contentId).DeleteAsync();
+
             else if (this is MovableTextContent)
                 db.Collection("text_content").Document(m_contentId).DeleteAsync();
 
