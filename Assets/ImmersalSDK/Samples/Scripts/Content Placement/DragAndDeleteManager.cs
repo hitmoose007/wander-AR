@@ -37,7 +37,7 @@ public class DragAndDeleteManager : MonoBehaviour
                     isHoveringDeleteButton = IsOverDeleteButton(touch.position);
                     // Adjust delete button's scale based on hovering state
                     deleteButtonRectTransform.localScale = isHoveringDeleteButton
-                        ? Vector3.one * 1.2f
+                        ? Vector3.one * 1.3f
                         : Vector3.one;
                     break;
 
