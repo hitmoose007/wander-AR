@@ -195,6 +195,7 @@ namespace Immersal.Samples.ContentPlacement
 
             // Fetch all documents from the collection
             textCollectionRef
+                .WhereEqualTo("mapID", StaticData.MapIdContentPlacement)
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
                 {
@@ -488,6 +489,7 @@ namespace Immersal.Samples.ContentPlacement
             Debug.Log("imageCollectionRef:  lol" + imageCollectionRef);
             // Fetch all documents from the collection
             imageCollectionRef
+                .WhereEqualTo("mapID", StaticData.MapIdContentPlacement)
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
                 {

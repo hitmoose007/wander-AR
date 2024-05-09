@@ -54,7 +54,8 @@ public class MovableImageContent : MovableContent
             { "image_ref", imageRef },
             { "position", positionData },
             { "rotation", rotationData },
-            { "scale", scaleData }
+            { "scale", scaleData },
+            {"mapID", StaticData.MapIdContentPlacement}
         };
 
         // Generate a unique document ID or use a specific identifier
@@ -63,7 +64,7 @@ public class MovableImageContent : MovableContent
         {
             m_contentId = System.Guid.NewGuid().ToString();
         }
-        // Add or update the document in the "text_content" collection
+        // Add or update the document in the "image_content" collection
         DocumentReference docRef = db.Collection("image_content").Document(m_contentId);
         docRef
             .SetAsync(documentData)

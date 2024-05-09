@@ -334,7 +334,7 @@ namespace Immersal.Samples.Navigation
                 };
 
                 wp.UniqueID = System.Guid.NewGuid().ToString();
-                // Add or update the document in the "text_content" collection
+                // Add or update the document in the "waypoint_object" collection
                 DocumentReference docRef = db.Collection("waypoint_object").Document(wp.UniqueID);
                 docRef
                     .SetAsync(documentData)

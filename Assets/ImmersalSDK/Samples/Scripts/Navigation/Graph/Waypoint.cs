@@ -207,7 +207,6 @@ namespace Immersal.Samples.Navigation
 
         public void OnPointerUp(PointerEventData eventData)
         {
-
             if (isEditing)
             {
                 db.Collection("waypoint_object")

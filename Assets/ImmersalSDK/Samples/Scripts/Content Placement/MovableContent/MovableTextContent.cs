@@ -70,7 +70,8 @@ public class MovableTextContent : MovableContent
             { "scale", scaleData },
             { "color", colorData },
             { "font", fontData },
-            { "fontStyle", fontStyle }
+            { "fontStyle", fontStyle }, 
+            {"mapID", StaticData.MapIdContentPlacement}
 
         };
 
