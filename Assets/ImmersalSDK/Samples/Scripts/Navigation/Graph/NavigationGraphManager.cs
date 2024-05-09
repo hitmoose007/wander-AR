@@ -16,6 +16,18 @@ using Firebase;
 using Firebase.Firestore;
 using Firebase.Extensions;
 using System.Linq;
+using System;
+using System.Threading.Tasks;
+using UnityEngine.Networking;
+using UnityEngine.UI;
+
+using System.IO;
+using TMPro; // Add this line to import the TextMesh Pro namespace
+using NativeGalleryNamespace;
+using Firebase.Storage;
+
+using Immersal.Samples.Util;
+using UnityEngine.Assertions.Must;
 
 namespace Immersal.Samples.Navigation
 {
@@ -317,7 +329,8 @@ namespace Immersal.Samples.Navigation
 
                 Dictionary<string, object> documentData = new Dictionary<string, object>
                 {
-                    { "position", positionData }
+                    { "position", positionData },
+                    { "mapID", StaticData.MapIdContentPlacement }
                 };
 
                 wp.UniqueID = System.Guid.NewGuid().ToString();
@@ -418,7 +431,16 @@ namespace Immersal.Samples.Navigation
 
         public void LoadWaypoints()
         {
-            db.Collection("waypoint_object")
+            CollectionReference waypointCollectionRef = db.Collection("waypoint_object");
+
+            // if empty, return
+            if (waypointCollectionRef == null)
+            {
+                Debug.LogWarning("Waypoint object collection not found");
+                return;
+            }
+
+            waypointCollectionRef
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
                 {
@@ -428,6 +450,7 @@ namespace Immersal.Samples.Navigation
                         return;
                     }
                     QuerySnapshot snapshot = task.Result;
+
                     foreach (DocumentSnapshot document in snapshot.Documents)
                     {
                         if (document.Exists)
@@ -441,20 +464,32 @@ namespace Immersal.Samples.Navigation
                                 System.Convert.ToSingle(positionData["y"]),
                                 System.Convert.ToSingle(positionData["z"])
                             );
-                            GameObject wpObject = Instantiate(
-                                waypointPrefab,
-                                position,
-                                Quaternion.identity,
-                                m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
-                            );
 
-                            //set wp inactive
-                            wpObject.SetActive(false);
-                            Waypoint wp = wpObject.GetComponent<Waypoint>();
+                            int mapID = Int32.Parse(data["mapID"].ToString());
 
-                            wp.UniqueID = document.Id;
+                            Debug.Log(" position: " + position + " mapID: " + mapID);
 
-                            m_Waypoints.Add(wp);
+                            if (mapID == StaticData.MapIdContentPlacement)
+                            {
+                                GameObject wpObject = Instantiate(
+                                    waypointPrefab,
+                                    position,
+                                    Quaternion.identity,
+                                    m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
+                                );
+
+                                //set wp inactive
+                                wpObject.SetActive(false);
+                                Waypoint wp = wpObject.GetComponent<Waypoint>();
+
+                                wp.UniqueID = document.Id;
+
+                                m_Waypoints.Add(wp);
+                            }
+                            else
+                            {
+                                Debug.Log("Map ID does not match for waypoint: " + document.Id);
+                            }
                         }
                     }
 
@@ -466,7 +501,9 @@ namespace Immersal.Samples.Navigation
                             {
                                 Dictionary<string, object> data = document.ToDictionary();
 
-                                if (data.ContainsKey("neighbours"))
+                                int mapID = Int32.Parse(data["mapID"].ToString());
+
+                                if (data.ContainsKey("neighbours") && mapID == StaticData.MapIdContentPlacement)
                                 {
                                     Waypoint wp = m_Waypoints.Find(x => x.UniqueID == document.Id);
 
@@ -494,6 +531,7 @@ namespace Immersal.Samples.Navigation
                         }
                     }
                 });
+                
             // if (System.IO.File.Exists(path))
             // {
             //     string json = System.IO.File.ReadAllText(path);

@@ -223,6 +223,10 @@ namespace Immersal.Samples.Navigation
                                     { "y", transform.position.y },
                                     { "z", transform.position.z }
                                 }
+                            },
+                            {
+                                "mapID",
+                                StaticData.MapIdContentPlacement
                             }
                         }
                     );
@@ -235,7 +239,7 @@ namespace Immersal.Samples.Navigation
 
             m_Mesh.Clear();
 
-            //add niegbours whichever hits collieder and vice versa
+            // Add neigbours whichever hits collider and vice versa
             if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
             {
                 RaycastHit hit;

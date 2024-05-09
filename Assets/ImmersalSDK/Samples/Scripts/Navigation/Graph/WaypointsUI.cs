@@ -36,16 +36,24 @@ namespace Immersal.Samples.Navigation
 
         }
 
-        public void ToggleEditMode()
+        public void ToggleEditMode(Button pressedButton)
         {
-            if (m_State == UIState.EditMode)
-            {
-                m_State = UIState.Navigation;
-            }
-            else
+            if (pressedButton.name == "Navigation Button")
             {
                 m_State = UIState.EditMode;
             }
+            else
+            {
+                m_State = UIState.Navigation;
+            }
+            // if (m_State == UIState.EditMode)
+            // {
+            //     m_State = UIState.Navigation;
+            // }
+            // else
+            // {
+            //     m_State = UIState.EditMode;
+            // }
             ChangeState(m_State);
         }
 

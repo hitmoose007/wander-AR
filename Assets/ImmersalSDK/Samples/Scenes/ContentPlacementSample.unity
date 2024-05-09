@@ -4223,10 +4223,10 @@ MonoBehaviour:
       - m_Target: {fileID: 1292167911}
         m_TargetAssemblyTypeName: Immersal.Samples.Navigation.WaypointsUI, ImmersalSDK
         m_MethodName: ToggleEditMode
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 296935298}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -6900,7 +6900,7 @@ PrefabInstance:
     - target: {fileID: 1528268570864364942, guid: 54cb9a8b5c431e84ca2942c39c10b316, type: 3}
       propertyPath: m_StopNavigationButton
       value: 
-      objectReference: {fileID: 455633531}
+      objectReference: {fileID: 1533825505}
     - target: {fileID: 1761617640229540409, guid: 54cb9a8b5c431e84ca2942c39c10b316, type: 3}
       propertyPath: m_Color.a
       value: 0.18431373
@@ -10231,7 +10231,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.27058825, b: 0.8784314, a: 0.3254902}
+  m_Color: {r: 0, g: 0.27058825, b: 0.8784314, a: 0.3882353}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12380,6 +12380,14 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8987344996532271848, guid: 5353e80963e3dfa47af33e4fd17b0c08, type: 3}
+      propertyPath: m_PreferredWidth
+      value: 160
+      objectReference: {fileID: 0}
+    - target: {fileID: 8987344996532271848, guid: 5353e80963e3dfa47af33e4fd17b0c08, type: 3}
+      propertyPath: m_PreferredHeight
+      value: 160
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13554,6 +13562,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1292167911}
+        m_TargetAssemblyTypeName: Immersal.Samples.Navigation.WaypointsUI, ImmersalSDK
+        m_MethodName: ToggleEditMode
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1066050033}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -16548,6 +16568,10 @@ PrefabInstance:
     - target: {fileID: 2899504138923785326, guid: 782e4b251bc604c4cade25196558338e, type: 3}
       propertyPath: m_Color.r
       value: 0.9882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 2899504138923785326, guid: 782e4b251bc604c4cade25196558338e, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2956277327759331634, guid: 782e4b251bc604c4cade25196558338e, type: 3}
       propertyPath: m_Name
@@ -19677,7 +19701,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 332, y: 351}
+  m_AnchoredPosition: {x: 324, y: 351}
   m_SizeDelta: {x: 0, y: 187.9943}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1533825507
