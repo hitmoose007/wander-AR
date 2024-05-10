@@ -9,7 +9,6 @@ using System;
 using TMPro;
 using UnityEngine.UI;
 using Immersal.REST;
-using Codice.Client.GameUI.Checkin;
 
 public class MapDownload : MonoBehaviour
 {

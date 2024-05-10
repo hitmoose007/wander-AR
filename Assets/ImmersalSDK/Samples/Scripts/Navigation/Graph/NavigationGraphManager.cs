@@ -431,19 +431,22 @@ namespace Immersal.Samples.Navigation
 
         public void LoadWaypoints()
         {
-            CollectionReference waypointCollectionRef = db.Collection("waypoint_object");
+            Query waypointCollectionQuery = db.Collection("waypoint_object")
+                .WhereEqualTo("mapID", StaticData.MapIdContentPlacement);
 
             // if empty, return
-            if (waypointCollectionRef == null)
+            if (waypointCollectionQuery == null)
             {
                 Debug.LogWarning("Waypoint object collection not found");
                 return;
             }
 
-            waypointCollectionRef
+            waypointCollectionQuery
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
                 {
+
+                    Debug.Log("hello2");
                     if (task.IsFaulted)
                     {
                         Debug.LogError("Error fetching collection documents: " + task.Exception);
@@ -465,31 +468,31 @@ namespace Immersal.Samples.Navigation
                                 System.Convert.ToSingle(positionData["z"])
                             );
 
-                            int mapID = Int32.Parse(data["mapID"].ToString());
+                            // int mapID = Int32.Parse(data["mapID"].ToString());
 
-                            Debug.Log(" position: " + position + " mapID: " + mapID);
+                            // Debug.Log(" position: " + position + " mapID: " + mapID);
 
-                            if (mapID == StaticData.MapIdContentPlacement)
-                            {
-                                GameObject wpObject = Instantiate(
-                                    waypointPrefab,
-                                    position,
-                                    Quaternion.identity,
-                                    m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
-                                );
+                            // if (mapID == StaticData.MapIdContentPlacement)
+                            // {
+                            GameObject wpObject = Instantiate(
+                                waypointPrefab,
+                                position,
+                                Quaternion.identity,
+                                m_ARSpace.transform // Set m_ARSpace.transform as the parent transform
+                            );
 
-                                //set wp inactive
-                                wpObject.SetActive(false);
-                                Waypoint wp = wpObject.GetComponent<Waypoint>();
+                            //set wp inactive
+                            wpObject.SetActive(false);
+                            Waypoint wp = wpObject.GetComponent<Waypoint>();
 
-                                wp.UniqueID = document.Id;
+                            wp.UniqueID = document.Id;
 
-                                m_Waypoints.Add(wp);
-                            }
-                            else
-                            {
-                                Debug.Log("Map ID does not match for waypoint: " + document.Id);
-                            }
+                            m_Waypoints.Add(wp);
+                            // }
+                            // else
+                            // {
+                            //     Debug.Log("Map ID does not match for waypoint: " + document.Id);
+                            // }
                         }
                     }
 
@@ -501,28 +504,27 @@ namespace Immersal.Samples.Navigation
                             {
                                 Dictionary<string, object> data = document.ToDictionary();
 
-                                int mapID = Int32.Parse(data["mapID"].ToString());
+                                // int mapID = Int32.Parse(data["mapID"].ToString());
 
-                                if (data.ContainsKey("neighbours") && mapID == StaticData.MapIdContentPlacement)
+                                // if (data.ContainsKey("neighbours") && mapID == StaticData.MapIdContentPlacement)
+                                // {
+                                Waypoint wp = m_Waypoints.Find(x => x.UniqueID == document.Id);
+
+                                List<object> neighboursListObj = data["neighbours"] as List<object>;
+                                List<string> neighbourIds = neighboursListObj
+                                    .Where(obj => obj != null) // Ensure the object is not null
+                                    .Select(obj => obj.ToString()) // Convert each object to string
+                                    .ToList();
+
+                                neighbourIds.ForEach(neighbourId => Debug.Log(neighbourId));
+
+                                foreach (string neighbourId in neighbourIds)
                                 {
-                                    Waypoint wp = m_Waypoints.Find(x => x.UniqueID == document.Id);
-
-                                    List<object> neighboursListObj =
-                                        data["neighbours"] as List<object>;
-                                    List<string> neighbourIds = neighboursListObj
-                                        .Where(obj => obj != null) // Ensure the object is not null
-                                        .Select(obj => obj.ToString()) // Convert each object to string
-                                        .ToList();
-
-                                    neighbourIds.ForEach(neighbourId => Debug.Log(neighbourId));
-
-                                    foreach (string neighbourId in neighbourIds)
-                                    {
-                                        wp.neighbours.Add(
-                                            m_Waypoints.Find(x => x.UniqueID == neighbourId)
-                                        );
-                                    }
+                                    wp.neighbours.Add(
+                                        m_Waypoints.Find(x => x.UniqueID == neighbourId)
+                                    );
                                 }
+                                // }
                             }
                         }
                         catch (System.Exception e)
@@ -531,7 +533,7 @@ namespace Immersal.Samples.Navigation
                         }
                     }
                 });
-                
+
             // if (System.IO.File.Exists(path))
             // {
             //     string json = System.IO.File.ReadAllText(path);
