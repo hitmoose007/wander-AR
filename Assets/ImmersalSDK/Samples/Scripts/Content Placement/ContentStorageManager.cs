@@ -18,19 +18,14 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 using System.IO;
-using TMPro;
+using TMPro; // Add this line to import the TextMesh Pro namespace
 using NativeGalleryNamespace;
 using Firebase;
 using Firebase.Firestore;
 using Firebase.Storage;
 
-
 using Immersal.Samples.Util;
 using Firebase.Extensions;
-using System.Collections;
-using TMPro; // Add this line to import the TextMesh Pro namespace
-using Immersal.Samples.Navigation;
-
 
 using System.Linq;
 using UnityEngine.Assertions.Must;
@@ -41,7 +36,7 @@ namespace Immersal.Samples.ContentPlacement
     {
         [SerializeField]
         private GameObject m_TextContentPrefab = null;
-
+        
         public GameObject NavPrefab;
 
         [SerializeField]
@@ -200,6 +195,7 @@ namespace Immersal.Samples.ContentPlacement
 
             // Fetch all documents from the collection
             textCollectionRef
+                .WhereEqualTo("mapID", StaticData.MapIdContentPlacement)
                 .GetSnapshotAsync()
                 .ContinueWithOnMainThread(task =>
                 {
@@ -437,6 +433,7 @@ namespace Immersal.Samples.ContentPlacement
                                 Debug.LogWarning("Position not found");
                                 continue;
                             }
+
                             Dictionary<string, object> positionMap =
                                 documentData["position"] as Dictionary<string, object>;
                             Vector3 pos = new Vector3(
@@ -460,16 +457,11 @@ namespace Immersal.Samples.ContentPlacement
                             );
 
                             int mapID =  Int32.Parse(documentData["mapID"].ToString());
-
-                            if (!documentData.ContainsKey("targetName"))
-                            {
-                                Debug.LogWarning("Target name not found");
-                                continue;
-                            }
-                            Dictionary<string, object> targetNameMap =
-                                documentData["targetName"] as Dictionary<string, object>;
+                            
+                            Debug.Log("rot: " + rot + " pos: " + pos + " mapID: " + mapID);
 
                             // Instantiating the content prefab and setting its properties
+                            // if no properties, return
 
                             GameObject go = Instantiate(
                                 NavPrefab,
@@ -478,22 +470,17 @@ namespace Immersal.Samples.ContentPlacement
                                 m_ARSpace.transform
                             );
 
-                            go.GetComponent<IsNavigationTarget>().targetName = targetNameMap["targetName"] as string;
+                            // go.transform.localScale = scale;
+
+                            
                             go.GetComponent<MovableContent>().m_contentId = document.Id;
+                            
                             go.SetActive(false);
-
-                            // Add id of document to the game object
-
-
-
-
                         }
                     }
                 });
         }
-
-
-
+                            
 
         private void FetchAndDownloadImageContent()
         {
