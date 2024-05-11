@@ -54,14 +54,12 @@ public class MovableTextContent : MovableContent
             { "a", textColor.a }
         };
         // font
-        Dictionary<string, object> fontData = new Dictionary<string, object>
-        {
-            { "font", textFont }
-        };
-        // font style
+        // Dictionary<string, object> fontData = new Dictionary<string, object>
+        // {
+        //     { "font", textFont }
+        // };
 
         // Prepare the document data
-        
         Dictionary<string, object> documentData = new Dictionary<string, object>
         {
             { "text", textContent },
@@ -69,7 +67,7 @@ public class MovableTextContent : MovableContent
             { "position", positionData },
             { "scale", scaleData },
             { "color", colorData },
-            { "font", fontData },
+            { "font", textFont },
             { "fontStyle", fontStyle }, 
             {"mapID", StaticData.MapIdContentPlacement}
 
