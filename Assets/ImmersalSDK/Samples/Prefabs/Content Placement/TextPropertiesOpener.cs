@@ -12,12 +12,19 @@ public class TextPropertiesOpener : MonoBehaviour
 
     private Button button;
     private Text buttonText;
+    public GameObject buttonBackgroundPanel1;
+    public GameObject buttonBackgroundPanel2;
+    public GameObject buttonBackgroundPanel3;
+    public GameObject buttonBackgroundPanel4;
+
+    public Button addTextButton;
 
     // Start is called before the first frame update
     void Start()
     {
         button = GetComponent<Button>();
         buttonText = button.GetComponentInChildren<Text>(); // Get the Text component inside the button
+        buttonBackgroundPanel1.SetActive(true);
     }
 
     public void OpenPanel()
@@ -34,7 +41,7 @@ public class TextPropertiesOpener : MonoBehaviour
         {
             bool isActive = Panel1.activeSelf;
             Panel1.SetActive(!isActive);
-
+            
             // Change the button text based on the panel state
             if (buttonText != null)
             {
@@ -51,4 +58,48 @@ public class TextPropertiesOpener : MonoBehaviour
             panel.SetActive(false);
         }
     }
+
+    public void EnableButtonBackground()
+    {
+        if(name == "InputOpen")
+        {
+            buttonBackgroundPanel1.SetActive(true);
+            buttonBackgroundPanel2.SetActive(false);
+            buttonBackgroundPanel3.SetActive(false);
+            buttonBackgroundPanel4.SetActive(false);
+
+            addTextButton.transform.localScale = new Vector3(1,1,1);
+        }
+
+        else if (name == "FontOpen")
+        {
+            buttonBackgroundPanel1.SetActive(false);
+            buttonBackgroundPanel2.SetActive(true);
+            buttonBackgroundPanel3.SetActive(false);
+            buttonBackgroundPanel4.SetActive(false);
+
+            addTextButton.transform.localScale = new Vector3(0,0,0);
+        }
+
+        else if (name == "ColorOpen")
+        {
+            buttonBackgroundPanel1.SetActive(false);
+            buttonBackgroundPanel2.SetActive(false);
+            buttonBackgroundPanel3.SetActive(true);
+            buttonBackgroundPanel4.SetActive(false);
+
+            addTextButton.transform.localScale = new Vector3(0,0,0);
+        }
+        else if (name == "StyleOpen")
+        {
+            buttonBackgroundPanel1.SetActive(false);
+            buttonBackgroundPanel2.SetActive(false);
+            buttonBackgroundPanel3.SetActive(false);
+            buttonBackgroundPanel4.SetActive(true);
+
+            addTextButton.transform.localScale = new Vector3(0,0,0);
+        }
+
+    }
 }
+

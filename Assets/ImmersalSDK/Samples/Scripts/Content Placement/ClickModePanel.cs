@@ -46,12 +46,7 @@ public class ClickModePanel : MonoBehaviour, ISelectHandler, IDeselectHandler
             navigationListButton.transform.localScale = new Vector3(0,0,0);
             stopNavigationButton.transform.localScale = new Vector3(0,0,0);
 
-            for (int i = 0; i < 3; i++)
-            {
-                contentButtonsPanel.transform.GetChild(i).gameObject.SetActive(false);
-            }
-
-            for (int i = 3; i < 6; i++)
+            for (int i = 0; i < 2; i++)
             {
                 GameObject childButton = contentButtonsPanel.transform.GetChild(i).gameObject;
 
@@ -75,13 +70,8 @@ public class ClickModePanel : MonoBehaviour, ISelectHandler, IDeselectHandler
             stopNavigationButton.transform.localScale = new Vector3(1,1,1);
             // Hide panel
             contentButtonsPanel.transform.localScale = new Vector3(0,0,0);
-
-            for (int i = 0; i < 3; i++)
-            {
-                navigationButtonsPanel.transform.GetChild(i).gameObject.SetActive(false);
-            }
             
-            for (int i = 3; i < 6; i++)
+            for (int i = 0; i < 3; i++)
             {
                 GameObject childButton = navigationButtonsPanel.transform.GetChild(i).gameObject;
 

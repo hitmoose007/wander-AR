@@ -16,27 +16,15 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-
 using System.IO;
 using TMPro;
 using NativeGalleryNamespace;
 using Firebase;
 using Firebase.Firestore;
 using Firebase.Storage;
-
-
 using Immersal.Samples.Util;
 using Firebase.Extensions;
-using System.Collections;
-using TMPro; // Add this line to import the TextMesh Pro namespace
 using Immersal.Samples.Navigation;
-
-
-using System.Collections;
-using TMPro; // Add this line to import the TextMesh Pro namespace
-using Immersal.Samples.Navigation;
-
-
 using System.Linq;
 using UnityEngine.Assertions.Must;
 
