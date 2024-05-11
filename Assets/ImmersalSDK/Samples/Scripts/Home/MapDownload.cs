@@ -61,7 +61,7 @@ public class MapDownload : MonoBehaviour
                         Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
 
                         Debug.Log("mapData[id]: " + int.Parse(mapData["id"].ToString()));
-                        
+
                         foreach (SDKJob job in jobList)
                         {
                             Debug.Log("job.id: " + job.id);
@@ -114,10 +114,14 @@ public class MapDownload : MonoBehaviour
                                         {
                                             string downloadUrl = task.Result.ToString();
                                             // Proceed to download the image and convert it into a Texture2D
-                                            if(gameObject.activeInHierarchy)
+                                            if (gameObject.activeInHierarchy)
                                             {
                                                 StartCoroutine(
-                                                    DownloadImage(downloadUrl, OnTextureLoaded, item)
+                                                    DownloadImage(
+                                                        downloadUrl,
+                                                        OnTextureLoaded,
+                                                        item
+                                                    )
                                                 );
                                             }
                                         }
@@ -129,22 +133,37 @@ public class MapDownload : MonoBehaviour
 
                                 // Save job state to item
                                 item.GetComponent<MapSelect>().jobState = job.status;
+                                item.GetComponent<MapSelect>().isMapPrivate = true;
 
                                 if (job.status == SDKJobState.Done)
                                 {
-                                    item.transform.GetChild(4).transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Done";
-                                    item.transform.GetChild(4).GetComponent<Image>().color = new Color32(61,150,56,161);
+                                    item.transform
+                                        .GetChild(4)
+                                        .transform.GetChild(0)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Done";
+                                    item.transform.GetChild(4).GetComponent<Image>().color =
+                                        new Color32(61, 150, 56, 161);
                                 }
                                 else if (job.status == SDKJobState.Failed)
                                 {
-                                    item.transform.GetChild(4).transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Failed";
-                                    item.transform.GetChild(4).GetComponent<Image>().color = new Color32(161,34,34,161);
-                                   
+                                    item.transform
+                                        .GetChild(4)
+                                        .transform.GetChild(0)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Failed";
+                                    item.transform.GetChild(4).GetComponent<Image>().color =
+                                        new Color32(161, 34, 34, 161);
                                 }
                                 else
                                 {
-                                    item.transform.GetChild(4).transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Processing";
-                                    item.transform.GetChild(4).GetComponent<Image>().color = new Color32(212,194,59,161);
+                                    item.transform
+                                        .GetChild(4)
+                                        .transform.GetChild(0)
+                                        .GetComponent<TextMeshProUGUI>()
+                                        .text = "Processing";
+                                    item.transform.GetChild(4).GetComponent<Image>().color =
+                                        new Color32(212, 194, 59, 161);
                                 }
                                 Debug.Log("Successfully loaded Firestore Image document.");
                             }
@@ -191,7 +210,7 @@ public class MapDownload : MonoBehaviour
 
                     // Setting name of map item to id of Firestore document
                     item.name = documentSnapshot.Id;
-                    
+
                     GameObject statusPanel = item.transform.GetChild(4).gameObject;
                     statusPanel.SetActive(false);
 
@@ -233,9 +252,11 @@ public class MapDownload : MonoBehaviour
                             {
                                 string downloadUrl = task.Result.ToString();
                                 // Proceed to download the image and convert it into a Texture2D
-                                if(gameObject.activeInHierarchy)
+                                if (gameObject.activeInHierarchy)
                                 {
-                                    StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
+                                    StartCoroutine(
+                                        DownloadImage(downloadUrl, OnTextureLoaded, item)
+                                    );
                                 }
                             }
                             else
@@ -245,10 +266,12 @@ public class MapDownload : MonoBehaviour
                         });
 
                     //save job state to item
+                    item.GetComponent<MapSelect>().isMapPrivate = false;
                     item.GetComponent<MapSelect>().jobState = SDKJobState.Done;
 
                     Debug.Log("Successfully loaded Firestore Image document.");
-                };
+                }
+                ;
             });
         // };
         // await j.RunJobAsync();
@@ -339,11 +362,11 @@ public class MapDownload : MonoBehaviour
 
     public void DeleteMap()
     {
-        Debug.Log( GetType() + "-" + this.transform.parent.name + "-OnDelete();");
+        Debug.Log(GetType() + "-" + this.transform.parent.name + "-OnDelete();");
 
         DocumentReference mapRef = db.Collection("map").Document(this.transform.parent.name);
         mapRef.DeleteAsync();
-        
+
         Destroy(this.transform.parent.gameObject);
     }
 
@@ -368,9 +391,12 @@ public class MapDownload : MonoBehaviour
 
                 // Here you can use the texture, for example, apply it to a GameObject to display the image
                 // Example: yourGameObject.GetComponent<Renderer>().material.mainTexture = texture;
-                if (obj != null) 
+                if (obj != null)
                 {
-                    RawImage rawImage = obj.transform.GetChild(0).GetChild(0).GetComponent<RawImage>();
+                    RawImage rawImage = obj.transform
+                        .GetChild(0)
+                        .GetChild(0)
+                        .GetComponent<RawImage>();
                     rawImage.texture = downloadedTexture;
                 }
             }
