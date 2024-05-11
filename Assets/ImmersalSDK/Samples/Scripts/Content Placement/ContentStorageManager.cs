@@ -18,14 +18,24 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 using System.IO;
-using TMPro; // Add this line to import the TextMesh Pro namespace
+using TMPro;
 using NativeGalleryNamespace;
 using Firebase;
 using Firebase.Firestore;
 using Firebase.Storage;
 
+
 using Immersal.Samples.Util;
 using Firebase.Extensions;
+using System.Collections;
+using TMPro; // Add this line to import the TextMesh Pro namespace
+using Immersal.Samples.Navigation;
+
+
+using System.Collections;
+using TMPro; // Add this line to import the TextMesh Pro namespace
+using Immersal.Samples.Navigation;
+
 
 using System.Linq;
 using UnityEngine.Assertions.Must;
@@ -36,7 +46,7 @@ namespace Immersal.Samples.ContentPlacement
     {
         [SerializeField]
         private GameObject m_TextContentPrefab = null;
-        
+
         public GameObject NavPrefab;
 
         [SerializeField]
@@ -433,7 +443,6 @@ namespace Immersal.Samples.ContentPlacement
                                 Debug.LogWarning("Position not found");
                                 continue;
                             }
-
                             Dictionary<string, object> positionMap =
                                 documentData["position"] as Dictionary<string, object>;
                             Vector3 pos = new Vector3(
@@ -456,31 +465,42 @@ namespace Immersal.Samples.ContentPlacement
                                 Convert.ToSingle(rotationMap["w"])
                             );
 
-                            int mapID =  Int32.Parse(documentData["mapID"].ToString());
-                            
-                            Debug.Log("rot: " + rot + " pos: " + pos + " mapID: " + mapID);
+
+
+                            int mapID = Int32.Parse(documentData["mapID"].ToString());
+
+
+                            if (!documentData.ContainsKey("targetName"))
+                            {
+                                Debug.LogWarning("Target name not found");
+                                continue;
+                            }
+                            Dictionary<string, object> targetNameMap =
+                                documentData["targetName"] as Dictionary<string, object>;
+
 
                             // Instantiating the content prefab and setting its properties
-                            // if no properties, return
 
-                            GameObject go = Instantiate(
-                                NavPrefab,
-                                pos,
-                                rot,
-                                m_ARSpace.transform
-                            );
+                            GameObject go = Instantiate(NavPrefab, pos, rot, m_ARSpace.transform);
 
-                            // go.transform.localScale = scale;
 
-                            
+
+                            go.GetComponent<IsNavigationTarget>().targetName =
+                                targetNameMap["targetName"] as string;
+
+
                             go.GetComponent<MovableContent>().m_contentId = document.Id;
-                            
                             go.SetActive(false);
+
+
+
+                            // Add id of document to the game object
                         }
                     }
                 });
         }
-                            
+
+
 
         private void FetchAndDownloadImageContent()
         {

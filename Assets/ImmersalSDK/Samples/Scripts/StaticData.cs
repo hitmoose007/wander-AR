@@ -13,9 +13,11 @@ public class StaticData : MonoBehaviour
     public static string developerToken =
         "0069cd762bf3cd46acc1dd97c526dd6fece87c81550db3d92b0cc1927a962aaf";
     public static string MapperSceneMapName;
+
     public static Texture2D MapperSceneMapImage;
     public static bool MapperSceneIsMapPrivate = false;
     public static int MapIdContentPlacement;
+    public static bool ContentSceneIsMapPrivate = false;
 
     public enum GameScene
     {
