@@ -12540,7 +12540,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &909864759
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14404,8 +14404,8 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
-  m_Spacing: 30
+  m_ChildAlignment: 4
+  m_Spacing: 40
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -21100,7 +21100,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 659501618927170578, guid: fb6502cd533c43944a6e4dccaf5bdedd, type: 3}
       propertyPath: m_Spacing
-      value: 30
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 659501618927170578, guid: fb6502cd533c43944a6e4dccaf5bdedd, type: 3}
+      propertyPath: m_ChildAlignment
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 726125382428335429, guid: fb6502cd533c43944a6e4dccaf5bdedd, type: 3}
       propertyPath: m_fontStyle
@@ -23168,8 +23172,8 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
-  m_Spacing: 30
+  m_ChildAlignment: 4
+  m_Spacing: 40
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
