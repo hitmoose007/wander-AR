@@ -1214,7 +1214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12a6b90440b704e05a690c049108c933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Let_map_id_set_itself: 1
+  Let_map_id_set_itself: 0
   ARSpace_transform: {fileID: 207243063}
 --- !u!4 &65801711
 Transform:

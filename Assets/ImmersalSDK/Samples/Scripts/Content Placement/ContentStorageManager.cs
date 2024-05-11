@@ -32,6 +32,11 @@ using TMPro; // Add this line to import the TextMesh Pro namespace
 using Immersal.Samples.Navigation;
 
 
+using System.Collections;
+using TMPro; // Add this line to import the TextMesh Pro namespace
+using Immersal.Samples.Navigation;
+
+
 using System.Linq;
 using UnityEngine.Assertions.Must;
 
@@ -460,8 +465,9 @@ namespace Immersal.Samples.ContentPlacement
                                 Convert.ToSingle(rotationMap["w"])
                             );
 
-                            int mapID =  Int32.Parse(documentData["mapID"].ToString());
-                                                        Debug.Log("rot: " + rot + " pos: " + pos + " mapID: " + mapID);
+
+
+                            int mapID = Int32.Parse(documentData["mapID"].ToString());
 
 
                             if (!documentData.ContainsKey("targetName"))
@@ -472,29 +478,27 @@ namespace Immersal.Samples.ContentPlacement
                             Dictionary<string, object> targetNameMap =
                                 documentData["targetName"] as Dictionary<string, object>;
 
+
                             // Instantiating the content prefab and setting its properties
 
-                            GameObject go = Instantiate(
-                                NavPrefab,
-                                pos,
-                                rot,
-                                m_ARSpace.transform
-                            );
+                            GameObject go = Instantiate(NavPrefab, pos, rot, m_ARSpace.transform);
 
-                            go.GetComponent<IsNavigationTarget>().targetName = targetNameMap["targetName"] as string;
+
+
+                            go.GetComponent<IsNavigationTarget>().targetName =
+                                targetNameMap["targetName"] as string;
+
+
                             go.GetComponent<MovableContent>().m_contentId = document.Id;
                             go.SetActive(false);
 
+
+
                             // Add id of document to the game object
-
-
-
-
                         }
                     }
                 });
         }
-
 
 
 

@@ -56,7 +56,6 @@ namespace Immersal.Samples
 
         void Start()
         {
-
             if (string.IsNullOrEmpty(ImmersalSDK.Instance.developerToken))
             {
                 Debug.LogError("Developer token not set");
@@ -150,10 +149,21 @@ namespace Immersal.Samples
                 Debug.LogError("Map id not set");
                 return;
             }
+
             JobLoadMapBinaryAsync j = new JobLoadMapBinaryAsync
             {
                 id = StaticData.MapIdContentPlacement
             };
+
+            if (StaticData.ContentSceneIsMapPrivate != true)
+            {
+                j.token = StaticData.MainAccountDeveloperToken;
+            }
+            else
+            {   
+                Debug.Log("this is bhenchod private");
+                j.token = StaticData.developerToken;
+            }
             Debug.Log("Loading map " + j.id);
 
             j.OnResult += async (SDKMapResult result) =>
