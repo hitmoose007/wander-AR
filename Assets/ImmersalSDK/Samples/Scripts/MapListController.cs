@@ -145,6 +145,7 @@ namespace Immersal.Samples
 
         public void LoadMap()
         {
+            
             if (StaticData.MapIdContentPlacement == 0)
             {
                 Debug.LogError("Map id not set");

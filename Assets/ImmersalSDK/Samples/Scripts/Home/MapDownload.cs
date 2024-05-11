@@ -67,7 +67,7 @@ public class MapDownload : MonoBehaviour
                             Debug.Log("job.id: " + job.id);
 
                             //if (job.id == Int32.Parse(mapData["id"].ToString()))
-                            if (Int32.Parse(mapData["id"].ToString()) == 96408)
+                            if (Int32.Parse(mapData["id"].ToString()) == job.id)
                             {
                                 // Maps map = documentSnapshot.ConvertTo<Maps>();
                                 GameObject item = Instantiate(listItemPrefab, listItemHolder);
