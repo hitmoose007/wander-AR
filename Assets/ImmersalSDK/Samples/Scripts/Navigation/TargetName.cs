@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-namespace TargetNamespace
+namespace TargetName
 {
     // Import the namespace where IsNavigationTarget is defined
     using Immersal.Samples.Navigation;
