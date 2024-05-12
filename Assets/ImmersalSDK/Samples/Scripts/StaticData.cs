@@ -24,6 +24,7 @@ public class StaticData : MonoBehaviour
         ContentPlacementScene, // Scene for placing content
         MapperScene, // Scene for mapping
         HomeScene, // Scene for home
+        LoginScene, // Scene for login
     }
 
     public static void LoadScene(GameScene gameScene)
@@ -38,6 +39,9 @@ public class StaticData : MonoBehaviour
                 break;
             case GameScene.HomeScene:
                 SceneManager.LoadScene("MapDownload");
+                break;
+            case GameScene.LoginScene:
+                SceneManager.LoadScene("loginScene");
                 break;
             default:
                 Debug.LogError("Scene not recognized!");
