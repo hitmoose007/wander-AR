@@ -10,42 +10,9 @@ using TMPro;
 using UnityEngine.UI;
 using Immersal.REST;
 using UnityEngine.Android;
-
-using System.IO;
-using System.Threading.Tasks;
-using Immersal.AR;
-using Immersal.REST;
-using Immersal.Samples.Util;
 using UnityEngine.Events;
-
-using Firebase;
-using Firebase.Firestore;
-using Firebase.Storage;
-using System.Data.Common;
-using Firebase.Extensions;
-using System.Linq;
 using Immersal.Samples.Mapping;
-
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.UI;
-using Immersal.AR;
-using Immersal.REST;
-using Immersal.Samples.Util;
-using UnityEngine.Events;
-
-using Firebase;
-using Firebase.Firestore;
-using Firebase.Storage;
-using System.Data.Common;
-using Firebase.Extensions;
-using System.Linq;
 #if PLATFORM_ANDROID
-using UnityEngine.Android;
 #endif
 public class MapDownload : MonoBehaviour
 {
@@ -230,7 +197,7 @@ public class MapDownload : MonoBehaviour
         await j.RunJobAsync();
     }
 
-    public async void RequestLocationPermissionAndFetchPublicMapsAsync()
+    public void RequestLocationPermissionAndFetchPublicMapsAsync()
     {
         // Check if the user has location service enabled
         // if (!Input.location.isEnabledByUser)
