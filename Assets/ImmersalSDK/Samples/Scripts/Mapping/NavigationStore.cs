@@ -23,7 +23,7 @@ public class NavigationTargetContent : MovableContent
     // name of the navigation target
     public override void StoreContent()
     {
-        string targetName = this.GetComponent<IsNavigationTarget>().targetName;
+        string targetName = StaticData.TargetName;
 
         // Serialize the position to a format suitable for Firestore
         Vector3 position = transform.position;

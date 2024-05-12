@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1214,7 +1214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12a6b90440b704e05a690c049108c933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Let_map_id_set_itself: 1
+  Let_map_id_set_itself: 0
   ARSpace_transform: {fileID: 207243063}
 --- !u!4 &65801711
 Transform:
@@ -4816,7 +4816,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1906012384}
         m_TargetAssemblyTypeName: TargetName.ChangeTargetName, ImmersalSDK
         m_MethodName: UpdateTargetName
-        m_Mode: 5
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4827,7 +4827,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 535443600}
         m_TargetAssemblyTypeName: Immersal.Samples.Navigation.AddNode, ImmersalSDK
-        m_MethodName: EnablePopUp
+        m_MethodName: CallMeMaybe
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8306,6 +8306,18 @@ MonoBehaviour:
       - m_Target: {fileID: 535443599}
         m_TargetAssemblyTypeName: ClickBottomPanel, ImmersalSDK
         m_MethodName: TaskOnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 535443600}
+        m_TargetAssemblyTypeName: Immersal.Samples.Navigation.AddNode, ImmersalSDK
+        m_MethodName: EnablePopUp
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17007,15 +17019,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3249027207588903741, guid: 782e4b251bc604c4cade25196558338e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -0.02
       objectReference: {fileID: 0}
     - target: {fileID: 3249027207588903741, guid: 782e4b251bc604c4cade25196558338e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 0.004
       objectReference: {fileID: 0}
     - target: {fileID: 3249027207588903741, guid: 782e4b251bc604c4cade25196558338e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: -0.23
       objectReference: {fileID: 0}
     - target: {fileID: 3974952079007792810, guid: 782e4b251bc604c4cade25196558338e, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -20984,7 +20996,7 @@ MonoBehaviour:
   targetObject: {fileID: 5414835429011125150, guid: 42eb4d1475376514cba38965b11157f1, type: 3}
   overrideMaterial: {fileID: 2100000, guid: 4b1676ccd9735374aba60f6f4bb8ca74, type: 2}
   m_NodeToAdd: 0
-  popUpPanel: {fileID: 0}
+  popUpPanel: {fileID: 1906012380}
 --- !u!1001 &1612671280
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24420,14 +24432,14 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1906012380}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.00007245325, y: -0.000015746407, z: 0.00084247394, w: 0.99999964}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1685321296}
   m_Father: {fileID: 1377195111}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0.008, y: -0.002, z: 0.097}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -24484,6 +24496,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetObject: {fileID: 5414835429011125150, guid: 42eb4d1475376514cba38965b11157f1, type: 3}
+  panel: {fileID: 1906012380}
   inputField: {fileID: 1555876934}
 --- !u!1 &1915201076
 GameObject:

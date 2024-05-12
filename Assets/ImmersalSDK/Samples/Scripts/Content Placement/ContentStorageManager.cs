@@ -453,10 +453,7 @@ namespace Immersal.Samples.ContentPlacement
                                 Convert.ToSingle(rotationMap["w"])
                             );
 
-
-
                             int mapID = Int32.Parse(documentData["mapID"].ToString());
-
 
                             if (!documentData.ContainsKey("targetName"))
                             {
@@ -466,29 +463,23 @@ namespace Immersal.Samples.ContentPlacement
                             Dictionary<string, object> targetNameMap =
                                 documentData["targetName"] as Dictionary<string, object>;
 
-
                             // Instantiating the content prefab and setting its properties
 
-                            GameObject go = Instantiate(NavPrefab, pos, rot, m_ARSpace.transform);
+                            StaticData.TargetName = targetNameMap["targetName"] as string;
+                            GameObject go =  Instantiate(NavPrefab, pos, rot, m_ARSpace.transform);
 
-
-
+                            Debug.Log(targetNameMap["targetName"] as string + "this is the most important dick");
                             go.GetComponent<IsNavigationTarget>().targetName =
                                 targetNameMap["targetName"] as string;
 
-
                             go.GetComponent<MovableContent>().m_contentId = document.Id;
                             go.SetActive(false);
-
-
 
                             // Add id of document to the game object
                         }
                     }
                 });
         }
-
-
 
         private void FetchAndDownloadImageContent()
         {

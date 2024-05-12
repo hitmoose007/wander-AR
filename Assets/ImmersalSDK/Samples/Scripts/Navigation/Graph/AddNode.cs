@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Immersal.AR;
 using TMPro;
-using Codice.Client.BaseCommands.Update.Fast.Transformers;
 
 namespace Immersal.Samples.Navigation
 {
@@ -14,16 +13,19 @@ namespace Immersal.Samples.Navigation
     {
         [SerializeField]
         private GameObject waypointObject = null;
+
         [SerializeField]
         private GameObject targetObject = null;
+
         [SerializeField]
         private Material overrideMaterial = null;
 
-
         private enum NodeToAdd
         {
-            Waypoint, Target
+            Waypoint,
+            Target
         };
+
         [SerializeField]
         private NodeToAdd m_NodeToAdd = NodeToAdd.Waypoint;
 
@@ -47,7 +49,7 @@ namespace Immersal.Samples.Navigation
             mainCamera = Camera.main;
             arspace = FindObjectOfType<ARSpace>();
 
-            if(isPopUpActive == false)
+            if (isPopUpActive == false)
             {
                 popUpPanel.SetActive(false);
             }
@@ -55,7 +57,10 @@ namespace Immersal.Samples.Navigation
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode)
+            if (
+                Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode
+                && m_NodeToAdd == NodeToAdd.Waypoint
+            )
             {
                 isPressed = true;
                 randomRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -66,7 +71,11 @@ namespace Immersal.Samples.Navigation
         {
             isPressed = false;
 
-            if (Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode && arspace != null)
+            if (
+                Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode
+                && arspace != null
+                && m_NodeToAdd == NodeToAdd.Waypoint
+            )
             {
                 GameObject finalNodeInstance;
 
@@ -77,7 +86,42 @@ namespace Immersal.Samples.Navigation
                         break;
                     case NodeToAdd.Target:
                         finalNodeInstance = Instantiate(targetObject, arspace.transform);
-                        EnablePopUp();
+                        // EnablePopUp();
+                        break;
+                    default:
+                        finalNodeInstance = Instantiate(waypointObject, arspace.transform);
+                        break;
+                }
+
+                pos = mainCamera.transform.position + mainCamera.transform.forward * 1.5f;
+                Vector3 x = Vector3.Cross(Vector3.up, mainCamera.transform.forward);
+                Vector3 z = Vector3.Cross(x, Vector3.up);
+                rot = Quaternion.LookRotation(z, Vector3.up) * randomRotation;
+
+                finalNodeInstance.transform.position = pos;
+                finalNodeInstance.transform.rotation = rot;
+            }
+        }
+
+        public void CallMeMaybe()
+        {
+            isPressed = false;
+
+            if (
+                Immersal.Samples.Navigation.NavigationManager.Instance.inEditMode && arspace != null
+            )
+            {
+                GameObject finalNodeInstance;
+
+            Debug.Log("this is the call me maybe" + StaticData.TargetName);
+                switch (m_NodeToAdd)
+                {
+                    case NodeToAdd.Waypoint:
+                        finalNodeInstance = Instantiate(waypointObject, arspace.transform);
+                        break;
+                    case NodeToAdd.Target:
+                        finalNodeInstance = Instantiate(targetObject, arspace.transform);
+                        // EnablePopUp();
                         break;
                     default:
                         finalNodeInstance = Instantiate(waypointObject, arspace.transform);
@@ -107,6 +151,5 @@ namespace Immersal.Samples.Navigation
                 popUpPanel.SetActive(false);
             }
         }
-
-    }  
+    }
 }
