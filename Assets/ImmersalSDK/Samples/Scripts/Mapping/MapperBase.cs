@@ -681,14 +681,31 @@ namespace Immersal.Samples.Mapping
 
                 db = FirebaseFirestore.DefaultInstance;
                 DocumentReference docRef = db.Collection("map").Document();
-                Dictionary<string, object> map = new Dictionary<string, object>
+                Dictionary<string, object> map;
+                if (StaticData.MapperSceneIsMapPrivate == false)
                 {
-                    { "id", result.id },
-                    { "email", StaticData.userEmail },
-                    { "name", StaticData.MapperSceneMapName },
-                    { "private", StaticData.MapperSceneIsMapPrivate },
-                    { "thumbnail_reference", image_path }
-                };
+                    map = new Dictionary<string, object>
+                    {
+                        { "id", result.id },
+                        { "email", StaticData.userEmail },
+                        { "name", StaticData.MapperSceneMapName },
+                        { "private", StaticData.MapperSceneIsMapPrivate },
+                        { "thumbnail_reference", image_path },
+                        { "latitude", m_Latitude.ToString() },
+                        { "longitude", m_Longitude.ToString() },
+                    };
+                }
+                else
+                {
+                    map = new Dictionary<string, object>
+                    {
+                        { "id", result.id },
+                        { "email", StaticData.userEmail },
+                        { "name", StaticData.MapperSceneMapName },
+                        { "private", StaticData.MapperSceneIsMapPrivate },
+                        { "thumbnail_reference", image_path }
+                    };
+                }
 
                 await docRef.SetAsync(map);
                 JobSetPrivacyAsync privacyJob = new JobSetPrivacyAsync();

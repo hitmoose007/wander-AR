@@ -208,7 +208,7 @@ namespace Immersal.Samples.Mapping
 
         public void SetMapPrivate(bool value)
         {
-            StaticData.MapperSceneIsMapPrivate = value;
+            StaticData.MapperSceneIsMapPrivate = !value;
         }
 
         public void SetShowPointClouds(bool value)
