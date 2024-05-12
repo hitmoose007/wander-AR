@@ -460,7 +460,7 @@ MonoBehaviour:
     m_Height: 955
   - m_X: 343
     m_Y: 0
-    m_Width: 680
+    m_Width: 1023
     m_Height: 1023
   - m_X: 136
     m_Y: 80
@@ -611,9 +611,9 @@ Texture2D:
   m_DownscaleFallback: 0
   m_IsAlphaChannelOptional: 0
   serializedVersion: 2
-  m_Width: 1024
-  m_Height: 1024
-  m_CompleteImageSize: 1048576
+  m_Width: 0
+  m_Height: 0
+  m_CompleteImageSize: 0
   m_MipsStripped: 0
   m_TextureFormat: 1
   m_MipCount: 1

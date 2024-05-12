@@ -22,8 +22,7 @@ public class MapSelect : MonoBehaviour
         // Set the map id in the PlayerPrefs
         if (jobState == SDKJobState.Done)
         {
-            Debug.Log("Map id: " + mapId);
-            Debug.Log("Map is private: " + isMapPrivate);
+            
             
             StaticData.ContentSceneIsMapPrivate = isMapPrivate;
             StaticData.MapperSceneIsMapPrivate = false;
