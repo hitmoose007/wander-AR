@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "ARVR-proj.sln"
+    "dotnet.defaultSolution": "wander-AR.sln"
 }
