@@ -11,6 +11,42 @@ using UnityEngine.UI;
 using Immersal.REST;
 using UnityEngine.Android;
 
+using System.IO;
+using System.Threading.Tasks;
+using Immersal.AR;
+using Immersal.REST;
+using Immersal.Samples.Util;
+using UnityEngine.Events;
+
+using Firebase;
+using Firebase.Firestore;
+using Firebase.Storage;
+using System.Data.Common;
+using Firebase.Extensions;
+using System.Linq;
+using Immersal.Samples.Mapping;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.UI;
+using Immersal.AR;
+using Immersal.REST;
+using Immersal.Samples.Util;
+using UnityEngine.Events;
+
+using Firebase;
+using Firebase.Firestore;
+using Firebase.Storage;
+using System.Data.Common;
+using Firebase.Extensions;
+using System.Linq;
+#if PLATFORM_ANDROID
+using UnityEngine.Android;
+#endif
 public class MapDownload : MonoBehaviour
 {
     public GameObject listItemPrefab;
@@ -26,6 +62,11 @@ public class MapDownload : MonoBehaviour
     {
         db = FirebaseFirestore.DefaultInstance;
         firebase_storage = FirebaseStorage.DefaultInstance;
+    }
+
+    void Update()
+    {
+        UpdateLocation();
     }
 
     public async void DownloadMaps()
@@ -192,66 +233,68 @@ public class MapDownload : MonoBehaviour
     public async void RequestLocationPermissionAndFetchPublicMapsAsync()
     {
         // Check if the user has location service enabled
-        if (!Input.location.isEnabledByUser)
-        {
-            Debug.LogWarning("Location service is not enabled by user.");
-            return;
-        }
+        // if (!Input.location.isEnabledByUser)
+        // {
+        //     Debug.LogWarning("Location service is not enabled by user.");
+        //     return;
+        // }
 
-        // Request user permission for location
-        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
-        {
-            Permission.RequestUserPermission(Permission.FineLocation);
+        // // Request user permission for location
+        // if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        // {
+        //     Permission.RequestUserPermission(Permission.FineLocation);
 
-            // Wait until the user grants or denies permission
-            while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
-            {
-                await System.Threading.Tasks.Task.Yield();
-            }
-        }
+        //     // Wait until the user grants or denies permission
+        //     while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        //     {
+        //         await System.Threading.Tasks.Task.Yield();
+        //     }
+        // }
 
-        // Check if the user granted permission
-        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
-        {
-            Debug.LogError("User denied location permission.");
-            return;
-        }
+        // // Check if the user granted permission
+        // if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        // {
+        //     Debug.LogError("User denied location permission.");
+        //     return;
+        // }
 
-        // Start location service
-        Input.location.Start();
+        // // Start location service
+        // Input.location.Start();
 
-        // Wait until the location service initializes
-        int maxWait = 20;
-        while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
-        {
-            await System.Threading.Tasks.Task.Delay(1000);
-            maxWait--;
-        }
+        // // Wait until the location service initializes
+        // int maxWait = 20;
+        // while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
+        // {
+        //     await System.Threading.Tasks.Task.Delay(1000);
+        //     maxWait--;
+        // }
 
-        // Check if the location service initialized successfully
-        if (maxWait < 1)
-        {
-            Debug.LogError("Timed out waiting for location service to initialize.");
-            return;
-        }
+        // // Check if the location service initialized successfully
+        // if (maxWait < 1)
+        // {
+        //     Debug.LogError("Timed out waiting for location service to initialize.");
+        //     return;
+        // }
 
-        // Check if the location service started successfully
-        if (Input.location.status == LocationServiceStatus.Failed)
-        {
-            Debug.LogError("Unable to determine device location.");
-            return;
-        }
+        // // Check if the location service started successfully
+        // if (Input.location.status == LocationServiceStatus.Failed)
+        // {
+        //     Debug.LogError("Unable to determine device location.");
+        //     return;
+        // }
 
-        // Retrieve the device's current location
-        LocationInfo locationInfo = Input.location.lastData;
-        Debug.Log("Location: " + locationInfo.latitude + ", " + locationInfo.longitude);
+        // // Retrieve the device's current location
+        // LocationInfo locationInfo = Input.location.lastData;
+        // Debug.Log("Location: " + locationInfo.latitude + ", " + locationInfo.longitude);
 
         // Fetch public maps after getting the current location
+        StartGPS();
         FetchPublicMaps();
     }
 
     public async void FetchPublicMaps()
     {
+        Debug.Log("Fetching public maps");
         //get user location
 
         double latDelta = 0.001; // approx 1.11 km per degree latitude
@@ -283,11 +326,11 @@ public class MapDownload : MonoBehaviour
                         double mapLatitude = Convert.ToDouble(mapData["latitude"]);
                         double mapLongitude = Convert.ToDouble(mapData["longitude"]);
 
-                        double maxLatitude = currentLatitude + latDelta;
-                        double minLatitude = currentLatitude- latDelta;
+                        double maxLatitude = m_Latitude + latDelta;
+                        double minLatitude = m_Latitude - latDelta;
 
-                        double maxLongitude = currentLongitude+ lngDelta;
-                        double minLongitude = currentLongitude- lngDelta;
+                        double maxLongitude = m_Longitude + lngDelta;
+                        double minLongitude = m_Longitude - lngDelta;
 
                         // Check if the map's latitude and longitude are within the delta range
                         if (
@@ -412,71 +455,128 @@ public class MapDownload : MonoBehaviour
         }
     }
 
-    // public async void Jobs()
+    public UnityEvent onConnect = null;
+    public UnityEvent onFailedToConnect = null;
+    public UnityEvent onImageLimitExceeded = null;
+
+    public MapperStats stats { get; protected set; } = new MapperStats();
+
+    protected double m_Latitude = 0.0;
+    protected double m_Longitude = 0.0;
+    protected double m_Altitude = 0.0;
+    protected double m_Haccuracy = 0.0;
+    protected double m_Vaccuracy = 0.0;
+    protected double m_VLatitude = 0.0;
+    protected double m_VLongitude = 0.0;
+    protected double m_VAltitude = 0.0;
+
+    public bool gpsOn
+    {
+        get { return Input.location.status == LocationServiceStatus.Running; }
+    }
+
+    public string tempImagePath
+    {
+        get { return string.Format("{0}/Images", Application.persistentDataPath); }
+    }
+
+    // public void OnGPSToggleChanged(bool value)
     // {
-    //     JobListJobsAsync j = new JobListJobsAsync();
-
-    //     // if (mapperSettings.listOnlyNearbyMaps)
-    //     // {
-    //     //     j.useGPS = true;
-    //     //     j.latitude = m_Latitude;
-    //     //     j.longitude = m_Longitude;
-    //     //     j.radius = DefaultRadius;
-    //     // }
-
-    //     // foreach (int id in ARSpace.mapIdToMap.Keys)
-    //     // {
-    //     //     activeMaps.Add(id);
-    //     // }
-
-    //     j.OnResult += (SDKJobsResult result) =>
+    //     if (value)
     //     {
-    //         List<SDKJob> jobList = new List<SDKJob>();
-    //         foreach (SDKJob job in result.jobs)
-    //         {
-    //             if (job.type != (int)SDKJobType.Alignment)
-    //             {
-    //                 jobList.Add(job);
-    //             }
-    //         }
-
-    //         //make int array
-    //         List<SDKJob> filteredJobs = new List<SDKJob>();
-    //         List<int> firebaseMapsId = new List<int>();
-    //         //use firestore document fetch dont check dependency
-    //         db = FirebaseFirestore.DefaultInstance;
-    //         db.Collection("map")
-    //             .WhereEqualTo("email", StaticData.userEmail)
-    //             .GetSnapshotAsync()
-    //             .ContinueWithOnMainThread(task =>
-    //             {
-    //                 QuerySnapshot snapshot = task.Result;
-    //                 foreach (DocumentSnapshot document in snapshot.Documents)
-    //                 {
-    //                     Dictionary<string, object> map = document.ToDictionary();
-    //                     Debug.Log(map["id"]);
-    //                     if (map["email"].ToString() == PlayerPrefs.GetString("email"))
-    //                     {
-    //                         firebaseMapsId.Add(int.Parse(map["id"].ToString()));
-    //                     }
-    //                     foreach (SDKJob job in jobList)
-    //                     {
-    //                         foreach (int firebaseMapId in firebaseMapsId)
-    //                         {
-    //                             if (job.id == firebaseMapId)
-    //                             {
-    //                                 filteredJobs.Add(job);
-    //                             }
-    //                         }
-    //                     }
-
-    //                     // this.visualizeManager.SetMapListData(filteredJobs.ToArray(), activeMaps);
-    //                 }
-    //             });
-
-    //         //only extract the job list data with matching ids with
-    //     };
-
-    //     await j.RunJobAsync();
+    //         Invoke("StartGPS", 0.1f);
+    //     }
+    //     else
+    //     {
+    //         Invoke("StopGPS", 0.1f);
+    //     }
     // }
+
+#if PLATFORM_ANDROID
+    private IEnumerator WaitForLocationPermission()
+    {
+        while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        {
+            
+            yield return null;
+        }
+
+        Debug.Log("Location permission OK");
+        StartCoroutine(EnableLocationServices());
+        yield return null;
+    }
+#endif
+
+    public void StartGPS()
+    {
+        if (Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        {
+            Debug.Log("Location permission OK");
+            StartCoroutine(EnableLocationServices());
+        }
+        else
+        {
+            Permission.RequestUserPermission(Permission.FineLocation);
+            StartCoroutine(WaitForLocationPermission());
+        }
+    }
+
+    public void StopGPS()
+    {
+        Input.location.Stop();
+        NotificationManager.Instance.GenerateNotification("Geolocation tracking stopped");
+    }
+
+    private IEnumerator EnableLocationServices()
+    {
+        // First, check if user has location service enabled
+        if (!Input.location.isEnabledByUser)
+        {
+            Debug.Log("Location services not enabled");
+            yield break;
+        }
+
+        // Start service before querying location
+        Input.location.Start(0.001f, 0.001f);
+
+        // Wait until service initializes
+        int maxWait = 20;
+        while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
+        {
+            yield return new WaitForSeconds(1);
+            maxWait--;
+        }
+
+        // Service didn't initialize in 20 seconds
+        if (maxWait < 1)
+        {
+            NotificationManager.Instance.GenerateNotification("Location services timed out");
+            Debug.Log("Timed out");
+            yield break;
+        }
+
+        // Connection has failed
+        if (Input.location.status == LocationServiceStatus.Failed)
+        {
+            Debug.Log("Unable to determine device location");
+            yield break;
+        }
+
+        if (Input.location.status == LocationServiceStatus.Running)
+        {
+            Debug.Log("tracking location");
+        }
+    }
+
+    void UpdateLocation()
+    {
+        if (gpsOn)
+        {
+            m_Latitude = Input.location.lastData.latitude;
+            m_Longitude = Input.location.lastData.longitude;
+            m_Altitude = Input.location.lastData.altitude;
+            m_Haccuracy = Input.location.lastData.horizontalAccuracy;
+            m_Vaccuracy = Input.location.lastData.verticalAccuracy;
+        }
+    }
 }
