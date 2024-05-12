@@ -301,13 +301,13 @@ public class MapDownload : MonoBehaviour
                         double minLongitude = m_Longitude - lngDelta;
 
                         // Check if the map's latitude and longitude are within the delta range
-                        // if (
-                        //     mapLatitude >= minLatitude
-                        //     && mapLatitude <= maxLatitude
-                        //     && mapLongitude >= minLongitude
-                        //     && mapLongitude <= maxLongitude
-                        // )
-                        //{
+                        if (
+                            mapLatitude >= minLatitude
+                            && mapLatitude <= maxLatitude
+                            && mapLongitude >= minLongitude
+                            && mapLongitude <= maxLongitude
+                        )
+                        {
                         // The map is within the specified range, proceed with further processing
                         GameObject item = Instantiate(listItemPrefab, listItemHolder);
 
@@ -374,7 +374,7 @@ public class MapDownload : MonoBehaviour
                         item.GetComponent<MapSelect>().jobState = SDKJobState.Done;
 
                         Debug.Log("Successfully loaded Firestore Image document.");
-                        //}
+                        }
                     }
                 }
             });
