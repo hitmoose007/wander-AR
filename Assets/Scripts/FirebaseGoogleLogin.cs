@@ -27,13 +27,8 @@ public class FirebaseGoogleLogin : MonoBehaviour
     private Firebase.DependencyStatus dependencyStatus = Firebase.DependencyStatus.UnavailableOther;
     private FirebaseAuth auth;
     private FirebaseUser user;
-    public Text UsernameTxt,
-        UserEmailTxt;
-    public Image UserProfilePic;
 
     private bool newUser;
-    public Text register;
-    public string imageUrl;
     public GameObject LoginScreen,
         ProfileScreen;
 
@@ -120,8 +115,6 @@ public class FirebaseGoogleLogin : MonoBehaviour
             newUser = !ExistingUserDoc.Exists;
 
             // Proceed with updating the UI
-            UsernameTxt.text = user.DisplayName;
-            UserEmailTxt.text = user.Email;
             LoginScreen.SetActive(false);
             ProfileScreen.SetActive(true);
 
@@ -129,7 +122,6 @@ public class FirebaseGoogleLogin : MonoBehaviour
             {
                 GoogleSignIn.DefaultInstance.SignOut();
                 string randomPassword = StrongPasswordGenerator.Generate(8);
-                register.text = "New User";
                 JobRegisterAsync j = new JobRegisterAsync();
                 j.email = user.Email;
                 j.password = randomPassword;
