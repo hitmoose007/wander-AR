@@ -22,7 +22,7 @@ public class UserInfo : MonoBehaviour
     {
         db = FirebaseFirestore.DefaultInstance;
 
-        userPanel.transform.localScale = new Vector3(0,0,0);
+        userPanel.transform.localScale = new Vector3(0, 0, 0);
         isActive = false;
     }
 
@@ -31,63 +31,66 @@ public class UserInfo : MonoBehaviour
         if (isActive == false)
         {
             isActive = true;
-            userPanel.transform.localScale = new Vector3(1,1,1);
+            userPanel.transform.localScale = new Vector3(1, 1, 1);
 
-            GameObject username = userPanel.transform.GetChild(0).transform.Find("Username Panel").gameObject.transform.Find("Username Input").gameObject;
-            GameObject password = userPanel.transform.GetChild(0).transform.Find("Password Panel").gameObject.transform.Find("Password Input").gameObject;
-                
+            GameObject username = userPanel.transform
+                .GetChild(0)
+                .transform.Find("Username Panel")
+                .gameObject.transform.Find("Username Input")
+                .gameObject;
+            GameObject password = userPanel.transform
+                .GetChild(0)
+                .transform.Find("Password Panel")
+                .gameObject.transform.Find("Password Input")
+                .gameObject;
+
             // Set email from static data
             string email = StaticData.userEmail;
 
             await db.Collection("user")
-            .WhereEqualTo("email", email)
-            .GetSnapshotAsync()
-            .ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
+                .WhereEqualTo("email", email)
+                .GetSnapshotAsync()
+                .ContinueWithOnMainThread(task =>
                 {
-                    Debug.LogError("Error fetching collection documents: " + task.Exception);
-                    return;
-                }
-
-                QuerySnapshot allUsersQuerySnapshot = task.Result;
-
-                foreach (DocumentSnapshot documentSnapshot in allUsersQuerySnapshot.Documents)
-                {
-                    if (documentSnapshot.Exists)
+                    if (task.IsFaulted)
                     {
-                        Dictionary<string, object> userData = documentSnapshot.ToDictionary();
-                        
-                        // Retrieve username from Firebase
-                        if (userData.ContainsKey("name") == true)
-                        {
-                            username.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = userData["name"].ToString();   
-                        }
-                        else
-                        {
-                            Debug.LogError("No username found for user:" + email);
-                        }
-                        
-                        // Retrieve password from Firebase
-                        if (userData.ContainsKey("password") == true)
-                        {
-                            password.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = userData["password"].ToString();
-                        }
-                        else
-                        {
-                            Debug.LogError("No password found for user: " + email);
-                        }
-
+                        Debug.LogError("Error fetching collection documents: " + task.Exception);
+                        return;
                     }
-                }
-            });
+
+                    QuerySnapshot allUsersQuerySnapshot = task.Result;
+
+                    foreach (DocumentSnapshot documentSnapshot in allUsersQuerySnapshot.Documents)
+                    {
+                        if (documentSnapshot.Exists)
+                        {
+                            Dictionary<string, object> userData = documentSnapshot.ToDictionary();
+
+                            // Retrieve username from Firebase
+                            username.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text =
+                                email.ToString();
+
+                            // Retrieve password from Firebase
+                            if (userData.ContainsKey("password") == true)
+                            {
+                                password.transform
+                                    .GetChild(0)
+                                    .GetComponent<TextMeshProUGUI>()
+                                    .text = userData["password"].ToString();
+                            }
+                            else
+                            {
+                                Debug.LogError("No password found for user: " + email);
+                            }
+                        }
+                    }
+                });
         }
         else
         {
-            userPanel.transform.localScale = new Vector3(0,0,0);
-       
+            userPanel.transform.localScale = new Vector3(0, 0, 0);
+
             isActive = false;
         }
     }
-
 }
