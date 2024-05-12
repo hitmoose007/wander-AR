@@ -46,7 +46,7 @@ namespace TargetName
         }
 
         // Method to update the targetName when the TMP Input Field's value changes
-        private void UpdateTargetName(string newName)
+        public void UpdateTargetName(string newName)
         {
             if (navigationTarget != null)
             {

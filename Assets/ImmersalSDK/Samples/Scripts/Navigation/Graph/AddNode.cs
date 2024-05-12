@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Immersal.AR;
 using TMPro;
+using Codice.Client.BaseCommands.Update.Fast.Transformers;
 
 namespace Immersal.Samples.Navigation
 {
@@ -17,8 +18,7 @@ namespace Immersal.Samples.Navigation
         private GameObject targetObject = null;
         [SerializeField]
         private Material overrideMaterial = null;
-        
-        
+
 
         private enum NodeToAdd
         {
@@ -38,11 +38,19 @@ namespace Immersal.Samples.Navigation
 
         private ARSpace arspace = null;
 
+        bool isPopUpActive = false;
+        public GameObject popUpPanel;
+
         void Start()
         {
             button = GetComponent<Button>();
             mainCamera = Camera.main;
             arspace = FindObjectOfType<ARSpace>();
+
+            if(isPopUpActive == false)
+            {
+                popUpPanel.SetActive(false);
+            }
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -69,6 +77,7 @@ namespace Immersal.Samples.Navigation
                         break;
                     case NodeToAdd.Target:
                         finalNodeInstance = Instantiate(targetObject, arspace.transform);
+                        EnablePopUp();
                         break;
                     default:
                         finalNodeInstance = Instantiate(waypointObject, arspace.transform);
@@ -84,5 +93,20 @@ namespace Immersal.Samples.Navigation
                 finalNodeInstance.transform.rotation = rot;
             }
         }
-    }
+
+        public void EnablePopUp()
+        {
+            if (isPopUpActive == false)
+            {
+                isPopUpActive = true;
+                popUpPanel.SetActive(true);
+            }
+            else
+            {
+                isPopUpActive = false;
+                popUpPanel.SetActive(false);
+            }
+        }
+
+    }  
 }
