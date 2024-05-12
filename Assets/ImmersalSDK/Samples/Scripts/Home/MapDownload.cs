@@ -9,7 +9,44 @@ using System;
 using TMPro;
 using UnityEngine.UI;
 using Immersal.REST;
+using UnityEngine.Android;
 
+using System.IO;
+using System.Threading.Tasks;
+using Immersal.AR;
+using Immersal.REST;
+using Immersal.Samples.Util;
+using UnityEngine.Events;
+
+using Firebase;
+using Firebase.Firestore;
+using Firebase.Storage;
+using System.Data.Common;
+using Firebase.Extensions;
+using System.Linq;
+using Immersal.Samples.Mapping;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.UI;
+using Immersal.AR;
+using Immersal.REST;
+using Immersal.Samples.Util;
+using UnityEngine.Events;
+
+using Firebase;
+using Firebase.Firestore;
+using Firebase.Storage;
+using System.Data.Common;
+using Firebase.Extensions;
+using System.Linq;
+#if PLATFORM_ANDROID
+using UnityEngine.Android;
+#endif
 public class MapDownload : MonoBehaviour
 {
     public GameObject listItemPrefab;
@@ -18,10 +55,18 @@ public class MapDownload : MonoBehaviour
     FirebaseFirestore db;
     FirebaseStorage firebase_storage;
 
+    double currentLatitude;
+    double currentLongitude;
+
     void Start()
     {
         db = FirebaseFirestore.DefaultInstance;
         firebase_storage = FirebaseStorage.DefaultInstance;
+    }
+
+    void Update()
+    {
+        UpdateLocation();
     }
 
     public async void DownloadMaps()
@@ -185,8 +230,76 @@ public class MapDownload : MonoBehaviour
         await j.RunJobAsync();
     }
 
+    public async void RequestLocationPermissionAndFetchPublicMapsAsync()
+    {
+        // Check if the user has location service enabled
+        // if (!Input.location.isEnabledByUser)
+        // {
+        //     Debug.LogWarning("Location service is not enabled by user.");
+        //     return;
+        // }
+
+        // // Request user permission for location
+        // if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        // {
+        //     Permission.RequestUserPermission(Permission.FineLocation);
+
+        //     // Wait until the user grants or denies permission
+        //     while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        //     {
+        //         await System.Threading.Tasks.Task.Yield();
+        //     }
+        // }
+
+        // // Check if the user granted permission
+        // if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        // {
+        //     Debug.LogError("User denied location permission.");
+        //     return;
+        // }
+
+        // // Start location service
+        // Input.location.Start();
+
+        // // Wait until the location service initializes
+        // int maxWait = 20;
+        // while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
+        // {
+        //     await System.Threading.Tasks.Task.Delay(1000);
+        //     maxWait--;
+        // }
+
+        // // Check if the location service initialized successfully
+        // if (maxWait < 1)
+        // {
+        //     Debug.LogError("Timed out waiting for location service to initialize.");
+        //     return;
+        // }
+
+        // // Check if the location service started successfully
+        // if (Input.location.status == LocationServiceStatus.Failed)
+        // {
+        //     Debug.LogError("Unable to determine device location.");
+        //     return;
+        // }
+
+        // // Retrieve the device's current location
+        // LocationInfo locationInfo = Input.location.lastData;
+        // Debug.Log("Location: " + locationInfo.latitude + ", " + locationInfo.longitude);
+
+        // Fetch public maps after getting the current location
+        StartGPS();
+        FetchPublicMaps();
+    }
+
     public async void FetchPublicMaps()
     {
+        Debug.Log("Fetching public maps");
+        //get user location
+
+        double latDelta = 0.001; // approx 1.11 km per degree latitude
+        double lngDelta = 0.001; // approx 0.7 km per degree longitude (varie
+
         List<SDKJob> filteredJobs = new List<SDKJob>();
         List<int> firebaseMapsId = new List<int>();
 
@@ -206,159 +319,98 @@ public class MapDownload : MonoBehaviour
                 foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
                 {
                     Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
-                    GameObject item = Instantiate(listItemPrefab, listItemHolder);
 
-                    // Setting name of map item to id of Firestore document
-                    item.name = documentSnapshot.Id;
-
-                    GameObject statusPanel = item.transform.GetChild(4).gameObject;
-                    statusPanel.SetActive(false);
-
-                    if (mapData.ContainsKey("name") == false)
+                    // Check if the latitude and longitude keys exist in the mapData dictionary
+                    if (mapData.ContainsKey("latitude") && mapData.ContainsKey("longitude"))
                     {
-                        Debug.LogWarning("Map name");
-                        continue;
-                    }
-                    item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
-                        "name"
-                    ].ToString();
+                        double mapLatitude = Convert.ToDouble(mapData["latitude"]);
+                        double mapLongitude = Convert.ToDouble(mapData["longitude"]);
 
-                    item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
+                        double maxLatitude = m_Latitude + latDelta;
+                        double minLatitude = m_Latitude - latDelta;
 
-                    if (mapData.ContainsKey("thumbnail_reference") == false)
-                    {
-                        Debug.LogWarning("Map thumbnail not found");
-                        continue;
-                    }
+                        double maxLongitude = m_Longitude + lngDelta;
+                        double minLongitude = m_Longitude - lngDelta;
 
-                    string image_ref_path = mapData["thumbnail_reference"] as string;
-                    Texture2D texture = null;
-                    Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
-                    {
-                        texture = newTexture; // Assign the new texture to your original texture variable
-                        if (texture == null)
+                        // Check if the map's latitude and longitude are within the delta range
+                        if (
+                            mapLatitude >= minLatitude
+                            && mapLatitude <= maxLatitude
+                            && mapLongitude >= minLongitude
+                            && mapLongitude <= maxLongitude
+                        )
                         {
-                            Debug.Log("Couldn't load texture from " + image_ref_path);
-                            return;
-                        }
-                    };
+                            // The map is within the specified range, proceed with further processing
+                            GameObject item = Instantiate(listItemPrefab, listItemHolder);
 
-                    firebase_storage
-                        .GetReference(image_ref_path)
-                        .GetDownloadUrlAsync()
-                        .ContinueWithOnMainThread(task =>
-                        {
-                            if (!task.IsFaulted && !task.IsCanceled)
+                            // Setting name of map item to id of Firestore document
+                            item.name = documentSnapshot.Id;
+
+                            GameObject statusPanel = item.transform.GetChild(4).gameObject;
+                            statusPanel.SetActive(false);
+
+                            if (mapData.ContainsKey("name") == false)
                             {
-                                string downloadUrl = task.Result.ToString();
-                                // Proceed to download the image and convert it into a Texture2D
-                                if (gameObject.activeInHierarchy)
+                                Debug.LogWarning("Map name");
+                                continue;
+                            }
+                            item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text =
+                                mapData["name"].ToString();
+
+                            item.GetComponent<MapSelect>().mapId = int.Parse(
+                                mapData["id"].ToString()
+                            );
+
+                            if (mapData.ContainsKey("thumbnail_reference") == false)
+                            {
+                                Debug.LogWarning("Map thumbnail not found");
+                                continue;
+                            }
+
+                            string image_ref_path = mapData["thumbnail_reference"] as string;
+                            Texture2D texture = null;
+                            Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
+                            {
+                                texture = newTexture; // Assign the new texture to your original texture variable
+                                if (texture == null)
                                 {
-                                    StartCoroutine(
-                                        DownloadImage(downloadUrl, OnTextureLoaded, item)
-                                    );
+                                    Debug.Log("Couldn't load texture from " + image_ref_path);
+                                    return;
                                 }
-                            }
-                            else
-                            {
-                                Debug.LogError("Failed to get download URL.");
-                            }
-                        });
+                            };
 
-                    //save job state to item
-                    item.GetComponent<MapSelect>().isMapPrivate = false;
-                    item.GetComponent<MapSelect>().jobState = SDKJobState.Done;
+                            firebase_storage
+                                .GetReference(image_ref_path)
+                                .GetDownloadUrlAsync()
+                                .ContinueWithOnMainThread(task =>
+                                {
+                                    if (!task.IsFaulted && !task.IsCanceled)
+                                    {
+                                        string downloadUrl = task.Result.ToString();
+                                        // Proceed to download the image and convert it into a Texture2D
+                                        if (gameObject.activeInHierarchy)
+                                        {
+                                            StartCoroutine(
+                                                DownloadImage(downloadUrl, OnTextureLoaded, item)
+                                            );
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Debug.LogError("Failed to get download URL.");
+                                    }
+                                });
 
-                    Debug.Log("Successfully loaded Firestore Image document.");
+                            //save job state to item
+                            item.GetComponent<MapSelect>().isMapPrivate = false;
+                            item.GetComponent<MapSelect>().jobState = SDKJobState.Done;
+
+                            Debug.Log("Successfully loaded Firestore Image document.");
+                        }
+                    }
                 }
-                ;
             });
-        // };
-        // await j.RunJobAsync();
     }
-
-    // public async void FetchPrivateMaps()
-    // {
-    //     List<SDKJob> filteredJobs = new List<SDKJob>();
-    //     List<int> firebaseMapsId = new List<int>();
-
-    //     await db.Collection("map")
-    //         .WhereEqualTo("private", true)
-    //         .GetSnapshotAsync()
-    //         .ContinueWithOnMainThread(task =>
-    //         {
-    //             if (task.IsFaulted)
-    //             {
-    //                 Debug.LogError("Error fetching collection documents: " + task.Exception);
-    //                 return;
-    //             }
-
-    //             QuerySnapshot allMapsQuerySnapshot = task.Result;
-
-    //             foreach (DocumentSnapshot documentSnapshot in allMapsQuerySnapshot.Documents)
-    //             {
-    //                 Dictionary<string, object> mapData = documentSnapshot.ToDictionary();
-    //                 GameObject item = Instantiate(listItemPrefab, listItemHolder);
-
-    //                 if (mapData.ContainsKey("name") == false)
-    //                 {
-    //                     Debug.LogWarning("Map name");
-    //                     continue;
-    //                 }
-    //                 item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
-    //                     "name"
-    //                 ].ToString();
-
-    //                 item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
-
-    //                 if (mapData.ContainsKey("thumbnail_reference") == false)
-    //                 {
-    //                     Debug.LogWarning("Map thumbnail not found");
-    //                     continue;
-    //                 }
-
-    //                 string image_ref_path = mapData["thumbnail_reference"] as string;
-    //                 Texture2D texture = null;
-    //                 Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
-    //                 {
-    //                     texture = newTexture; // Assign the new texture to your original texture variable
-    //                     if (texture == null)
-    //                     {
-    //                         Debug.Log("Couldn't load texture from " + image_ref_path);
-    //                         return;
-    //                     }
-    //                 };
-
-    //                 firebase_storage
-    //                     .GetReference(image_ref_path)
-    //                     .GetDownloadUrlAsync()
-    //                     .ContinueWithOnMainThread(task =>
-    //                     {
-    //                         if (!task.IsFaulted && !task.IsCanceled)
-    //                         {
-    //                             string downloadUrl = task.Result.ToString();
-    //                             // Proceed to download the image and convert it into a Texture2D
-    //                             if(gameObject.activeInHierarchy)
-    //                             {
-    //                                   StartCoroutine(DownloadImage(downloadUrl, OnTextureLoaded, item));
-    //                             }
-    //                         }
-    //                         else
-    //                         {
-    //                             Debug.LogError("Failed to get download URL.");
-    //                         }
-    //                     });
-
-    //                 //save job state to item
-
-    //                 Debug.Log("Successfully loaded Firestore Image documents.");
-    //             }
-    //             // }
-    //             ;
-    //         });
-    //     // };
-    //     // await j.RunJobAsync();
-    // }
 
     public void DeleteMap()
     {
@@ -403,71 +455,128 @@ public class MapDownload : MonoBehaviour
         }
     }
 
-    // public async void Jobs()
+    public UnityEvent onConnect = null;
+    public UnityEvent onFailedToConnect = null;
+    public UnityEvent onImageLimitExceeded = null;
+
+    public MapperStats stats { get; protected set; } = new MapperStats();
+
+    protected double m_Latitude = 0.0;
+    protected double m_Longitude = 0.0;
+    protected double m_Altitude = 0.0;
+    protected double m_Haccuracy = 0.0;
+    protected double m_Vaccuracy = 0.0;
+    protected double m_VLatitude = 0.0;
+    protected double m_VLongitude = 0.0;
+    protected double m_VAltitude = 0.0;
+
+    public bool gpsOn
+    {
+        get { return Input.location.status == LocationServiceStatus.Running; }
+    }
+
+    public string tempImagePath
+    {
+        get { return string.Format("{0}/Images", Application.persistentDataPath); }
+    }
+
+    // public void OnGPSToggleChanged(bool value)
     // {
-    //     JobListJobsAsync j = new JobListJobsAsync();
-
-    //     // if (mapperSettings.listOnlyNearbyMaps)
-    //     // {
-    //     //     j.useGPS = true;
-    //     //     j.latitude = m_Latitude;
-    //     //     j.longitude = m_Longitude;
-    //     //     j.radius = DefaultRadius;
-    //     // }
-
-    //     // foreach (int id in ARSpace.mapIdToMap.Keys)
-    //     // {
-    //     //     activeMaps.Add(id);
-    //     // }
-
-    //     j.OnResult += (SDKJobsResult result) =>
+    //     if (value)
     //     {
-    //         List<SDKJob> jobList = new List<SDKJob>();
-    //         foreach (SDKJob job in result.jobs)
-    //         {
-    //             if (job.type != (int)SDKJobType.Alignment)
-    //             {
-    //                 jobList.Add(job);
-    //             }
-    //         }
-
-    //         //make int array
-    //         List<SDKJob> filteredJobs = new List<SDKJob>();
-    //         List<int> firebaseMapsId = new List<int>();
-    //         //use firestore document fetch dont check dependency
-    //         db = FirebaseFirestore.DefaultInstance;
-    //         db.Collection("map")
-    //             .WhereEqualTo("email", StaticData.userEmail)
-    //             .GetSnapshotAsync()
-    //             .ContinueWithOnMainThread(task =>
-    //             {
-    //                 QuerySnapshot snapshot = task.Result;
-    //                 foreach (DocumentSnapshot document in snapshot.Documents)
-    //                 {
-    //                     Dictionary<string, object> map = document.ToDictionary();
-    //                     Debug.Log(map["id"]);
-    //                     if (map["email"].ToString() == PlayerPrefs.GetString("email"))
-    //                     {
-    //                         firebaseMapsId.Add(int.Parse(map["id"].ToString()));
-    //                     }
-    //                     foreach (SDKJob job in jobList)
-    //                     {
-    //                         foreach (int firebaseMapId in firebaseMapsId)
-    //                         {
-    //                             if (job.id == firebaseMapId)
-    //                             {
-    //                                 filteredJobs.Add(job);
-    //                             }
-    //                         }
-    //                     }
-
-    //                     // this.visualizeManager.SetMapListData(filteredJobs.ToArray(), activeMaps);
-    //                 }
-    //             });
-
-    //         //only extract the job list data with matching ids with
-    //     };
-
-    //     await j.RunJobAsync();
+    //         Invoke("StartGPS", 0.1f);
+    //     }
+    //     else
+    //     {
+    //         Invoke("StopGPS", 0.1f);
+    //     }
     // }
+
+#if PLATFORM_ANDROID
+    private IEnumerator WaitForLocationPermission()
+    {
+        while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        {
+            
+            yield return null;
+        }
+
+        Debug.Log("Location permission OK");
+        StartCoroutine(EnableLocationServices());
+        yield return null;
+    }
+#endif
+
+    public void StartGPS()
+    {
+        if (Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        {
+            Debug.Log("Location permission OK");
+            StartCoroutine(EnableLocationServices());
+        }
+        else
+        {
+            Permission.RequestUserPermission(Permission.FineLocation);
+            StartCoroutine(WaitForLocationPermission());
+        }
+    }
+
+    public void StopGPS()
+    {
+        Input.location.Stop();
+        NotificationManager.Instance.GenerateNotification("Geolocation tracking stopped");
+    }
+
+    private IEnumerator EnableLocationServices()
+    {
+        // First, check if user has location service enabled
+        if (!Input.location.isEnabledByUser)
+        {
+            Debug.Log("Location services not enabled");
+            yield break;
+        }
+
+        // Start service before querying location
+        Input.location.Start(0.001f, 0.001f);
+
+        // Wait until service initializes
+        int maxWait = 20;
+        while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
+        {
+            yield return new WaitForSeconds(1);
+            maxWait--;
+        }
+
+        // Service didn't initialize in 20 seconds
+        if (maxWait < 1)
+        {
+            NotificationManager.Instance.GenerateNotification("Location services timed out");
+            Debug.Log("Timed out");
+            yield break;
+        }
+
+        // Connection has failed
+        if (Input.location.status == LocationServiceStatus.Failed)
+        {
+            Debug.Log("Unable to determine device location");
+            yield break;
+        }
+
+        if (Input.location.status == LocationServiceStatus.Running)
+        {
+            Debug.Log("tracking location");
+        }
+    }
+
+    void UpdateLocation()
+    {
+        if (gpsOn)
+        {
+            m_Latitude = Input.location.lastData.latitude;
+            m_Longitude = Input.location.lastData.longitude;
+            m_Altitude = Input.location.lastData.altitude;
+            m_Haccuracy = Input.location.lastData.horizontalAccuracy;
+            m_Vaccuracy = Input.location.lastData.verticalAccuracy;
+        }
+    }
 }
