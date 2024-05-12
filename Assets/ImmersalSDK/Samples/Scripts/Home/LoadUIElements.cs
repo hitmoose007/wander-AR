@@ -12,10 +12,6 @@ public class LoadUIElements : MonoBehaviour
     public GameObject cameraPanel;
     public Button headerTabButton;
 
-    private void Awake()
-    {
-        
-    }
     // Start is called before the first frame update
     void Start()
     {
