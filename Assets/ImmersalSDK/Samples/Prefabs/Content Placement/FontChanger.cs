@@ -83,7 +83,7 @@ public class FontAndButtonStyler : MonoBehaviour
     {
         if (textMeshPro != null)
         {
-            textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald-Bold SDF");
+            textMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald Bold SDF");
         }
 
         if (button != null)
@@ -91,7 +91,7 @@ public class FontAndButtonStyler : MonoBehaviour
             TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
             if (buttonText != null)
             {
-                buttonText.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald-Bold SDF");
+                buttonText.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/Oswald Bold SDF");
             }
         }
     }
