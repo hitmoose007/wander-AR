@@ -12,6 +12,7 @@ using Immersal.REST;
 using UnityEngine.Android;
 using UnityEngine.Events;
 using Immersal.Samples.Mapping;
+using Unity.XR.CoreUtils;
 #if PLATFORM_ANDROID
 #endif
 public class MapDownload : MonoBehaviour
@@ -300,80 +301,80 @@ public class MapDownload : MonoBehaviour
                         double minLongitude = m_Longitude - lngDelta;
 
                         // Check if the map's latitude and longitude are within the delta range
-                        // if (
-                        //     mapLatitude >= minLatitude
-                        //     && mapLatitude <= maxLatitude
-                        //     && mapLongitude >= minLongitude
-                        //     && mapLongitude <= maxLongitude
-                        // )
-                        //{
-                            // The map is within the specified range, proceed with further processing
-                            GameObject item = Instantiate(listItemPrefab, listItemHolder);
+                        if (
+                            mapLatitude >= minLatitude
+                            && mapLatitude <= maxLatitude
+                            && mapLongitude >= minLongitude
+                            && mapLongitude <= maxLongitude
+                        )
+                        {
+                        // The map is within the specified range, proceed with further processing
+                        GameObject item = Instantiate(listItemPrefab, listItemHolder);
 
-                            // Setting name of map item to id of Firestore document
-                            item.name = documentSnapshot.Id;
+                        // Setting name of map item to id of Firestore document
+                        item.name = documentSnapshot.Id;
 
-                            GameObject statusPanel = item.transform.GetChild(4).gameObject;
-                            statusPanel.SetActive(false);
+                        GameObject statusPanel = item.transform.GetChild(4).gameObject;
+                        statusPanel.SetActive(false);
 
-                            if (mapData.ContainsKey("name") == false)
+                        if (mapData.ContainsKey("name") == false)
+                        {
+                            Debug.LogWarning("Map name");
+                            continue;
+                        }
+                        item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = mapData[
+                            "name"
+                        ].ToString();
+
+                        item.GetComponent<MapSelect>().mapId = int.Parse(mapData["id"].ToString());
+
+                        if (mapData.ContainsKey("thumbnail_reference") == false)
+                        {
+                            Debug.LogWarning("Map thumbnail not found");
+                            continue;
+                        }
+
+                        string image_ref_path = mapData["thumbnail_reference"] as string;
+                        Texture2D texture = null;
+                        Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
+                        {
+                            texture = newTexture; // Assign the new texture to your original texture variable
+                            if (texture == null)
                             {
-                                Debug.LogWarning("Map name");
-                                continue;
+                                Debug.Log("Couldn't load texture from " + image_ref_path);
+                                return;
                             }
-                            item.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text =
-                                mapData["name"].ToString();
+                        };
 
-                            item.GetComponent<MapSelect>().mapId = int.Parse(
-                                mapData["id"].ToString()
-                            );
-
-                            if (mapData.ContainsKey("thumbnail_reference") == false)
+                        firebase_storage
+                            .GetReference(image_ref_path)
+                            .GetDownloadUrlAsync()
+                            .ContinueWithOnMainThread(task =>
                             {
-                                Debug.LogWarning("Map thumbnail not found");
-                                continue;
-                            }
-
-                            string image_ref_path = mapData["thumbnail_reference"] as string;
-                            Texture2D texture = null;
-                            Action<Texture2D> OnTextureLoaded = (Texture2D newTexture) =>
-                            {
-                                texture = newTexture; // Assign the new texture to your original texture variable
-                                if (texture == null)
+                                if (!task.IsFaulted && !task.IsCanceled)
                                 {
-                                    Debug.Log("Couldn't load texture from " + image_ref_path);
-                                    return;
+                                    string downloadUrl = task.Result.ToString();
+                                    // Proceed to download the image and convert it into a Texture2D
+                                    if (gameObject.activeInHierarchy)
+                                    {
+                                        StartCoroutine(
+                                            DownloadImage(downloadUrl, OnTextureLoaded, item)
+                                        );
+                                    }
                                 }
-                            };
-
-                            firebase_storage
-                                .GetReference(image_ref_path)
-                                .GetDownloadUrlAsync()
-                                .ContinueWithOnMainThread(task =>
+                                else
                                 {
-                                    if (!task.IsFaulted && !task.IsCanceled)
-                                    {
-                                        string downloadUrl = task.Result.ToString();
-                                        // Proceed to download the image and convert it into a Texture2D
-                                        if (gameObject.activeInHierarchy)
-                                        {
-                                            StartCoroutine(
-                                                DownloadImage(downloadUrl, OnTextureLoaded, item)
-                                            );
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Debug.LogError("Failed to get download URL.");
-                                    }
-                                });
+                                    Debug.LogError("Failed to get download URL.");
+                                }
+                            });
 
-                            //save job state to item
-                            item.GetComponent<MapSelect>().isMapPrivate = false;
-                            item.GetComponent<MapSelect>().jobState = SDKJobState.Done;
+                        //save job state to item
+                        item.GetComponent<MapSelect>().isMapPrivate = false;
+                        item.transform.GetChild(2).gameObject.SetActive(false);
+                        item.GetComponent<MapSelect>().jobState = SDKJobState.Done;
 
-                            Debug.Log("Successfully loaded Firestore Image document.");
-                        //}
+                        Debug.Log("Successfully loaded Firestore Image document.");
+                        }
                     }
                 }
             });
@@ -464,7 +465,6 @@ public class MapDownload : MonoBehaviour
     {
         while (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
         {
-            
             yield return null;
         }
 
