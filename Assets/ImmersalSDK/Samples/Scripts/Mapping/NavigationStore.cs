@@ -3,6 +3,19 @@ using Firebase.Firestore;
 using System.Collections.Generic;
 using Immersal.Samples.ContentPlacement;
 using Immersal.Samples.Navigation;
+using System.Collections;
+using System;
+using System.Threading.Tasks;
+using UnityEngine.Networking;
+using UnityEngine.UI;
+using System.IO;
+using TMPro;
+using Firebase;
+using Firebase.Storage;
+using Immersal.Samples.Util;
+using Firebase.Extensions;
+using System.Linq;
+using UnityEngine.Assertions.Must;
 
 
 public class NavigationTargetContent : MovableContent
@@ -10,7 +23,7 @@ public class NavigationTargetContent : MovableContent
     // name of the navigation target
     public override void StoreContent()
     {
-        string targetName = this.GetComponent<IsNavigationTarget>().targetName;
+        string targetName = StaticData.TargetName;
 
         // Serialize the position to a format suitable for Firestore
         Vector3 position = transform.position;

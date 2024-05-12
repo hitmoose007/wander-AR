@@ -11,6 +11,8 @@ namespace TargetName
         // Reference to the target GameObject with IsNavigationTarget script
         public GameObject targetObject;
 
+        public GameObject panel;
+
         // Reference to the TMP Input Field
         public TMP_InputField inputField;
 
@@ -19,40 +21,26 @@ namespace TargetName
         private void Start()
         {
             // Check if targetObject has IsNavigationTarget script attached
-            if (targetObject != null)
-            {
-                // Get the IsNavigationTarget component from targetObject
-                navigationTarget = targetObject.GetComponent<IsNavigationTarget>();
-                if (navigationTarget == null)
-                {
-                    Debug.LogError("The targetObject does not have the IsNavigationTarget script attached.");
-                }
-            }
-            else
-            {
-                Debug.LogError("Target object is not assigned.");
-            }
+
 
             // Check if TMP Input Field is assigned
-            if (inputField == null)
-            {
-                Debug.LogError("TMP Input Field is not assigned.");
-            }
-            else
-            {
-                // Add listener to the TMP Input Field's onValueChanged event
-                inputField.onValueChanged.AddListener(UpdateTargetName);
-            }
         }
 
         // Method to update the targetName when the TMP Input Field's value changes
-        private void UpdateTargetName(string newName)
+        public void UpdateTargetName()
         {
-            if (navigationTarget != null)
+            Debug.Log("hey babes");
+            if (inputField.text == "")
             {
-                // Update the targetName property of the IsNavigationTarget component
-                navigationTarget.targetName = newName;
+                inputField.text = "Target";
             }
+
+            Debug.Log("this is input field text: " + inputField.text);
+            // Update the targetName property of the IsNavigationTarget component
+            StaticData.TargetName = inputField.text;
+            panel.SetActive(false);
+
+            
         }
     }
 }

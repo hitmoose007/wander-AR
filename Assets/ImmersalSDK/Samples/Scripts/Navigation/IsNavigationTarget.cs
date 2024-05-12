@@ -18,7 +18,7 @@ namespace Immersal.Samples.Navigation
     {
         public NavigationTargets.NavigationCategory navigationCategory = NavigationTargets.NavigationCategory.Locations;
         // 
-        public string targetName;
+        public string targetName ;
         public Sprite icon;
         public Vector3 position
         {
@@ -37,6 +37,8 @@ namespace Immersal.Samples.Navigation
 
         private void Start()
         {
+            targetName = StaticData.TargetName;
+            Debug.Log("really deep in ur mom" + StaticData.TargetName);
             NavigationGraphManager.Instance?.AddTarget(this);
         }
 

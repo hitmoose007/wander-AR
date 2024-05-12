@@ -42,6 +42,7 @@ namespace Immersal.Samples.Navigation
                 foreach (GameObject go in entry.Value)
                 {
                     IsNavigationTarget isNavigationTarget = go.GetComponent<IsNavigationTarget>();
+                    
                     string targetName = isNavigationTarget.targetName;
                     Sprite icon = isNavigationTarget.icon;
 

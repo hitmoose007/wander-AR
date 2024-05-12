@@ -86,6 +86,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ClickHoldTime: 0.1
   m_contentId: 
+  popUpPanel: {fileID: 0}
+  popUpPanelHolder: {fileID: 0}
 --- !u!1 &6577423268796049082
 GameObject:
   m_ObjectHideFlags: 0

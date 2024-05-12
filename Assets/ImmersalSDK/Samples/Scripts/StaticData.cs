@@ -19,6 +19,8 @@ public class StaticData : MonoBehaviour
     public static int MapIdContentPlacement;
     public static bool ContentSceneIsMapPrivate = false;
 
+    public static string TargetName = "Target";
+
     public enum GameScene
     {
         ContentPlacementScene, // Scene for placing content
