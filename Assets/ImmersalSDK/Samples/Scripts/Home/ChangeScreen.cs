@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,8 +15,6 @@ public class ChangeScreen : MonoBehaviour
     {
         panelA.SetActive(false);
         panelB.SetActive(true);
-        // panelA.transform.localScale = new Vector3(0,0,0);
-        // panelB.transform.localScale = new Vector3(1,1,1);
     }
 
     public void BackButtonClicked()
@@ -23,9 +22,9 @@ public class ChangeScreen : MonoBehaviour
         Destroy(TakePhotos.instance.mapImage);
         
         errorText.text = "";
+
         panelA.SetActive(true);
         panelB.SetActive(false);
-        // panelA.transform.localScale = new Vector3(1,1,1);
-        // panelB.transform.localScale = new Vector3(0,0,0);
+        
     }
 }
