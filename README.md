@@ -15,9 +15,9 @@ Wander is a mobile application designed for indoor navigation through the use of
 - Environment Mapping: Surrounding area is scanned using a series of pictures taken by a phone's camera to build a 3D point cloud model.
 
 <p align="center">
+  <img src="Assets/ImmersalSDK/Samples/Images/mapping3.png" height="400" hspace="20" /> 
   <img src="Assets/ImmersalSDK/Samples/Images/mapping1.png" height="400" hspace="20"/>
   <img src="Assets/ImmersalSDK/Samples/Images/mapping2.png" height="400" hspace="20" /> 
-  <img src="Assets/ImmersalSDK/Samples/Images/mapping3.png" height="400" hspace="20" /> 
 </p>
 
 - Content Placement: Involves positioning virtual elements, like text and images, within the real environment through spatial anchoring and localization techniques. Includes text customization options and ability to upload images from the gallery.
