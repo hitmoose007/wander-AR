@@ -2,7 +2,7 @@
  
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Wander is a mobile application designed for indoor navigation  through the use of Augmented Reality, working on the principles of Computer Vision and Visual Positioning System (VPS), to provide on-screen directions for users in real-time.
+Wander is a mobile application designed for indoor navigation through the use of Augmented Reality, working on the principles of Computer Vision and Visual Positioning System (VPS), to provide on-screen directions for users, as well as content placement into the AR space in real-time.
 
 ## Features
 
